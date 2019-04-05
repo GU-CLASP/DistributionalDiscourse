@@ -52,12 +52,19 @@ Affiliation / Address line 3 \\
 \end{itemize}
 
 \section{Model}
-\begin{itemize}
-  \item We use a simple RNN to pass encode discourse context between utterances and predict dialogue act labels.
-  \item At each time step, the 
-\end{itemize}
+The proposed model has two components: an utterance encoder, and a sequence model that predicts the dialogue act tag.
+For the sequence model, we use a simple RNN.
+Conceptually the hidden state of this RNN represents the discourse context which, 
+together with the encoded utterance, is used to predict the discourse act tag.
 
 \section{Experiments}
+Our aim is to test the effectiveness of different utterance encoding schemas. 
+\begin{enumerate}
+  \item Average word embedding (word2vec)
+  \item CNN (with/without word2vec initalization)
+  \item BERT encoded sentences (with/without additional unsupervised pretraining)
+  \item Average BERT word embeddings
+\end{enumerate}
 
 \bibliography{abstract}{}
 \bibliographystyle{acl_natbib}
