@@ -34,21 +34,45 @@ Affiliation / Address line 3 \\
 \begin{itemize}
   \item \cite{austinHowThingsWords2009} -- Speech acts
   \item \cite{coreCodingDialogsDAMSL1997} -- DAMSL dialogue act scheme
-  \item \cite{devlinBERTPretrainingDeep2018} -- BERT
-    Main questions:
+  \item Recent transformer models, such as BERT, adopt the strategy of pre-training a neural network
+    on large corpora of unlabeled data with a language modeling task, 
+    and then fine-tuning an output layer on labeled data
+    They achive state-of-the-art results in various NLP token- and sentence-level tasks,
+    including (...) \cite{devlinBERTPretrainingDeep2018}.
+    In this work, we investigate whether these pre-trained models can be adapted for dialogue tasks.
+    In particular, we have two questions:
     1. Are pre-trained transformer encoding (BERT) helpful for representation in a dialogue task (speficially, dialogue act tagging)?
     2. Are additional dialogue specific features helpful (discourse markers, disfuency, laughter)?
 \end{itemize}
 
 \section{Related Work}
 \begin{itemize}
-  \item \cite{cerisaraEffectsUsingWord2vec2017}
-  \item \cite{kalchbrennerRecurrentConvolutionalNeural2013}
-  \item \cite{pragstVectorRepresentationUtterances2018}
-  \item \cite{sordoniNeuralNetworkApproach2015}
-  \item \cite{stolckeDialogueActModeling2000} - HMM dialogue act tagging
-  \item \cite{khanpourDialogueActClassification}
-  \item \cite{tranPreservingDistributionalInformation2017}
+  \item \cite{cerisaraEffectsUsingWord2vec2017} -- 
+    Use LSTM with and without word2vec initialization to encode discourse utterances and predict dialogue act tags.
+    No notion of discourse context.
+    Word2vec does not improve dialogue act recoginition, possibly becasue it does not capture lexical-semantic information relevant to dialogue.
+
+  \item \cite{khanpourDialogueActClassification} -- 
+    Uses RNN and stacked LSTM with word2vec embeddings 
+    to encode utterances.
+    No notion of discourse context.
+
+  \item \cite{pragstVectorRepresentationUtterances2018} --
+    Uses a skip thought approach to learn utterance representations by predicting context utterances.
+
+  \item \cite{kalchbrennerRecurrentConvolutionalNeural2013} --
+    Encode utterances (sentences) convolution-based composition of the sequence of words (HCNN). 
+    Use an RNN with agent-specific weights to produce utterance label predictions.
+    Also talk about the hidden layer of the RNN as representing discourse context. 
+
+  \item \cite{tranPreservingDistributionalInformation2017} --
+    Propogates a distribution over dialogue acts instead of greedily choosing a lable at each step, 
+    a kind of discourse context.
+
+  \item \cite{stolckeDialogueActModeling2000} - 
+    HMM dialogue act tagging
+
+  %\item \cite{sordoniNeuralNetworkApproach2015} - generate utterances taking into account previous countext
 \end{itemize}
 
 \section{Model}
