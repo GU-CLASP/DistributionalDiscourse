@@ -1,7 +1,9 @@
 \documentclass[11pt,a4paper]{article}
 
+\usepackage[margin=1in]{geometry}
 \usepackage{url}
 \usepackage{hyperref}
+\usepackage{natbib}
 
 \title{Neural dialogue act tagging with transformer pre-training (or something like that...)}
 
@@ -9,7 +11,7 @@
   First Author \\
   Affiliation / Address line 1 \\
   Affiliation / Address line 2 \\
-  Affiliation / Address line 3 \\
+Affiliation / Address line 3 \\
   {\tt email@domain} \\\and
   Second Author \\
   Affiliation / Address line 1 \\
@@ -37,7 +39,7 @@
 
 \section{Related Work}
 \begin{itemize}
-  \item \cite{cerisaraEffectsUsingWord2vec2018}
+  \item \cite{cerisaraEffectsUsingWord2vec2017}
   \item \cite{kalchbrennerRecurrentConvolutionalNeural2013}
   \item \cite{pragstVectorRepresentationUtterances2018}
   \item \cite{sordoniNeuralNetworkApproach2015}
@@ -45,10 +47,14 @@
 \end{itemize}
 
 \section{Model}
+\begin{itemize}
+  \item We use a simple RNN to pass encode discourse context between utterances and predict dialogue act labels.
+  \item At each time step, the 
+\end{itemize}
 
 \section{Experiments}
 
 \bibliography{abstract}{}
-\bibliographystyle{apalike}
+\bibliographystyle{acl_natbib}
 
 \end{document}
