@@ -60,11 +60,15 @@ together with the encoded utterance, is used to predict the discourse act tag.
 \section{Experiments}
 Our aim is to test the effectiveness of different utterance encoding schemas. 
 \begin{enumerate}
-  \item Average word embedding (word2vec)
-  \item CNN (with/without word2vec initalization)
+  \item Average word embedding (word2vec, FastText)
+  \item CNN (with/without word2vec initalization, with/without `freezing' the embeddings )
   \item BERT encoded sentences (with/without additional unsupervised pretraining)
-  \item Average BERT word embeddings
-\end{enumerate}
+  \item Average BERT word embeddings (?)
+  \end{enumerate}
+
+  Pre-trained models benefit from learning on large amounts of online data, however it might be the case that for dialogue act tagging additional information only present in natural dialogue data will be useful. Therefore, we evaluate the impact of disfluencies and non-verbal signals, such as laughters on the performance of our models. For the datasets where no annotation for disfluencies is available, this information can be predicted from recognised speech \citep{hough2017joint,shalyminov2018multi}.
+
+  PoS tags
 
 \bibliography{abstract}{}
 \bibliographystyle{acl_natbib}
