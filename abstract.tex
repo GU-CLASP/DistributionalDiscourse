@@ -1,23 +1,25 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,a4paper,headings=standardclasses]{scrartcl}
 
 \usepackage[margin=1in]{geometry}
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{natbib}
 
-\title{Neural dialogue act tagging with transformer pre-training (or something like that...)}
+\title{Neural dialogue act recognition with transformer pre-training} % or something like that...
 
 \author{
   First Author \\
-  Affiliation / Address line 1 \\
-  Affiliation / Address line 2 \\
-Affiliation / Address line 3 \\
-  {\tt email@domain} \\\and
+  Affiliation / Address \\
+  %Affiliation / Address line 1 \\
+  %Affiliation / Address line 2 \\
+%Affiliation / Address line 3 \\
+  {\texttt email@domain} \\\and
   Second Author \\
-  Affiliation / Address line 1 \\
-  Affiliation / Address line 2 \\
-  Affiliation / Address line 3 \\
-  {\tt email@domain} \\
+  Affiliation / Address \\
+  %Affiliation / Address line 1 \\
+  %Affiliation / Address line 2 \\
+  %Affiliation / Address line 3 \\
+  {\texttt email@domain} \\
 }
  
 
@@ -26,63 +28,71 @@ Affiliation / Address line 3 \\
 \begin{document}
 \maketitle
 
-\begin{abstract}
-  abstract
-\end{abstract}
+Dialogue acts represent the meaning of an utterance by the speech act it carries out \citep{austinHowThingsWords2009}.
+Dialogue act recognition (DAR) is the task of automatically labeling utterances with tags from a dialogue act schema such as DAMSL \citep{coreCodingDialogsDAMSL1997}.
 
-\section{Introduction}
-\begin{itemize}
-  \item \cite{austinHowThingsWords2009} -- Speech acts
-  \item \cite{coreCodingDialogsDAMSL1997} -- DAMSL dialogue act scheme
-  \item Recent transformer models, such as BERT, adopt the strategy of pre-training a neural network
-    on large corpora of unlabeled data with a language modeling task, 
-    and then fine-tuning an output layer on labeled data
-    They achive state-of-the-art results in various NLP token- and sentence-level tasks,
-    including (...) \cite{devlinBERTPretrainingDeep2018}.
-    In this work, we investigate whether these pre-trained models can be adapted for dialogue tasks.
-    In particular, we have two questions:
-    1. Are pre-trained transformer encoding (BERT) helpful for representation in a dialogue task (speficially, dialogue act tagging)?
-    2. Are additional dialogue specific features helpful (discourse markers, disfuency, laughter)?
-\end{itemize}
+Dialogue acts depend on their conversational context.
+For example, a speaker may use \textit{okay} to agree with their interlocutor, answer a yes-no question in the affirmative, 
+or simply acknowledge the previous utterance, depending on what has transpired in the conversation so far.
+Naturally, many strategies attempt to model discourse context in addition to considering the content of the utterance in question.
+\cite{stolckeDialogueActModeling2000}, for example, use a Hidden Markov Model to tag dialogue acts.
+The hidden state of neural sequence models can also be used to represent discourse context 
+\citep[e.g.][]{kalchbrennerRecurrentConvolutionalNeural2013,tranPreservingDistributionalInformation2017}.
 
-\section{Related Work}
-\begin{itemize}
-  \item \cite{cerisaraEffectsUsingWord2vec2017} -- 
-    Use LSTM with and without word2vec initialization to encode discourse utterances and predict dialogue act tags.
-    No notion of discourse context.
-    Word2vec does not improve dialogue act recoginition, possibly becasue it does not capture lexical-semantic information relevant to dialogue.
+%Another approach learns representations of utterances by attempting to predict their conversational context directly,
+%in much the same way that word2vec attempts to predict context words \citep{pragstVectorRepresentationUtterances2018}.
+%The authors find that these utterance representations cluster in a way that corresponds closely to dialogue act tags
+%that were unavailable to the model at training time.
+%conversely, this result raises the possibility that a hidden state learned in service of DAR may be used to represent 
+%a more general notion of discourse context.
 
-  \item \cite{khanpourDialogueActClassification} -- 
-    Uses RNN and stacked LSTM with word2vec embeddings 
-    to encode utterances.
-    No notion of discourse context.
+It is now standard practice in NLP to initialize semantic word representations
+with pre-trained distributional word vectors such as word2vec \citep{mikolov2013distributed}.
+More recently, multi-layer neural language models pre-trained on massive amounts unlabeled data
+have been used to provide contextually sensitive word vectors and sentence-level distributional representations.
+One such model, BERT, uses an attention-based transformer architecture to achieve state of the art results
+on a variety of NLP tasks \citep{devlinBERTPretrainingDeep2018}.
 
-  \item \cite{pragstVectorRepresentationUtterances2018} --
-    Uses a skip thought approach to learn utterance representations by predicting context utterances.
+However, given that BERT is pre-trained on book and encyclopedia data, 
+there is no guarantee that the representations it learns will improve performance on dialogue-specific tasks.
+Adding that uncertainty, we note that word2vec is not consistently beneficial for DAR \citep{cerisaraEffectsUsingWord2vec2017}.
+To assess BERT's for dialogue applications, we propose a series of DAR experiments that BERT to encode utterances, 
+which are fed to simple RNN to predict sequences of dialogue acts.
+In particular, we are interested in whether BERT can be fine-tuned to adequately represent
+dialogue-specific features such as discourse markers, disfluency, and laughter.
 
-  \item \cite{kalchbrennerRecurrentConvolutionalNeural2013} --
-    Encode utterances (sentences) convolution-based composition of the sequence of words (HCNN). 
-    Use an RNN with agent-specific weights to produce utterance label predictions.
-    Also talk about the hidden layer of the RNN as representing discourse context. 
+%%% RELATED WORK NOTES %%%
+%
+% cerisaraEffectsUsingWord2vec2017
+%     - Use LSTM with and without word2vec initialization to encode discourse utterances and predict dialogue act tags.
+%     - No notion of discourse context.
+%     - Word2vec does not improve dialogue act recoginition, possibly becasue it does not capture lexical-semantic information relevant to dialogue.
+% khanpourDialogueActClassification}
+%     - Uses RNN and stacked LSTM with word2vec embeddings to encode utterances.
+%     - No notion of discourse context.
+% pragstVectorRepresentationUtterances2018} --
+%     - Uses a skip thought approach to learn utterance representations by predicting context utterances.
+% kalchbrennerRecurrentConvolutionalNeural2013} --
+%     - Encode utterances (sentences) convolution-based composition of the sequence of words (HCNN). 
+%     - Use an RNN with agent-specific weights to produce utterance label predictions.
+%     - Also talk about the hidden layer of the RNN as representing discourse context. 
+% tranPreservingDistributionalInformation2017} --
+%     - Propogates a distribution over dialogue acts instead of greedily choosing a lable at each step, a kind of discourse context.
+% stolckeDialogueActModeling2000
+%     - classic HMM DAR 
+% chen2018dialogue
+%     - SOTA dialogue act recoginition, uses 
+% sordoniNeuralNetworkApproach2015} 
+%     - generate utterances taking into account previous countext
 
-  \item \cite{tranPreservingDistributionalInformation2017} --
-    Propogates a distribution over dialogue acts instead of greedily choosing a lable at each step, 
-    a kind of discourse context.
-
-  \item \cite{stolckeDialogueActModeling2000} - 
-    HMM dialogue act tagging
-
-  %\item \cite{sordoniNeuralNetworkApproach2015} - generate utterances taking into account previous countext
-\end{itemize}
-
-\section{Model}
+\paragraph{Model.}
 The proposed model has two components: an utterance encoder, and a sequence model that predicts the dialogue act tag.
 For the sequence model, we use a simple RNN.
 Conceptually the hidden state of this RNN represents the discourse context which, 
 together with the encoded utterance, is used to predict the discourse act tag.
 
-\section{Experiments}
-Our aim is to test the effectiveness of different utterance encoding schemas. 
+\paragraph{Experiments.}
+Our aim is to test the effectiveness of different utterance encoding strategies. 
 \begin{enumerate}
   \item Average word embedding (word2vec, FastText)
   \item CNN (with/without word2vec initalization, with/without `freezing' the embeddings )
@@ -90,7 +100,7 @@ Our aim is to test the effectiveness of different utterance encoding schemas.
   \item Average BERT word embeddings (?)
   \end{enumerate}
 
-  Pre-trained models benefit from learning on large amounts of online data, however it might be the case that for dialogue act tagging additional information only present in natural dialogue data will be useful. Therefore, we evaluate the impact of disfluencies and non-verbal signals, such as laughters on the performance of our models. \textbf{(How?)} For the datasets where no annotation for disfluencies is available, this information can be predicted from recognised speech \citep{hough2017joint,shalyminov2018multi}.
+  Pre-trained models benefit from learning on large amounts of online data, however it might be the case that for DAR, additional information only present in natural dialogue data will be useful. Therefore, we evaluate the impact of disfluencies and non-verbal signals, such as laughters on the performance of our models. \textbf{(How?)} For the datasets where no annotation for disfluencies is available, this information can be predicted from recognised speech \citep{hough2017joint,shalyminov2018multi}.
   
   Furthermore PoS tags
 
