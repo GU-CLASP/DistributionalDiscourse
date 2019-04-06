@@ -1,9 +1,11 @@
-\documentclass[11pt,a4paper,headings=standardclasses]{scrartcl}
+\documentclass[11pt,a4paper,headings=standardclasses]{article}
 
 \usepackage[margin=1in]{geometry}
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{natbib}
+\usepackage{tikz}
+\usepackage[bf]{caption}
 
 \title{Neural dialogue act recognition with transformer pre-training} % or something like that...
 
@@ -54,10 +56,11 @@ One such model, BERT, uses an attention-based transformer architecture to achiev
 on a variety of NLP tasks \citep{devlinBERTPretrainingDeep2018}.
 
 However, given that BERT is pre-trained on book and encyclopedia data, 
-there is no guarantee that the representations it learns will improve performance on dialogue-specific tasks.
-Adding that uncertainty, we note that word2vec is not consistently beneficial for DAR \citep{cerisaraEffectsUsingWord2vec2017}.
-To assess BERT's for dialogue applications, we propose a series of DAR experiments that BERT to encode utterances, 
-which are fed to simple RNN to predict sequences of dialogue acts.
+there is no guarantee it will improve performance on dialogue-specific tasks.
+Adding to that uncertainty, we note that word2vec is not consistently beneficial for DAR \citep{cerisaraEffectsUsingWord2vec2017}.
+To assess BERT's potential for dialogue applications, we propose a series of DAR experiments 
+with various utterance encoders, including BERT.
+Utterance representations are then fed to a simple RNN to predict sequences of dialogue acts.
 In particular, we are interested in whether BERT can be fine-tuned to adequately represent
 dialogue-specific features such as discourse markers, disfluency, and laughter.
 
@@ -90,6 +93,8 @@ The proposed model has two components: an utterance encoder, and a sequence mode
 For the sequence model, we use a simple RNN.
 Conceptually the hidden state of this RNN represents the discourse context which, 
 together with the encoded utterance, is used to predict the discourse act tag.
+
+\input{architecture-diagram.tex}
 
 \paragraph{Experiments.}
 Our aim is to test the effectiveness of different utterance encoding strategies. 
