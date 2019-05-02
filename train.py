@@ -1,57 +1,93 @@
 import torch
 import torch.nn as nn
-from model import DARRNN
+import model
+
 import json 
-import pprint 
-from collections import Counter
+import itertools
+import argparse
 
-pp = pprint.PrettyPrinter(indent=4)
+parser = argparse.ArgumentParser()
+parser.add_argument("encoder", choices=['wordvec-avg'], 
+        help="Which encoder model to use")
+parser.add_argument('--epochs', default=10
+        help='Number of times to iterate through the training data.')
+parser.add_argument('--batch-size', default=10
+        help='Training batch size (number of dialogues).')
+parser.add_argument('--wordvec-file', type=str, default=None, 
+        help='Path of a Glove format word vector file.')
+parser.add_argument('--vocab-file', type=str, default='data/vocab.json', 
+        help='Path of the vocabulary to use (list of words).')
+parser.add_argument('--train-encoder', action='store_true', default=False
+        help='Train the utterance encoder. (Otherwise only the DAG RNN is trained.)')
+parser.add_argument('--utt-dims', default=100
+        help='Set the number of dimensions of the utterance embedding.'
+              'For wordvec-* models, this is equal to the word vector size.')
+args = parser.parse_args()
 
-vocab_limit = 5000
-glove_dim = 50
-nlayers = 1
-nhidden = 200
+def repackage_hidden(h):
+    """Wraps hidden states in new Tensors, to detach them from their history."""
+    if isinstance(h, torch.Tensor):
+        return h.detach()
+    else:
+        return tuple(repackage_hidden(v) for v in h)
 
-# Initialize word embedding from glove vectors
-# TODO: Use google news word2vec also/instead?
-# TODO: Add disfulency markers ('{f', '{c', etc) and '<laughter>' to the vocab. 
-#       Also: consider resetting embedding weights for tokens that are in the 
-#       vocab but have a specific annotation meaning ('[', /', --', '+', ...)
-word_vectors = [[0] * glove_dim ]
-idx2word = ['<UNK>'] 
-with open('data/glove.6B/glove.6B.{}d.txt'.format(glove_dim)) as f:
-    for i, line in enumerate(f.readlines()):
-        line = line.split()
-        idx2word.append(line[0])
-        word_vectors.append([float(w) for w in line[1:]])
-        if vocab_limit and i == vocab_limit:
-            break
-word2idx = {w: i for i,w in enumerate(idx2word)}
-word_vectors = torch.FloatTensor(word_vectors)
-embedding = nn.Embedding.from_pretrained(word_vectors)
+if __name__ == '__main__':
 
-# initialize the DAR RNN 
-model = DARRNN(embedding, glove_dim, 100, nhidden, nlayers, dropout=0)
+    with open(args.vocab_file) as f:
+        vocab = json.load(f) # list of tokens 
+    word2id = {token: i for i, token in enumerate(vocab)}
 
-# load the training data
-with open('data/swda_train.json') as f:
-    train_data = json.load(f)
-train_tags = [dialogue['tags'] for dialogue in train_data]
-train_utts = [dialogue['utts'] for dialogue in train_data]
+    dar_model = model.DARRNN(emsize, len(label_vocab), 200, 1, dropout=0)
+    if args.encoder == 'wordvec-avg': 
+        with open('data/glove.6B/glove.6B.{}d.txt'.format(args.utt_dims)) as f:
+            wordvectors = {line[0]: list(map(float, line[1:])) for line in f.readlines()}
+        wordvectors = [wordvectors[vocab[w]] for w in vocab]  # order the word vectors according to the vocab
+        utt_encoder = model.Word2VecAvg(torch.FloatTensor(wordvectors))
+    else:
+        raise ValueError("Unknown encoder model: {}".format(args.encoder))
 
-# TODO: Do we need additional pre-processing (clustering?) for tags?
-#       see https://web.stanford.edu/~jurafsky/ws97/manual.august1.html
-tag_counter = Counter([t for ts in train_tags for t in ts])
-idx2tag = [t for (t, count) in tag_counter.most_common()]
-tag2idx = {t: i for i,t in enumerate(idx2tag)}
+    if args.train_encoder:
+        train_params = itertools.chain(dar_model.parameters(), utt_encoder.parameters())
+    else:
+        train_params = dar_model.parameters(), utt_encoder.parameters()
+    optimizer = optim.Adam(train_params)
+    criterion = nn.CrossEntropyLoss()
 
-def utt2ids(utt):
-    return [word2idx[w] if w in word2idx else word2idx['<UNK>'] for w in utt ]
+    dar_model.train()
+    if args.train_encoder:
+        utt_encoder.train()
+    hidden = dar_model.init_hidden(args.batch_size)
 
-model.train()
-for utts, tags in zip(train_utts, train_tags):
-    utts = [torch.LongTensor(utt2ids(utt)) for utt in utts]
-    print(utts)
-    break
+    for epoch in range(args.epochs):
+	total_loss = 0
+	batch_accuracy = []
+	for x, y in batch_gen(zip(data, labels), args.batch_size):
+
+	    # zero out the gradients & detach history from the previous dialogue
+	    dar_model.zero_grad() 
+	    utt_encoder.zero_grad()
+	    hidden = dar_model.init_hidden(args.batch_size) 
+
+	    # Encode each utterance of each dialogue in the batch TODO: batchify this step
+	    x = [torch.stack([utt_encoder(torch.LongTensor(x_ij)) for x_ij in x_i]) for x_i in x]
+
+	    # Pad dialogues and DA labels to the max length (in utterances) for the batch 
+	    x = nn.utils.rnn.pad_sequence(x) 
+	    y = nn.utils.rnn.pad_sequence([torch.LongTensor(yi) for yi in y])
+	    
+            # Make DA predictions 
+	    y_hat, hidden = dar_model(x, hidden)
+
+            # Compute loss, backpropagate, and update model weights
+	    loss = criterion(y_hat.view(-1,len(label_vocab)), y.view(-1))
+	    loss.backward()
+	    optimizer.step()
+	    
+	    total_loss += loss.item()
+	    batch_accuracy.append((y_hat.max(dim=2)[1] == y).sum().item() / y.numel())
+	print("Epoch {} | Total loss: {} | Mean batch accuracy: {}" .format(epoch, total_loss, sum(batch_accuracy) / len(batch_accuracy)))
+
+
+
 
 
