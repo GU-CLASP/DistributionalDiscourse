@@ -9,3 +9,7 @@
 *.fls
 *.log
 *.tex.bak
+__MACOSX
+__pycache__
+.ipynb_checkpoints/
+data/*
