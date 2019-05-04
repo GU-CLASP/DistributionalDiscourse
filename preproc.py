@@ -5,6 +5,7 @@ def tokenize(s,disfluencies=True,laughters=True):
     s = re.sub(r'([,.?!])', r' \1', s) 
     s = re.sub(r'(n\'t)', r' \1',s)
     s = re.sub(r'(\'re|\'s|\'m|\'d)', r' \1',s)
+    s = re.sub(r'\s(?=[\w\s]+>>)', '_',s)
     if not laughters:
         s = re.sub(r'<laughter>', '', s)
     if not disfluencies:

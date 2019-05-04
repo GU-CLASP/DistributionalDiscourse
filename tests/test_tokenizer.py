@@ -11,5 +11,7 @@ class TestTokenizer(unittest.TestCase):
     def test_laughter(self):
         self.assertEqual(tokenize("{c but } again i'd like to see something on the other <laughter> end back into education. but not in the education we have today.  /", laughters=False), "{c but } again i 'd like to see something on the other end back into education . but not in the education we have today . /")
     def test_disfl(self):
-        self.assertEqual(tokenize("{f huh? } /", disfluencies=False),  "huh ? /")        
+        self.assertEqual(tokenize("{f huh? } /", disfluencies=False),  "huh ? /")
+    def test_other(self):
+        self.assertEqual(tokenize("<<talking to someone off the phone>> what do you get for the tickets, if you bring stuff? /"), "<<talking_to_someone_off_the_phone>> what do you get for the tickets , if you bring stuff ? /")
         
