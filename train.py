@@ -33,6 +33,8 @@ parser.set_defaults(use_glove=True)
 parser.add_argument('--utt-dims', default=100, type=int,
         help='Set the number of dimensions of the utterance embedding.'
         'For wordvec-* models, this is equal to the word vector size.')
+parser.add_argument('--cuda', action='store_true',
+        help='use CUDA')
 
 
 def gen_batches(data, batch_size):
@@ -79,8 +81,8 @@ def train(utt_encoder_model, dar_model, train_data, n_epochs, batch_size, n_labe
             x = [torch.stack([utt_encoder_model(torch.LongTensor(x_ij)) for x_ij in x_i]) for x_i in x]
 
             # Pad dialogues and DA labels to the max length (in utterances) for the batch 
-            x = nn.utils.rnn.pad_sequence(x) 
-            y = nn.utils.rnn.pad_sequence([torch.LongTensor(yi) for yi in y])
+            x = nn.utils.rnn.pad_sequence(x).to(device)
+            y = nn.utils.rnn.pad_sequence([torch.LongTensor(yi) for yi in y]).to(device)
 
             # Make DA predictions 
             y_hat, hidden = dar_model(x, hidden)
@@ -107,6 +109,9 @@ def train(utt_encoder_model, dar_model, train_data, n_epochs, batch_size, n_labe
 if __name__ == '__main__':
     args = parser.parse_args()
 
+    device = torch.device('cuda' if args.cuda and torch.cuda.is_available() else 'cpu')
+    print("Training on {}.".format(device))
+
     word_vocab, word2id = data.load_vocab(args.vocab_file)
     tag_vocab, tag2id = data.load_vocab(args.tag_vocab_file)
 
@@ -125,7 +130,8 @@ if __name__ == '__main__':
     else:
         raise ValueError("Unknown encoder model: {}".format(args.encoder))
 
-    # TODO load training data
+    dar_model.to(device)
+    utt_encoder_model.to(device)
     train(utt_encoder_model, dar_model, list(zip(train_utts, train_tags)), 
         args.epochs, args.batch_size, len(tag_vocab), log_interval=args.log_interval, 
         train_encoder=args.train_encoder)
