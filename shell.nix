@@ -17,6 +17,7 @@ let py = (python36.buildEnv.override {
     [nltk
      pytorch
      notebook
+     tqdm
      # you can add other packages here. (comment out as necessary)
      # scikitimage
      # gensim

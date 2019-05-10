@@ -30,7 +30,7 @@ parser.add_argument('--train-encoder', action='store_true', default=False,
 parser.add_argument('--glove', dest='use_glove', action='store_true')
 parser.add_argument('--no-glove', dest='use_glove', action='store_false')
 parser.set_defaults(use_glove=True)
-parser.add_argument('--utt-dims', default=100,
+parser.add_argument('--utt-dims', default=100, type=int,
         help='Set the number of dimensions of the utterance embedding.'
         'For wordvec-* models, this is equal to the word vector size.')
 

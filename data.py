@@ -31,8 +31,10 @@ def load_vocab(vocab_file):
     return (id2token, token2id)
 
 def load_glove(glove_dim, vocab):
-    with open('data/glove.6B/glove.6B.{}d.txt'.format(glove_dim)) as f:
-        wordvectors = {line[0]: list(map(float, line[1:])) for line in map(str.split, f.readlines())}
+    with open('data/glove.6B/glove.6B.{}d.txt'.format(glove_dim), 'rb') as f:
+        wordvectors = {}
+        for line in tqdm(f.readlines(), desc="loading glove {}d".format(glove_dim)):
+            wordvectors[line[0]] = list(map(float, line[1:]))
     # order the word vectors according to the vocab
     wordvectors = [wordvectors[w] if w in wordvectors else [0] * glove_dim for w in vocab]
     return wordvectors
@@ -117,7 +119,7 @@ def download_glove():
     if not os.path.isfile(glove_file): 
         download_url(glove_url, 'data/glove.6B.zip')
     with  zipfile.ZipFile(glove_file, 'r') as zip_ref:
-        zip_ref.extractall('data')
+        zip_ref.extractall('data/glove.6B')
 
 if __name__ == '__main__':
     args = parser.parse_args()
