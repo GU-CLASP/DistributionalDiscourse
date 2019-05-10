@@ -5,9 +5,11 @@ import json
 import zipfile
 import random
 import argparse
+import urllib.request
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument("step", choices=['prep-swda'], help="The preprocessing step")
+parser.add_argument("command", choices=['prep-swda', 'download-glove'], help="What to process")
 
 SWDA_CORPUS_DIR = "data/swda"
 SWDA_SPLITS = "data/swda_{}.json"
@@ -35,6 +37,16 @@ def load_glove(glove_dim, vocab):
     wordvectors = [wordvectors[w] if w in wordvectors else [0] * glove_dim for w in vocab]
     return wordvectors
 
+class DownloadProgressBar(tqdm):
+    def update_to(self, b=1, bsize=1, tsize=None):
+        if tsize is not None:
+            self.total = tsize
+        self.update(b * bsize - self.n)
+
+def download_url(url, output_path):
+    with DownloadProgressBar(unit='B', unit_scale=True,
+                             miniters=1, desc=url.split('/')[-1]) as t:
+        urllib.request.urlretrieve(url, filename=output_path, reporthook=t.update_to)
 
 def prep_swda():
     """
@@ -87,19 +99,31 @@ def prep_swda():
         return {'id': transcript.conversation_no, 'utts': utts, 'utts_ints': utts_ints, 
             'tags': tags, 'tags_ints': tags_ints}
 
-    splits = {split: [extract_example(corpus[ex_id]) for ex_id in splits[split]] for split in splits}
     for split in splits:
+        data = []
+        for ex_id in tqdm(splits[split], desc=split):
+            data.append(extract_example(corpus[ex_id]))
         with open(SWDA_SPLITS.format(split), 'w') as f:
-            json.dump(splits[split], f)
+            json.dump(data, f)
     with open(SWDA_SPLITS.format("vocab"), 'w') as f:
         json.dump(vocab, f)
     with open(SWDA_SPLITS.format("tag_vocab"), 'w') as f:
         json.dump(tag_vocab, f)
 
 
+def download_glove():
+    glove_file = 'data/glove.6B.zip'
+    glove_url = 'http://nlp.stanford.edu/data/glove.6B.zip'
+    if not os.path.isfile(glove_file): 
+        download_url(glove_url, 'data/glove.6B.zip')
+    with  zipfile.ZipFile(glove_file, 'r') as zip_ref:
+        zip_ref.extractall('data')
+
 if __name__ == '__main__':
     args = parser.parse_args()
-    if args.step == 'prep-swda':
+    if args.command == 'prep-swda':
         prep_swda()
+    if args.command == 'download-glove':
+        download_glove()
 
         
