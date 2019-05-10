@@ -16,7 +16,7 @@ import torch.nn as nn
 class DARRNN(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
 
-    def __init__(self, utt_emsize, nlabels, nhid, nlayers, dropout=0.5):
+    def __init__(self, utt_dims, nlabels, nhid, nlayers, dropout=0.5):
         """
         ntokens - word vocabulary size # this should go in the encoder eventually
         nlabels - number of dialogue act tags 
@@ -27,9 +27,8 @@ class DARRNN(nn.Module):
         super(DARRNN, self).__init__()
         self.drop = nn.Dropout(dropout)
 
-        self.rnn = nn.RNN(utt_emsize, nhid, nlayers, nonlinearity='relu', dropout=dropout) # TODO: try tanh too?
+        self.rnn = nn.RNN(utt_dims, nhid, nlayers, nonlinearity='relu', dropout=dropout) # TODO: try tanh too?
         self.decoder = nn.Linear(nhid, nlabels)
-        print(nlabels)
 
         self.init_weights()
 
@@ -56,9 +55,19 @@ class WordVecAvg(nn.Module):
     """ Baseline word vector encoder. Simply averages an utterance's word vectors
     """
 
-    def __init__(self, wordvec_weights):
+    def __init__(self, embedding):
         super(WordVecAvg, self).__init__()
-        self.embedding = nn.Embedding.from_pretrained(word_vectors)
+        self.embedding = embedding 
+
+    @classmethod
+    def from_pretrained(cls, weights):
+        embedding = nn.Embedding.from_pretrained(weights)
+        return cls(embedding)
+
+    @classmethod
+    def random_init(cls, vocab_size, dim):
+        embedding = nn.Embedding(vocab_size, dim) 
+        return cls(embedding)
 
     def forward(self, x):
         return self.embedding(x).mean(dim=0)

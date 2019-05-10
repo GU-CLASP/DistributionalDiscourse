@@ -8,3 +8,5 @@
 - loading word vectors 
   - possibly use: https://torchtext.readthedocs.io/en/latest/vocab.html#glove
   - reset embedding weights for tokens that are in the word vector vocab but have a specific annotation meaning ('[', /', --', '+', etc.)
+- model training
+  - experiment with optimizer hyperparameters?
