@@ -3,24 +3,33 @@ import torch.nn as nn
 import torch.optim as optim
 
 import model
+import data
 
-import json 
 import itertools
+import json 
 import argparse
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("encoder", choices=['wordvec-avg'], 
         help="Which encoder model to use")
 parser.add_argument('--epochs', default=10,
         help='Number of times to iterate through the training data.')
-parser.add_argument('--batch-size', default=10,
+parser.add_argument('--batch-size', type=int, default=10,
         help='Training batch size (number of dialogues).')
-parser.add_argument('--wordvec-file', type=str, default=None, 
-        help='Path of a Glove format word vector file.')
-parser.add_argument('--vocab-file', type=str, default='data/vocab.json', 
-        help='Path of the vocabulary to use (list of words).')
+parser.add_argument('--log-interval', type=int, default=200, metavar='N',
+        help='Training report interval (batches)')
+parser.add_argument('--vocab-file', type=str, default='data/swda_vocab.json', 
+        help='Path of the vocabulary to use (id -> word dict).')
+parser.add_argument('--tag-vocab-file', type=str, default='data/swda_tag_vocab.json', 
+        help='Path of the tag vocabulary to use (id -> tag dict).')
+parser.add_argument('--train-file', type=str, default='data/swda_train.json', 
+        help='Path of the file containing training data.')
 parser.add_argument('--train-encoder', action='store_true', default=False,
         help='Train the utterance encoder. (Otherwise only the DAG RNN is trained.)')
+parser.add_argument('--glove', dest='use_glove', action='store_true')
+parser.add_argument('--no-glove', dest='use_glove', action='store_false')
+parser.set_defaults(use_glove=True)
 parser.add_argument('--utt-dims', default=100,
         help='Set the number of dimensions of the utterance embedding.'
         'For wordvec-* models, this is equal to the word vector size.')
@@ -29,6 +38,7 @@ parser.add_argument('--utt-dims', default=100,
 def gen_batches(data, batch_size):
     x_batch, y_batch, i = [], [], 0
     for x, y in data:
+        assert len(x) == len(y)
         x_batch.append(x)
         y_batch.append(y)
         i += 1
@@ -38,27 +48,32 @@ def gen_batches(data, batch_size):
     if x_batch:
         yield x_batch, y_batch # final batch (possibly smaller than batch_size)
 
-def train(utt_encoder_model, dar_model, train_data, n_epochs, batch_size, n_labels, train_encoder=True):
+def train(utt_encoder_model, dar_model, train_data, n_epochs, batch_size, n_labels, 
+        log_interval=200, train_encoder=True):
 
     if train_encoder:
         utt_encoder_model.train()
         train_params = itertools.chain(dar_model.parameters(), utt_encoder_model.parameters())
     else:
-        train_params = dar_model.parameters(), utt_encoder_model.parameters()
+        train_params = dar_model.parameters()
     dar_model.train()
     optimizer = optim.Adam(train_params) 
     criterion = nn.CrossEntropyLoss()
 
     hidden = dar_model.init_hidden(batch_size)
+    time_start = time.time()
+    time_since_last_log = time_start
+    prev_log_loss = 0
     for epoch in range(n_epochs):
         total_loss = 0
         batch_accuracy = []
-        for x, y in gen_batches(train_data, batch_size):
+        n_total_batches = int(len(train_data) / batch_size)
+        for batch, (x, y) in enumerate(gen_batches(train_data, batch_size)):
 
             # zero out the gradients & detach history from the previous dialogue
             dar_model.zero_grad() 
             utt_encoder_model.zero_grad()
-            hidden = dar_model.init_hidden(batch_size) 
+            hidden = dar_model.init_hidden(len(x)) # usually == batch_size except for possibly last batch.
 
             # Encode each utterance of each dialogue in the batch TODO: batchify this step
             x = [torch.stack([utt_encoder_model(torch.LongTensor(x_ij)) for x_ij in x_i]) for x_i in x]
@@ -77,6 +92,14 @@ def train(utt_encoder_model, dar_model, train_data, n_epochs, batch_size, n_labe
             total_loss += loss.item()
             batch_accuracy.append((y_hat.max(dim=2)[1] == y).sum().item() / y.numel())
 
+            if batch % log_interval == 0 and batch > 0:
+                cur_time = time.time()
+                elapsed = cur_time - time_since_last_log
+                print("Epoch {} | {:4d}/{:4d} batches | {:5.2f} ms/batch | Current loss: {:5.2f}" .format(
+                    epoch, batch, n_total_batches, elapsed * 1000, total_loss - prev_log_loss))
+                time_since_last_log = cur_time 
+                prev_log_loss = total_loss
+
         print("Epoch {} | Total loss: {} | Mean batch accuracy: {}" .format(
             epoch, total_loss, sum(batch_accuracy) / len(batch_accuracy)))
 
@@ -84,20 +107,26 @@ def train(utt_encoder_model, dar_model, train_data, n_epochs, batch_size, n_labe
 if __name__ == '__main__':
     args = parser.parse_args()
 
-    with open(args.vocab_file) as f:
-        vocab_word2id = json.load(f) # list of tokens 
-    vocab_id2word = [
+    word_vocab, word2id = data.load_vocab(args.vocab_file)
+    tag_vocab, tag2id = data.load_vocab(args.tag_vocab_file)
 
-    dar_model = model.DARRNN(args.utt_dims, len(label_vocab), 200, 1, dropout=0)
+    with open(args.train_file) as f:
+        train_data = json.load(f)
+    train_tags = [item['tags_ints'] for item in train_data]
+    train_utts = [item['utts_ints'] for item in train_data] 
+
+    dar_model = model.DARRNN(args.utt_dims, len(tag_vocab), 200, 1, dropout=0)
     if args.encoder == 'wordvec-avg': 
-        with open('data/glove.6B/glove.6B.{}d.txt'.format(args.utt_dims)) as f:
-            wordvectors = {line[0]: list(map(float, line[1:])) for line in f.readlines()}
-        wordvectors = [wordvectors[vocab[w]] for w in vocab]  # order the word vectors according to the vocab
-        utt_encoder_model = model.Word2VecAvg.from_pretrained(torch.FloatTensor(wordvectors))
+        if args.use_glove:
+            wordvectors = data.load_glove(args.utt_dims, word_vocab)
+            utt_encoder_model = model.WordVecAvg.from_pretrained(torch.FloatTensor(wordvectors))
+        else:
+            utt_encoder_model = model.WordVecAvg.random_init(len(word_vocab), args.utt_dims)
     else:
         raise ValueError("Unknown encoder model: {}".format(args.encoder))
 
     # TODO load training data
-    train(utt_encoder_model, dar_model, train_data, 
-        args.epochs, args.batch_size, len(label_vocab), train_encoder=args.train_encoder)
+    train(utt_encoder_model, dar_model, list(zip(train_utts, train_tags)), 
+        args.epochs, args.batch_size, len(tag_vocab), log_interval=args.log_interval, 
+        train_encoder=args.train_encoder)
 
