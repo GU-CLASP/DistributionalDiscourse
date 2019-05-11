@@ -2,6 +2,7 @@ import unittest
 import random
 from train import train
 import model
+import torch.nn as nn
 
 # synthetic training data
 random.seed(777)
@@ -22,7 +23,8 @@ class TestTraining(unittest.TestCase):
         train_data = list(zip(data, labels))
         epochs = 5
         batch_size = 10
-        utt_encoder_model = model.WordVecAvg.random_init(vocab_size, utt_dims)
+        embedding = nn.Embedding(vocab_size, utt_dims)
+        utt_encoder_model = model.WordVecAvg(embedding)
         dar_model = model.DARRNN(utt_dims, n_labels, n_hidden, 1, dropout=0)
         print("Testing Word2VecAvg on random inputs.")
         train(utt_encoder_model, dar_model, train_data, 

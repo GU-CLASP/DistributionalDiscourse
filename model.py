@@ -16,24 +16,24 @@ import torch.nn as nn
 class DARRNN(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
 
-    def __init__(self, utt_dims, nlabels, nhid, nlayers, dropout=0.5):
+    def __init__(self, utt_size, n_tags, hidden_size, n_layers, dropout=0.5):
         """
-        ntokens - word vocabulary size # this should go in the encoder eventually
-        nlabels - number of dialogue act tags 
-        nembed  - size of the utterance embedding TODO: decouple from word embedding size
-        nhid    - size of the hidden layer
-        nlayers - number of hidden RNN layers
+        utt_size    - size of the encoded utterance 
+        hidden_size - size of the hidden layer 
+        n_tags      - number of dialogue act tags 
+        n_layers    - number of hidden RNN layers
         """
         super(DARRNN, self).__init__()
         self.drop = nn.Dropout(dropout)
 
-        self.rnn = nn.RNN(utt_dims, nhid, nlayers, nonlinearity='relu', dropout=dropout) # TODO: try tanh too?
-        self.decoder = nn.Linear(nhid, nlabels)
+        self.rnn = nn.RNN(utt_size, hidden_size, n_layers, 
+                nonlinearity='relu', dropout=dropout) # TODO: try tanh too?
+        self.decoder = nn.Linear(hidden_size, n_tags)
 
         self.init_weights()
 
-        self.nhid = nhid
-        self.nlayers = nlayers
+        self.hidden_size = hidden_size
+        self.n_layers = n_layers
 
     def init_weights(self):
         initrange = 0.1
@@ -48,7 +48,7 @@ class DARRNN(nn.Module):
 
     def init_hidden(self, batch_size):
         weight = next(self.parameters())
-        return weight.new_zeros(self.nlayers, batch_size, self.nhid)
+        return weight.new_zeros(self.n_layers, batch_size, self.hidden_size)
 
 
 class WordVecAvg(nn.Module):
@@ -58,16 +58,6 @@ class WordVecAvg(nn.Module):
     def __init__(self, embedding):
         super(WordVecAvg, self).__init__()
         self.embedding = embedding 
-
-    @classmethod
-    def from_pretrained(cls, weights):
-        embedding = nn.Embedding.from_pretrained(weights)
-        return cls(embedding)
-
-    @classmethod
-    def random_init(cls, vocab_size, dim):
-        embedding = nn.Embedding(vocab_size, dim) 
-        return cls(embedding)
 
     def forward(self, x):
         return self.embedding(x).mean(dim=0)

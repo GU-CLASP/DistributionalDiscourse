@@ -32,12 +32,12 @@ def load_vocab(vocab_file):
 
 def load_glove(glove_dim, vocab):
     with open('data/glove.6B/glove.6B.{}d.txt'.format(glove_dim), 'rb') as f:
-        wordvectors = {}
+        word_vectors = {}
         for line in tqdm(f.readlines(), desc="loading glove {}d".format(glove_dim)):
-            wordvectors[line[0]] = list(map(float, line[1:]))
+            word_vectors[line[0]] = list(map(float, line[1:]))
     # order the word vectors according to the vocab
-    wordvectors = [wordvectors[w] if w in wordvectors else [0] * glove_dim for w in vocab]
-    return wordvectors
+    word_vectors = [word_vectors[w] if w in word_vectors else [0] * glove_dim for w in vocab]
+    return word_vectors
 
 class DownloadProgressBar(tqdm):
     def update_to(self, b=1, bsize=1, tsize=None):

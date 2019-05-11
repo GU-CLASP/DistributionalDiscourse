@@ -11,3 +11,4 @@
   - compute & report validation loss/accuracy after each epoch.
   - save trained model??
   - experiment with optimizer hyperparameters?
+  - train_encoder flag should really be train_embedding (we do want higher level layers in wordvec models trained even when the embedding isn't)
