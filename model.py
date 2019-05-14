@@ -12,6 +12,7 @@ Contents:
 """
 
 import torch.nn as nn
+from pytorch_pretrained_bert import BertModel 
 
 class DARRNN(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
@@ -23,7 +24,7 @@ class DARRNN(nn.Module):
         n_tags      - number of dialogue act tags 
         n_layers    - number of hidden RNN layers
         """
-        super(DARRNN, self).__init__()
+        super().__init__()
         self.drop = nn.Dropout(dropout)
 
         self.rnn = nn.RNN(utt_size, hidden_size, n_layers, 
@@ -56,8 +57,19 @@ class WordVecAvg(nn.Module):
     """
 
     def __init__(self, embedding):
-        super(WordVecAvg, self).__init__()
+        super().__init__()
         self.embedding = embedding 
 
-    def forward(self, x):
-        return self.embedding(x).mean(dim=0)
+    def forward(self, x, x_lens):
+        x = self.embedding(x).sum(dim=1) / x_lens.unsqueeze(1) 
+        return x 
+
+class BertUttEncoder(BertModel):
+
+    @classmethod
+    def from_pretrained_base_uncased(cls):
+        return super().from_pretrained('bert-base-uncased')
+
+    def forward(self, x, x_lens):
+        hidden_states, pooled_output = super().forward(x)
+        return pooled_output

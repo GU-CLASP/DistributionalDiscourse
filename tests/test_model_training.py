@@ -16,17 +16,17 @@ labels = [random.choices(label_vocab, k=len(convo)) for convo in data]
 class TestTraining(unittest.TestCase):
 
     def test_word2vecavg(self):
-        utt_dims = 200
+        utt_dims = 250
         n_hidden = 250
         vocab_size = len(input_vocab)
         n_labels = len(label_vocab)
         train_data = list(zip(data, labels))
-        epochs = 5
+        epochs = 10
         batch_size = 10
-        embedding = nn.Embedding(vocab_size, utt_dims)
+        embedding = nn.Embedding(vocab_size, utt_dims, padding_idx=0)
         utt_encoder_model = model.WordVecAvg(embedding)
         dar_model = model.DARRNN(utt_dims, n_labels, n_hidden, 1, dropout=0)
         print("Testing Word2VecAvg on random inputs.")
         train(utt_encoder_model, dar_model, train_data, 
-                epochs, batch_size, len(label_vocab), train_encoder=True)
+                epochs, batch_size, len(label_vocab), freeze_encoder=False)
 

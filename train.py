@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from pytorch_pretrained_bert import BertTokenizer
 
 import model
 import data
@@ -12,7 +13,7 @@ import argparse
 import math 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("utt_encoder", choices=['wordvec-avg'], 
+parser.add_argument("utt_encoder", choices=['wordvec-avg', 'bert'], 
         help="Which utt_encoder model to use")
 parser.add_argument('--epochs', default=10,
         help='Number of times to iterate through the training data.')
@@ -24,7 +25,7 @@ parser.add_argument('--tag-vocab-file', type=str, default='data/swda_tag_vocab.j
         help='Path of the tag vocabulary to use (id -> tag dict).')
 parser.add_argument('--train-file', type=str, default='data/swda_train.json', 
         help='Path of the file containing training data.')
-parser.add_argument('--train-encoder', action='store_true', default=False,
+parser.add_argument('--freeze-encoder', action='store_true', default=False,
         help='Train the utterance encoder. (Otherwise only the DAG RNN is trained.)')
 parser.add_argument('--glove', dest='use_glove', action='store_true')
 parser.add_argument('--no-glove', dest='use_glove', action='store_false')
@@ -37,8 +38,11 @@ parser.add_argument('--cuda', action='store_true',
 parser.add_argument('--verbose', action='store_true', default=False,
         help='How much to print during training')
 
-
 def gen_batches(data, batch_size):
+    """ Yields batches of batch_size from data, where data is a list of swda dialogues
+        swda_tokenizer should take a dialogue and return tokenized utterances [[int]]
+            and tokenized act labels [int] 
+    """
     x_batch, y_batch, i = [], [], 0
     for x, y in data:
         x_batch.append(x)
@@ -50,13 +54,14 @@ def gen_batches(data, batch_size):
     if x_batch:
         yield x_batch, y_batch, len(x_batch)  # final batch (possibly smaller than batch_size)
 
-def train(utt_encoder, dar_model, train_data, n_epochs, batch_size, n_tags, train_encoder=True, device=torch.device('cpu'), verbose=False):
+def train(utt_encoder, dar_model, train_data, n_epochs, batch_size, n_tags, 
+        freeze_encoder=False, device=torch.device('cpu'), verbose=False):
 
-    if train_encoder: 
+    if freeze_encoder: 
+        train_params = dar_model.parameters()
+    else:
         utt_encoder.train()
         train_params = itertools.chain(dar_model.parameters(), utt_encoder.parameters())
-    else:
-        train_params = dar_model.parameters()
     dar_model.train()
     optimizer = optim.Adam(train_params) 
     criterion = nn.CrossEntropyLoss()
@@ -74,8 +79,18 @@ def train(utt_encoder, dar_model, train_data, n_epochs, batch_size, n_tags, trai
             utt_encoder.zero_grad()
             hidden = dar_model.init_hidden(actual_batch_size) 
 
-            # Encode each utterance of each dialogue in the batch TODO: batchify this step
-            x = [torch.stack([utt_encoder(torch.LongTensor(x_ij)) for x_ij in x_i]) for x_i in x]
+            # Encode the utterances. 
+            # For now we treat each dialogue as a "batch" of utterances. 
+            # We could do something smarter with some effort...
+            x_encoded = []
+            for x_i in x:
+                x_lens = torch.FloatTensor([len(x_ij) for x_ij in x_i])
+                x_i = [torch.LongTensor(x_ij) for x_ij in x_i]
+                # Pad the utterances in the dialogue to the max length utt length in the dialogue
+                x_i = nn.utils.rnn.pad_sequence(x_i, batch_first=True)
+                x_i = utt_encoder(x_i, x_lens)
+                x_encoded.append(x_i)
+            x = x_encoded
 
             # Pad dialogues and DA tags to the max length (in utterances) for the batch 
             x = nn.utils.rnn.pad_sequence(x).to(device)
@@ -90,7 +105,7 @@ def train(utt_encoder, dar_model, train_data, n_epochs, batch_size, n_tags, trai
             optimizer.step()
             total_loss += loss.item()
             batch_accuracy.append((y_hat.max(dim=2)[1] == y).sum().item() / y.numel())
-            
+           
             if verbose:
                 tqdm.write('Batch {} loss: {:.2f} '.format(batch+1, loss.item()))
 
@@ -107,25 +122,33 @@ if __name__ == '__main__':
     word_vocab, word2id = data.load_vocab(args.vocab_file)
     tag_vocab, tag2id = data.load_vocab(args.tag_vocab_file)
 
-    with open(args.train_file) as f:
-        train_data = json.load(f)
-    train_tags = [item['tags_ints'] for item in train_data]
-    train_utts = [item['utts_ints'] for item in train_data] 
-
-    dar_model = model.DARRNN(args.utt_dims, len(tag_vocab), 200, 1, dropout=0)
+    # select an utt_encoder and compatible utt tokenization
+    print("Utt encoder: {}".format(args.utt_encoder))
     if args.utt_encoder == 'wordvec-avg': 
         if args.use_glove:
             embedding = torch.FloatTensor(data.load_glove(args.utt_dims, word_vocab))
-            embedding = nn.Embedding.from_pretrained(embedding)
+            embedding = nn.Embedding.from_pretrained(embedding, padding_idx=0)
         else:
-            embedding = nn.Embedding(len(word_vocab), args.utt_dims)
+            embedding = nn.Embedding(len(word_vocab), args.utt_dims, padding_idx=0)
+        utt_format = 'utts_ints'
+        utt_dims = args.utt_dims
         utt_encoder = model.WordVecAvg(embedding)
+    elif args.utt_encoder == 'bert':
+        utt_format = 'utts_ints_bert'
+        utt_dims = 768  # ignore args.utt_dims for BERT
+        utt_encoder = model.BertUttEncoder.from_pretrained_base_uncased()
     else:
         raise ValueError("Unknown encoder model: {}".format(args.utt_encoder))
-
-    dar_model.to(device)
     utt_encoder.to(device)
-    train(utt_encoder, dar_model, list(zip(train_utts, train_tags)), 
-        args.epochs, args.batch_size, len(tag_vocab), train_encoder=args.train_encoder,
-        device=device, verbose=args.verbose)
 
+    # always use the same dar_model
+    dar_model = model.DARRNN(utt_dims, len(tag_vocab), 200, 1, dropout=0)
+    dar_model.to(device)
+
+    with open(args.train_file) as f:
+        train_data = json.load(f)
+    tag_format = 'tags_ints'
+    train_data = [(dialogue[utt_format], dialogue[tag_format]) for dialogue in train_data]
+
+    train(utt_encoder, dar_model, train_data, args.epochs, args.batch_size, len(tag_vocab), 
+            freeze_encoder=args.freeze_encoder, device=device, verbose=args.verbose)
