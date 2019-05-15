@@ -30,3 +30,17 @@ class TestTraining(unittest.TestCase):
         train(utt_encoder_model, dar_model, train_data, 
                 epochs, batch_size, len(label_vocab), freeze_encoder=False)
 
+    def test_word2vecavg(self):
+        utt_dims = 768
+        n_hidden = 250
+        vocab_size = len(input_vocab)
+        n_labels = len(label_vocab)
+        train_data = list(zip(data, labels))
+        epochs = 10
+        batch_size = 10
+        utt_encoder_model = model.BertUttEncoder.from_pretrained_base_uncased()
+        dar_model = model.DARRNN(utt_dims, n_labels, n_hidden, 1, dropout=0)
+        print("Testing BERT on random inputs.")
+        train(utt_encoder_model, dar_model, train_data, 
+                epochs, batch_size, len(label_vocab), freeze_encoder=False)
+
