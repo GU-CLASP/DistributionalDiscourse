@@ -9,8 +9,9 @@
 *.fls
 *.log
 *.tex.bak
+.*.swp
 __MACOSX
 __pycache__
 .ipynb_checkpoints/
 data/*
-.*.swp
+models/*
