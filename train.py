@@ -17,8 +17,10 @@ parser.add_argument("utt_encoder", choices=['wordvec-avg', 'bert'],
         help="Which utt_encoder model to use")
 parser.add_argument('--epochs', default=10,
         help='Number of times to iterate through the training data.')
-parser.add_argument('--batch-size', type=int, default=10,
-        help='Training batch size (number of dialogues).')
+parser.add_argument('--diag-batch-size', type=int, default=10,
+        help='Size of dialogue batches (for DAR seq2seq)')
+parser.add_argument('--utt-batch-size', type=int, default=10,
+        help='Size of utterance batches (for utt encoding)')
 parser.add_argument('--vocab-file', type=str, default='data/swda_vocab.json', 
         help='Path of the vocabulary to use (id -> word dict).')
 parser.add_argument('--tag-vocab-file', type=str, default='data/swda_tag_vocab.json', 
@@ -38,7 +40,7 @@ parser.add_argument('--cuda', action='store_true',
 parser.add_argument('--verbose', action='store_true', default=False,
         help='How much to print during training')
 
-def gen_batches(data, batch_size):
+def gen_diag_batches(data, batch_size):
     """ Yields batches of batch_size from data, where data is a list of swda dialogues
         swda_tokenizer should take a dialogue and return tokenized utterances [[int]]
             and tokenized act labels [int] 
@@ -54,7 +56,20 @@ def gen_batches(data, batch_size):
     if x_batch:
         yield x_batch, y_batch, len(x_batch)  # final batch (possibly smaller than batch_size)
 
-def train(utt_encoder, dar_model, train_data, n_epochs, batch_size, n_tags, 
+def gen_utt_batches(data, batch_size):
+    """ Essentially the same as gen_diag_batches, but with no labels
+    """
+    x_batch, i = [], 0
+    for x in data:
+        x_batch.append(x)
+        i += 1
+        if i == batch_size:
+            yield x_batch, batch_size
+            x_batch, i = [], 0
+    if x_batch:
+        yield x_batch, len(x_batch)  # final batch (possibly smaller than batch_size)
+
+def train(utt_encoder, dar_model, train_data, n_epochs, utt_batch_size, diag_batch_size, n_tags, 
         freeze_encoder=False, device=torch.device('cpu'), verbose=False):
 
     if freeze_encoder: 
@@ -66,31 +81,38 @@ def train(utt_encoder, dar_model, train_data, n_epochs, batch_size, n_tags,
     optimizer = optim.Adam(train_params) 
     criterion = nn.CrossEntropyLoss()
 
-    hidden = dar_model.init_hidden(batch_size)
+    hidden = dar_model.init_hidden(diag_batch_size)
     for epoch in range(n_epochs):
         total_loss = 0
         batch_accuracy = []
-        total_batches = math.ceil(len(train_data) / batch_size)
-        for batch, (x, y, actual_batch_size) in tqdm(enumerate(gen_batches(train_data, batch_size)), 
+        total_batches = math.ceil(len(train_data) / diag_batch_size)
+        diag_batches = gen_diag_batches(train_data, diag_batch_size)
+        for batch, (x, y, diag_batch_size_) in tqdm(enumerate(diag_batches), 
                 desc='Epoch {}'.format(epoch), total=total_batches):
 
-            # zero out the gradients & detach history from the previous dialogue
+            # zero out the gradients & detach history from the previous batch of dialogues
             dar_model.zero_grad() 
             utt_encoder.zero_grad()
-            hidden = dar_model.init_hidden(actual_batch_size) 
+            hidden = dar_model.init_hidden(diag_batch_size_) 
 
             # Encode the utterances. 
             # For now we treat each dialogue as a "batch" of utterances. 
             # We could do something smarter with some effort...
-            x_encoded = []
-            for x_i in x:
-                x_lens = torch.FloatTensor([len(x_ij) for x_ij in x_i])
-                x_i = [torch.LongTensor(x_ij) for x_ij in x_i]
-                # Pad the utterances in the dialogue to the max length utt length in the dialogue
-                x_i = nn.utils.rnn.pad_sequence(x_i, batch_first=True)
-                x_i = utt_encoder(x_i, x_lens)
-                x_encoded.append(x_i)
-            x = x_encoded
+            encoded_diags = []
+            for diag in tqdm(x, total=diag_batch_size_, desc="Encoding batch {}".format(batch)):
+                encoded_diag = []
+                utt_batches = gen_utt_batches(diag, utt_batch_size)
+                for utts, utt_batch_size_, in utt_batches:
+                    # Keep track of the real lengths so we can mask inputs
+                    utt_lens = torch.FloatTensor([len(utt) for utt in utts])
+                    utts = [torch.LongTensor(utt) for utt in utts]
+                    # Pad the utterances in the dialogue to the max length utt length in the dialogue
+                    utts = nn.utils.rnn.pad_sequence(utts, batch_first=True)
+                    utts = utt_encoder(utts, utt_lens)
+                    encoded_diag.append(utts)
+                encoded_diag = torch.cat(encoded_diag)
+                encoded_diags.append(encoded_diag)
+            x = encoded_diags 
 
             # Pad dialogues and DA tags to the max length (in utterances) for the batch 
             x = nn.utils.rnn.pad_sequence(x).to(device)
@@ -150,5 +172,5 @@ if __name__ == '__main__':
     tag_format = 'tags_ints'
     train_data = [(dialogue[utt_format], dialogue[tag_format]) for dialogue in train_data]
 
-    train(utt_encoder, dar_model, train_data, args.epochs, args.batch_size, len(tag_vocab), 
+    train(utt_encoder, dar_model, train_data, args.epochs, args.diag_batch_size, args.utt_batch_size, len(tag_vocab), 
             freeze_encoder=args.freeze_encoder, device=device, verbose=args.verbose)
