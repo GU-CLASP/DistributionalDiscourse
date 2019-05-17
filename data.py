@@ -48,6 +48,11 @@ def load_glove(glove_dim, vocab):
     word_vectors = [word_vectors[w] if w in word_vectors else [0] * glove_dim for w in vocab]
     return word_vectors
 
+def load_data(data_file, utt_format, tag_format):
+    with open(data_file) as f:
+        data = json.load(f)
+    return [(dialogue[utt_format], dialogue[tag_format]) for dialogue in data]
+
 class DownloadProgressBar(tqdm):
     def update_to(self, b=1, bsize=1, tsize=None):
         if tsize is not None:
