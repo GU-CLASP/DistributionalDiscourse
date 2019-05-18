@@ -106,7 +106,7 @@ def prep_swda():
         return xs
 
     def tag_to_int(tag):
-        maxvalue = max(tag_vocab.values()) if tag_vocab else 0
+        maxvalue = max(tag_vocab.values()) if tag_vocab else -1
         if tag not in tag_vocab:
             maxvalue += 1
             tag_vocab[tag] = maxvalue

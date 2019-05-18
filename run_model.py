@@ -51,7 +51,7 @@ def run_model(mode, utt_encoder, dar_model, train_data, n_tags, criterion, optim
     
     with mode_context:  
         for batch, (x, y, diag_batch_size_) in tqdm(enumerate(batches), 
-                desc='Epoch {}'.format(epoch), total=total_batches):
+                desc='Epoch {}'.format(epoch+1), total=total_batches):
 
             if mode == 'train':
             # zero out the gradients & detach history from the previous batch of dialogues

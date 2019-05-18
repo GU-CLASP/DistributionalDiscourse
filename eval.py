@@ -28,7 +28,6 @@ if __name__ == '__main__':
     word_vocab, word2id = data.load_vocab(args.vocab_file)
     tag_vocab, tag2id = data.load_vocab(args.tag_vocab_file)
     n_tags = len(tag_vocab)
-    print(">>>>>>>>>>>>>>> {} <<<<<<<<<<<<<<".format(n_tags))
 
     # select an utt_encoder and compatible utt tokenization
     print("Utt encoder: {}".format(args.utt_encoder))
@@ -59,4 +58,4 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss()
 
     run_model('evaluate', utt_encoder, dar_model, test_data, n_tags, criterion, None,
-            args.utt_batch_size, 1, None, torch.device('cpu'))
+            args.utt_batch_size, 1, 0, torch.device('cpu'))
