@@ -21,6 +21,8 @@ parser.add_argument('--utt-dims', default=100, type=int,
         'For wordvec-* models, this is equal to the word vector size.')
 parser.add_argument('--dar-hidden', default=100, type=int,
         help="Size of the hidden layer in the DAR RNN.")
+parser.add_argument('--lstm', action='store_true',
+        help="Use an LSTM for the DAR RNN.")
 parser.add_argument('--dar-layers', default=1, type=int,
         help="Number of hidden layers in the DAR RNN.")
 parser.add_argument('--freeze-encoder', action='store_true', default=False,
@@ -69,8 +71,9 @@ if __name__ == '__main__':
         os.mkdir('models')
     if os.path.exists(save_dir):
         go_ahead = input("Overwriting files in {}. Continue? (y/n): ".format(save_dir))
-        util.rm_dir(save_dir)
-        if not go_ahead == 'y':
+        if go_ahead == 'y':
+            util.rm_dir(save_dir)
+        else:
             exit()
     os.mkdir(save_dir)
    
@@ -88,6 +91,7 @@ if __name__ == '__main__':
 
     # select an utt_encoder and compatible utt tokenization
     log.info("Utt encoder: {}".format(args.utt_encoder))
+    log.info("DAR model uses LSTM: {}".format(args.lstm))
     if args.utt_encoder == 'wordvec-avg': 
         if args.use_glove:
             weights = torch.FloatTensor(data.load_glove(args.utt_dims, word_vocab))
@@ -104,7 +108,7 @@ if __name__ == '__main__':
         raise ValueError("Unknown encoder model: {}".format(args.utt_encoder))
 
     # always use the same dar_model
-    dar_model = model.DARRNN(utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0)
+    dar_model = model.DARRNN(utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0, use_lstm=args.lstm)
 
     # select the parameters to train
     if args.freeze_encoder: 

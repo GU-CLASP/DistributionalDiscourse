@@ -17,7 +17,7 @@ from pytorch_pretrained_bert import BertModel
 class DARRNN(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
 
-    def __init__(self, utt_size, n_tags, hidden_size, n_layers, dropout=0.5):
+    def __init__(self, utt_size, n_tags, hidden_size, n_layers, dropout=0.5, use_lstm=False):
         """
         utt_size    - size of the encoded utterance 
         hidden_size - size of the hidden layer 
@@ -25,10 +25,13 @@ class DARRNN(nn.Module):
         n_layers    - number of hidden RNN layers
         """
         super().__init__()
+        self.use_lstm = use_lstm
         self.drop = nn.Dropout(dropout)
 
-        self.rnn = nn.RNN(utt_size, hidden_size, n_layers, 
-                nonlinearity='relu', dropout=dropout) # TODO: try tanh too?
+        if use_lstm:
+            self.rnn = nn.LSTM(utt_size, hidden_size, n_layers, dropout=dropout)
+        else:
+            self.rnn = nn.RNN(utt_size, hidden_size, n_layers, nonlinearity='relu', dropout=dropout) # TODO: try tanh too?
         self.decoder = nn.Linear(hidden_size, n_tags)
 
         self.init_weights()
@@ -49,6 +52,9 @@ class DARRNN(nn.Module):
 
     def init_hidden(self, batch_size):
         weight = next(self.parameters())
+        if self.use_lstm:
+            return (weight.new_zeros(self.n_layers, batch_size, self.hidden_size),
+                    weight.new_zeros(self.n_layers, batch_size, self.hidden_size))
         return weight.new_zeros(self.n_layers, batch_size, self.hidden_size)
 
 
