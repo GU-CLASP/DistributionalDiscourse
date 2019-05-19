@@ -34,7 +34,7 @@ class TestTraining(unittest.TestCase):
         print("Testing Word2VecAvg on random inputs.")
         for epoch in range(epochs):
             run_model('train', utt_encoder, dar_model, train_data, n_labels,
-                    batch_size, batch_size, epoch, optimizer)
+                    batch_size, batch_size, optimizer)
 
     def test_bert(self):
         utt_dims = 768
@@ -51,5 +51,5 @@ class TestTraining(unittest.TestCase):
         print("Testing BERT on random inputs.")
         for epoch in range(epochs):
             run_model('train', utt_encoder, dar_model, train_data, n_labels,
-                    batch_size, batch_size, epoch, optimizer)
+                    batch_size, batch_size, optimizer)
 

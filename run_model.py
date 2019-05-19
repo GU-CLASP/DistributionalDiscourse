@@ -38,15 +38,15 @@ def gen_utt_batches(data, batch_size):
         yield x_batch, len(x_batch)  # final batch (possibly smaller than batch_size)
 
 def run_model(mode, utt_encoder, dar_model, data, n_tags, utt_batch_size, diag_batch_size, 
-    epoch, optimizer=None, device=torch.device('cpu')):
+    optimizer=None, device=torch.device('cpu')):
 
     assert mode in ('train', 'evaluate')
 
-    criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
-
-    total_loss, total_correct, total_items = 0, 0, 0
     total_batches = math.ceil(len(data) / diag_batch_size)
     batches = gen_diag_batches(data, diag_batch_size)
+
+    criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
+    batch_losses, preds = [], []
 
     # disable gradients unless we're training
     if mode == 'train':
@@ -57,8 +57,7 @@ def run_model(mode, utt_encoder, dar_model, data, n_tags, utt_batch_size, diag_b
         mode_context = torch.no_grad()
     
     with mode_context:  
-        for batch, (x, y, diag_batch_size_) in tqdm(enumerate(batches), 
-                desc='Epoch {}'.format(epoch+1), total=total_batches):
+        for batch, (x, y, diag_batch_size_) in tqdm(enumerate(batches), total=total_batches):
 
             if mode == 'train':
             # zero out the gradients & detach history from the previous batch of dialogues
@@ -83,6 +82,7 @@ def run_model(mode, utt_encoder, dar_model, data, n_tags, utt_batch_size, diag_b
             x = encoded_diags 
 
             # Pad dialogues and DA tags to the max length (in utterances) for the batch 
+            diag_lens = [len(xi) for xi in x]
             x = nn.utils.rnn.pad_sequence(x).to(device)
             y = nn.utils.rnn.pad_sequence([torch.LongTensor(yi) for yi in y]).to(device)
 
@@ -96,16 +96,12 @@ def run_model(mode, utt_encoder, dar_model, data, n_tags, utt_batch_size, diag_b
                 optimizer.step()
 
             batch_loss = loss.item()
-            batch_correct = (y_hat.max(dim=2)[1] == y).sum().item() 
-            total_loss += batch_loss 
-            total_correct += batch_correct
-            total_items += y.numel()
-          
-            log.debug('Epoch {} {} batch {} | batch loss {:.2f} | accuracy {:.2f}'.format(
-                epoch+1, mode, batch+1, batch_loss, batch_correct / y.numel()))
+            batch_losses.append(batch_loss)
+            batch_preds = y_hat.max(dim=2)[1]  
+            batch_preds = [batch_preds[:,i][:diag_lens[i]].tolist() for i in range(diag_batch_size_)]
+            preds += batch_preds
 
-    log.info('Epoch {} {} | total loss {:.2f} | accuracy {:.2f}'.format(
-        epoch+1, mode, total_loss, total_correct / total_items))
+            log.debug('Batch {} loss {:.2f} ({})'.format(batch+1, batch_loss, mode))
 
-    accuracy = total_correct / total_items 
-    return total_loss, accuracy
+    average_loss = sum(batch_losses) / total_batches
+    return average_loss, preds

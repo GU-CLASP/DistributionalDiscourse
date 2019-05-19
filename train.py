@@ -48,7 +48,16 @@ parser.add_argument('--save-suffix', type=str, default='',
 parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
         help="Increase output verbosity")
         
-    
+def compute_accuracy(data, preds):
+    tags = [diag[1] for diag in data]
+    total, total_correct = 0, 0
+    for y, y_hat in zip(tags, preds):
+        len_y = len(y)
+        assert(len_y == len(y_hat))
+        total += len_y
+        correct = sum([a == b for a,b in zip(y, y_hat)])
+        total_correct += correct
+    return total_correct / total
 
 if __name__ == '__main__':
 
@@ -114,12 +123,16 @@ if __name__ == '__main__':
     dar_model.to(device)
     utt_encoder.to(device)
 
-    for epoch in range(args.epochs):
-        run_model('train', utt_encoder, dar_model, train_data, n_tags,
-                args.utt_batch_size, args.diag_batch_size, epoch,
-                optimizer=optimizer, device=device)
-        run_model('evaluate', utt_encoder, dar_model, val_data, n_tags,
-                args.utt_batch_size, 1, epoch, device=device)
-        
-    torch.save(dar_model.state_dict(), os.path.join(save_dir, 'dar_model.bin'))
-    torch.save(utt_encoder.state_dict(), os.path.join(save_dir, 'utt_encoder.bin'))
+    for epoch in range(1, args.epochs+1):
+        log.info("Starting epoch {}".format(epoch))
+        loss, preds = run_model('train', utt_encoder, dar_model, train_data, n_tags,
+                args.utt_batch_size, args.diag_batch_size, optimizer=optimizer, device=device)
+        log.info("Epoch {} training loss: {:.2f}".format(epoch, loss))
+        loss, preds = run_model('evaluate', utt_encoder, dar_model, val_data, n_tags,
+                args.utt_batch_size, 1, device=device)
+        val_accuracy = compute_accuracy(val_data, preds)
+        log.info("Epoch {} validation loss: {:.2f}. Accuracy: %{:.2f}".format(
+            epoch, loss, val_accuracy*100))
+        log.info("Saving epoch {} models.".format(epoch))
+        torch.save(dar_model.state_dict(), os.path.join(save_dir, 'dar_model.E{}.bin'.format(epoch)))
+        torch.save(utt_encoder.state_dict(), os.path.join(save_dir, 'utt_encoder.E{}.bin'.format(epoch)))
