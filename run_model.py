@@ -71,10 +71,10 @@ def run_model(mode, utt_encoder, dar_model, data, n_tags, utt_batch_size, diag_b
                 utt_batches = gen_utt_batches(diag, utt_batch_size)
                 for utts, utt_batch_size_, in utt_batches:
                     # Keep track of the real lengths so we can mask inputs
-                    utt_lens = torch.FloatTensor([len(utt) for utt in utts])
-                    utts = [torch.LongTensor(utt) for utt in utts]
+                    utt_lens = torch.FloatTensor([max(len(utt), 25) for utt in utts]).to(device)
+                    utts = [torch.LongTensor(utt[-25:]) for utt in utts]
                     # Pad the utterances in the dialogue to the max length utt length in the dialogue
-                    utts = nn.utils.rnn.pad_sequence(utts, batch_first=True)
+                    utts = nn.utils.rnn.pad_sequence(utts, batch_first=True).to(device)
                     utts = utt_encoder(utts, utt_lens)
                     encoded_diag.append(utts)
                 encoded_diag = torch.cat(encoded_diag)
