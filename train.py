@@ -1,15 +1,17 @@
+import model
+import data
+import util
+from run_model import run_model
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-
-import model
-import data
-from run_model import run_model
 
 import itertools
 import json 
 import argparse
 import os
+import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument("utt_encoder", choices=['wordvec-avg', 'bert'], 
@@ -41,37 +43,42 @@ parser.add_argument('--val-file', type=str, default='data/swda_val.json',
         help='Path of the file containing validation data.')
 parser.add_argument('--cuda', action='store_true',
         help='use CUDA')
-parser.add_argument('--train-log-interval', default=None,
-        help='Report on training accuracy/loss every N batches.')
-
+parser.add_argument('--save-suffix', type=str, default='', 
+        help='A suffix to add to the name of the save directory.')
+parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
+        help="Increase output verbosity")
+        
     
 
 if __name__ == '__main__':
 
     args = parser.parse_args()
+    save_dir = os.path.join('models', args.utt_encoder + args.save_suffix) 
 
-    device = torch.device('cuda' if args.cuda and torch.cuda.is_available() else 'cpu')
-    print("Training on {}.".format(device))
-
-    save_dir = os.path.join('models', args.utt_encoder) 
+    # create the save directory (for trianed model paremeters, logs, arguments)
     if not os.path.exists('models'):
         os.mkdir('models')
     if os.path.exists(save_dir):
         go_ahead = input("Overwriting files in {}. Continue? (y/n): ".format(save_dir))
+        util.rm_dir(save_dir)
         if not go_ahead == 'y':
             exit()
-    else:
-        os.mkdir(save_dir)
-    # save the args so we can recover the hyperparameters, etc.
+    os.mkdir(save_dir)
+   
+    # save the args so we can recover hyperparameters, etc.
     with open(os.path.join(save_dir, 'args.json'), 'w') as f:
         json.dump(args.__dict__, f)
+    log = util.create_logger(args.verbose, os.path.join(save_dir, 'train.log'))
+
+    device = torch.device('cuda' if args.cuda and torch.cuda.is_available() else 'cpu')
+    log.info("Training on {}.".format(device))
 
     word_vocab, word2id = data.load_vocab(args.vocab_file)
     tag_vocab, tag2id = data.load_vocab(args.tag_vocab_file)
     n_tags = len(tag_vocab)
 
     # select an utt_encoder and compatible utt tokenization
-    print("Utt encoder: {}".format(args.utt_encoder))
+    log.info("Utt encoder: {}".format(args.utt_encoder))
     if args.utt_encoder == 'wordvec-avg': 
         if args.use_glove:
             embedding = torch.FloatTensor(data.load_glove(args.utt_dims, word_vocab))
@@ -111,8 +118,7 @@ if __name__ == '__main__':
 
     for epoch in range(args.epochs):
         run_model('train', utt_encoder, dar_model, train_data, n_tags, criterion, optimizer,
-                args.utt_batch_size, args.diag_batch_size, epoch, device, 
-                print_every=args.train_log_interval)
+                args.utt_batch_size, args.diag_batch_size, epoch, device,)
         run_model('evaluate', utt_encoder, dar_model, val_data, n_tags, criterion, optimizer,
                 args.utt_batch_size, 1, epoch, device)
         

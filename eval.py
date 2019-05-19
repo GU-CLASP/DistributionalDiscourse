@@ -1,9 +1,9 @@
-import torch
-import torch.nn as nn
-
 import data
 import model
 from run_model import run_model
+
+import torch
+import torch.nn as nn
 
 import argparse
 import json
@@ -25,12 +25,14 @@ if __name__ == '__main__':
         model_args = json.load(f)
     args.__dict__.update(model_args)
 
+    log = util.create_logger(args.verbose, os.path.join(save_dir, 'eval.log'))
+
     word_vocab, word2id = data.load_vocab(args.vocab_file)
     tag_vocab, tag2id = data.load_vocab(args.tag_vocab_file)
     n_tags = len(tag_vocab)
 
     # select an utt_encoder and compatible utt tokenization
-    print("Utt encoder: {}".format(args.utt_encoder))
+    log.info("Utt encoder: {}".format(args.utt_encoder))
     if args.utt_encoder == 'wordvec-avg': 
         utt_format = 'utts_ints'
         embedding = nn.Embedding(len(word_vocab), args.utt_dims, padding_idx=0)

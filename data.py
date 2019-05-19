@@ -1,7 +1,9 @@
-from swda.swda import CorpusReader
-
+import util
 from preproc import tokenize
-from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer, load_vocab as load_bert_vocab 
+
+from swda.swda import CorpusReader
+from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer
+from pytorch_pretrained_bert.tokenization import load_vocab as load_bert_vocab 
 
 import os
 import re
@@ -9,7 +11,6 @@ import json
 import zipfile
 import random
 import argparse
-import urllib.request
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
@@ -53,17 +54,6 @@ def load_data(data_file, utt_format, tag_format):
         data = json.load(f)
     return [(dialogue[utt_format], dialogue[tag_format]) for dialogue in data]
 
-class DownloadProgressBar(tqdm):
-    def update_to(self, b=1, bsize=1, tsize=None):
-        if tsize is not None:
-            self.total = tsize
-        self.update(b * bsize - self.n)
-
-def download_url(url, output_path):
-    with DownloadProgressBar(unit='B', unit_scale=True,
-                             miniters=1, desc=url.split('/')[-1]) as t:
-        urllib.request.urlretrieve(url, filename=output_path, reporthook=t.update_to)
-
 def prep_swda():
     """
     Put the conversations into a json format that torchtext can read easily.
@@ -71,7 +61,7 @@ def prep_swda():
     and a list of dialogue act tags (each the same length)
     """
 
-    print("Loading SWDA corpus.")
+    log.info("Loading SWDA corpus.")
     if not os.path.isfile(SWDA_CORPUS_DIR):
         with zipfile.ZipFile("swda/swda.zip") as zip_ref:
             zip_ref.extractall('data')
@@ -80,13 +70,13 @@ def prep_swda():
 
     bert_vocab_file = BERT_VOCAB_FILE.format(BERT_MODEL)
     if not os.path.isfile(bert_vocab_file):
-        print("Customizing BERT vocab.")
+        log.info("Customizing BERT vocab.")
         customize_bert_vocab()
-    print("Loading BERT vocab/tokenizer.")
+    log.info("Loading BERT vocab/tokenizer.")
     bert_tokenizer = BertTokenizer.from_pretrained(bert_vocab_file, 
             never_split = BERT_RESERVED_TOKENS + BERT_CUSTOM_TOKENS)
 
-    print("Getting splits.")
+    log.info("Getting splits.")
     splits_file = SWDA_SPLITS.format('splits')
     if os.path.isfile(splits_file): # use existing SWDA splits (for reproducibility purposes)
         with open(splits_file) as f:
@@ -130,7 +120,7 @@ def prep_swda():
         return {'id': transcript.conversation_no, 'utts': utts, 'utts_ints': utts_ints, 
                 'utts_ints_bert': utts_ints_bert, 'tags': tags, 'tags_ints': tags_ints}
 
-    print("Extracting data and saving splits.")
+    log.info("Extracting data and saving splits.")
     for split in splits:
         data = []
         for ex_id in tqdm(splits[split], desc=split):
@@ -146,7 +136,7 @@ def prep_swda():
 def customize_bert_vocab():
     vocab_filename = BERT_VOCAB_FILE.format(BERT_MODEL) 
     vocab_url = PRETRAINED_VOCAB_ARCHIVE_MAP[BERT_MODEL]
-    download_url(vocab_url, vocab_filename)
+    util.download_url(vocab_url, vocab_filename)
     vocab = list(load_bert_vocab(vocab_filename).keys()) # load_vocab gives an OrderedDict 
     custom_tokens = ['[SPKR_A]', '[SPKR_B]', '<laughter>'] # TODO: add disfluencies
     # most of the first 1000 tokens are [unusedX], but [PAD], [CLS], etc are scattered in there too 
@@ -154,7 +144,7 @@ def customize_bert_vocab():
         for i, existing_token in enumerate(vocab):
             if re.match(r"\[unused\d+\]", existing_token):
                 vocab[i] = new_token
-                print("Custom BERT vocab: {} -> {} (replaced {})".format(new_token, i, existing_token))
+                log.info("Custom BERT vocab: {} -> {} (replaced {})".format(new_token, i, existing_token))
                 break
             elif i > 1000:
                 raise ValueError("Couldn't find any unused tokens to replace :(")
@@ -166,12 +156,13 @@ def download_glove():
     glove_file = 'data/glove.6B.zip'
     glove_url = 'http://nlp.stanford.edu/data/glove.6B.zip'
     if not os.path.isfile(glove_file): 
-        download_url(glove_url, 'data/glove.6B.zip')
+        util.download_url(glove_url, 'data/glove.6B.zip')
     with  zipfile.ZipFile(glove_file, 'r') as zip_ref:
         zip_ref.extractall('data/glove.6B')
 
 if __name__ == '__main__':
     args = parser.parse_args()
+    log = util.create_logger(args.verbosity)
     if args.command == 'prep-swda':
         prep_swda()
     if args.command == 'download-glove':

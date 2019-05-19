@@ -1,9 +1,12 @@
 import torch
 import torch.nn as nn
 
-from tqdm import tqdm
-import contextlib
 import math 
+import contextlib
+import logging
+from tqdm import tqdm
+
+log = logging.getLogger('DARLOGGER')
 
 def gen_diag_batches(data, batch_size):
     """ Yields batches of batch_size from data, where data is a list of swda dialogues
@@ -35,7 +38,7 @@ def gen_utt_batches(data, batch_size):
         yield x_batch, len(x_batch)  # final batch (possibly smaller than batch_size)
 
 def run_model(mode, utt_encoder, dar_model, train_data, n_tags, criterion, optimizer,
-    utt_batch_size, diag_batch_size, epoch, device=torch.device('cpu'), print_every=None):
+    utt_batch_size, diag_batch_size, epoch, device=torch.device('cpu')):
 
     assert mode in ('train', 'evaluate')
 
@@ -94,11 +97,10 @@ def run_model(mode, utt_encoder, dar_model, train_data, n_tags, criterion, optim
             total_correct += batch_correct
             total_items += y.numel()
           
-            if print_every and batch % print_every == 0:
-                tqdm.write('Epoch {} {} batch {} | batch loss {:.2f} | accuracy {:.2f}'.format(
-                    epoch+1, mode, batch+1, batch_loss, batch_correct / y.numel()))
+            log.debug('Epoch {} {} batch {} | batch loss {:.2f} | accuracy {:.2f}'.format(
+                epoch+1, mode, batch+1, batch_loss, batch_correct / y.numel()))
 
-    tqdm.write('Epoch {} {} | total loss {:.2f} | accuracy {:.2f}'.format(
+    log.info('Epoch {} {} | total loss {:.2f} | accuracy {:.2f}'.format(
         epoch+1, mode, total_loss, total_correct / total_items))
 
     accuracy = total_correct / total_items 
