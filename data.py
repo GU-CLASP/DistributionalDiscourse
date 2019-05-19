@@ -1,5 +1,5 @@
 import util
-from preproc import tokenize
+from preproc import tokenize, damsl_tag_cluster
 
 from swda.swda import CorpusReader
 from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer
@@ -11,6 +11,7 @@ import json
 import zipfile
 import random
 import argparse
+import logging
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
@@ -25,7 +26,7 @@ BERT_RESERVED_TOKENS = ["[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"] # used by 
 BERT_CUSTOM_TOKENS = ['[SPKR_A]', '[SPKR_B]', '<laughter>'] # added by us TODO: add disfluencies
 
 vocab =  {"@@@@@":0, "[SPKR_A]":1, "[SPKR_B]":2}
-tag_vocab = {}
+tag_vocab = {'@@@@@':0}
 
 def gen_splits(id_list, train=0.7, val=0.1, test=0.2):
     assert(train+val+test == 1)
@@ -115,8 +116,9 @@ def prep_swda():
             bert_tokens = bert_tokenizer.tokenize(bert_text) # list of strings
             utts_ints_bert.append(bert_tokenizer.convert_tokens_to_ids(bert_tokens))
             # dialogue act tags
-            tags.append(utt.act_tag)
-            tags_ints.append(tag_to_int(utt.act_tag))
+            tag = damsl_tag_cluster(utt.act_tag)
+            tags.append(tag)
+            tags_ints.append(tag_to_int(tag))
         return {'id': transcript.conversation_no, 'utts': utts, 'utts_ints': utts_ints, 
                 'utts_ints_bert': utts_ints_bert, 'tags': tags, 'tags_ints': tags_ints}
 
@@ -127,8 +129,10 @@ def prep_swda():
             data.append(extract_example(corpus[ex_id]))
         with open(SWDA_SPLITS.format(split), 'w') as f:
             json.dump(data, f)
+    log.info("Vocab size: {}". format(len(vocab)))
     with open(SWDA_SPLITS.format("vocab"), 'w') as f:
         json.dump(vocab, f)
+    log.info("Tag vocab size: {}". format(len(tag_vocab)))
     with open(SWDA_SPLITS.format("tag_vocab"), 'w') as f:
         json.dump(tag_vocab, f)
 
@@ -162,7 +166,7 @@ def download_glove():
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    log = util.create_logger(args.verbosity)
+    log = util.create_logger(logging.INFO)
     if args.command == 'prep-swda':
         prep_swda()
     if args.command == 'download-glove':
