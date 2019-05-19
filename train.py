@@ -81,13 +81,12 @@ if __name__ == '__main__':
     log.info("Utt encoder: {}".format(args.utt_encoder))
     if args.utt_encoder == 'wordvec-avg': 
         if args.use_glove:
-            embedding = torch.FloatTensor(data.load_glove(args.utt_dims, word_vocab))
-            embedding = nn.Embedding.from_pretrained(embedding, padding_idx=0)
+            weights = torch.FloatTensor(data.load_glove(args.utt_dims, word_vocab))
+            utt_encoder = model.WordVecAvg.from_pretrained(weights)
         else:
-            embedding = nn.Embedding(len(word_vocab), args.utt_dims, padding_idx=0)
+            utt_encoder = model.WordVecAvg.random_init(len(word_vocab), args.utt_dims)
         utt_format = 'utts_ints'
         utt_dims = args.utt_dims
-        utt_encoder = model.WordVecAvg(embedding)
     elif args.utt_encoder == 'bert':
         utt_format = 'utts_ints_bert'
         utt_dims = 768  # ignore args.utt_dims for BERT
@@ -111,16 +110,16 @@ if __name__ == '__main__':
     val_data = data.load_data(args.val_file, utt_format, tag_format)
 
     optimizer = optim.Adam(train_params) 
-    criterion = nn.CrossEntropyLoss()
 
     dar_model.to(device)
     utt_encoder.to(device)
 
     for epoch in range(args.epochs):
-        run_model('train', utt_encoder, dar_model, train_data, n_tags, criterion, optimizer,
-                args.utt_batch_size, args.diag_batch_size, epoch, device,)
-        run_model('evaluate', utt_encoder, dar_model, val_data, n_tags, criterion, optimizer,
-                args.utt_batch_size, 1, epoch, device)
+        run_model('train', utt_encoder, dar_model, train_data, n_tags,
+                args.utt_batch_size, args.diag_batch_size, epoch,
+                optimizer=optimizer, device=device)
+        run_model('evaluate', utt_encoder, dar_model, val_data, n_tags,
+                args.utt_batch_size, 1, epoch, device=device)
         
     torch.save(dar_model.state_dict(), os.path.join(save_dir, 'dar_model.bin'))
     torch.save(utt_encoder.state_dict(), os.path.join(save_dir, 'utt_encoder.bin'))

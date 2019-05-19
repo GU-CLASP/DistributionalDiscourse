@@ -60,6 +60,16 @@ class WordVecAvg(nn.Module):
         super().__init__()
         self.embedding = embedding 
 
+    @classmethod
+    def from_pretrained(cls, weights):
+        embedding = nn.Embedding.from_pretrained(weights, padding_idx=0)
+        return cls(embedding)
+
+    @classmethod
+    def random_init(cls, num_embeddings, embedding_dim):
+        embedding = nn.Embedding(num_embeddings, embedding_dim, padding_idx=0)
+        return cls(embedding)
+
     def forward(self, x, x_lens):
         x = self.embedding(x).sum(dim=1) / x_lens.unsqueeze(1) 
         return x 

@@ -37,17 +37,21 @@ def gen_utt_batches(data, batch_size):
     if x_batch:
         yield x_batch, len(x_batch)  # final batch (possibly smaller than batch_size)
 
-def run_model(mode, utt_encoder, dar_model, train_data, n_tags, criterion, optimizer,
-    utt_batch_size, diag_batch_size, epoch, device=torch.device('cpu')):
+def run_model(mode, utt_encoder, dar_model, data, n_tags, utt_batch_size, diag_batch_size, 
+    epoch, optimizer=None, device=torch.device('cpu')):
 
     assert mode in ('train', 'evaluate')
 
+    criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
+
     total_loss, total_correct, total_items = 0, 0, 0
-    total_batches = math.ceil(len(train_data) / diag_batch_size)
-    batches = gen_diag_batches(train_data, diag_batch_size)
+    total_batches = math.ceil(len(data) / diag_batch_size)
+    batches = gen_diag_batches(data, diag_batch_size)
 
     # disable gradients unless we're training
     if mode == 'train':
+        if not optimizer:
+            raise ValueError("Must supply an optimizer in train mode.")
         mode_context = contextlib.nullcontext()
     else:
         mode_context = torch.no_grad()

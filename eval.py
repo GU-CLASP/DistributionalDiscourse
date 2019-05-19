@@ -57,7 +57,5 @@ if __name__ == '__main__':
     tag_format = 'tags_ints'
     test_data = data.load_data(args.test_file, utt_format, tag_format)
 
-    criterion = nn.CrossEntropyLoss()
-
-    run_model('evaluate', utt_encoder, dar_model, test_data, n_tags, criterion, None,
+    run_model('evaluate', utt_encoder, dar_model, test_data, n_tags, None,
             args.utt_batch_size, 1, 0, torch.device('cpu'))
