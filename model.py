@@ -80,12 +80,14 @@ class WordVecAvg(nn.Module):
         x = self.embedding(x).sum(dim=1) / x_lens.unsqueeze(1) 
         return x 
 
-class BertUttEncoder(BertModel):
+class BertUttEncoder(nn.Module):
 
-    @classmethod
-    def from_pretrained_base_uncased(cls):
-        return super().from_pretrained('bert-base-uncased')
+    def __init__(self, utt_size):
+        super().__init__()
+        self.bert = BertModel.from_pretrained('bert-base-uncased')
+        self.linear = nn.Linear(768, utt_size)
 
     def forward(self, x, x_lens):
-        hidden_states, pooled_output = super().forward(x)
-        return pooled_output
+        _, x = self.bert(x)  # use the pooled [CLS] token output (_ is the 12 hidden states)
+        x = self.linear(x)
+        return x

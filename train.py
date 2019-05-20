@@ -99,16 +99,14 @@ if __name__ == '__main__':
         else:
             utt_encoder = model.WordVecAvg.random_init(len(word_vocab), args.utt_dims)
         utt_format = 'utts_ints'
-        utt_dims = args.utt_dims
     elif args.utt_encoder == 'bert':
         utt_format = 'utts_ints_bert'
-        utt_dims = 768  # ignore args.utt_dims for BERT
-        utt_encoder = model.BertUttEncoder.from_pretrained_base_uncased()
+        utt_encoder = model.BertUttEncoder(args.utt_dims)
     else:
         raise ValueError("Unknown encoder model: {}".format(args.utt_encoder))
 
     # always use the same dar_model
-    dar_model = model.DARRNN(utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0, use_lstm=args.lstm)
+    dar_model = model.DARRNN(args.utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0, use_lstm=args.lstm)
 
     # select the parameters to train
     if args.freeze_encoder: 
