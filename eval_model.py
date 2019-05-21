@@ -1,5 +1,6 @@
 import data
 import model
+import util
 
 import torch
 import torch.nn as nn
@@ -12,8 +13,12 @@ import logging
 parser = argparse.ArgumentParser()
 parser.add_argument('model_dir', type=str, 
         help='The save directory for the model to evaluate')
+parser.add_argument('load_epoch', type=int, 
+        help='The model checkpoint (training epoch) to load.')
 parser.add_argument('--test-file', type=str, default='data/swda_test.json', 
         help='Path of the file containing test data.')
+parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
+        help="Increase output verbosity")
 
 
 def compute_accuracy(data, preds):
@@ -55,15 +60,14 @@ def eval_model(utt_encoder, dar_model, data, n_tags, criterion, device):
 if __name__ == '__main__':
 
     args = parser.parse_args()
-    log = util.create_logger(args.verbose, os.path.join(args.model_dir, 'eval.log'))
 
     if not args.model_dir.startswith('models'):
         model_dir = os.path.join('models', args.model_dir)
     with open(os.path.join(model_dir, 'args.json'), 'r') as f:
         model_args = json.load(f)
+    log = util.create_logger(args.verbose, os.path.join(model_dir, 'eval.log'))
     args.__dict__.update(model_args)
 
-    log = util.create_logger(args.verbose, os.path.join(save_dir, 'eval.log'))
 
     word_vocab, word2id = data.load_vocab(args.vocab_file)
     tag_vocab, tag2id = data.load_vocab(args.tag_vocab_file)
@@ -78,16 +82,16 @@ if __name__ == '__main__':
     elif args.utt_encoder == 'bert':
         utt_format = 'utts_ints_bert'
         # TODO: maybe use BertModel() with an explicit config to avoid loading weights twice
-        utt_encoder = model.BertUttEncoder.from_pretrained_base_uncased() 
+        utt_encoder = model.BertUttEncoder(args.utt_dims) 
     else:
         raise ValueError("Unknown encoder model: {}".format(args.utt_encoder))
 
     # always use the same dar_model  
     dar_model = model.DARRNN(args.utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0)
 
-    # load the model state dicts
-    utt_encoder.load_state_dict(torch.load(os.path.join(model_dir, 'utt_encoder.bin')))
-    dar_model.load_state_dict(torch.load(os.path.join(model_dir, 'dar_model.bin')))
+    log.debug("Load the model state dicts.")
+    utt_encoder.load_state_dict(torch.load(os.path.join(model_dir, 'utt_encoder.E{}.bin'.format(args.load_epoch))))
+    dar_model.load_state_dict(torch.load(os.path.join(model_dir, 'dar_model.E{}.bin'.format(args.load_epoch))))
 
     dar_model.eval()
     utt_encoder.eval()
@@ -95,5 +99,12 @@ if __name__ == '__main__':
     tag_format = 'tags_ints'
     test_data = data.load_data(args.test_file, utt_format, tag_format)
 
-    run_model('evaluate', utt_encoder, dar_model, test_data, n_tags, None,
-            args.utt_batch_size, 1, 0, torch.device('cpu'))
+    criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
+    loss, preds = eval_model(utt_encoder, dar_model, test_data, n_tags, criterion, 'cpu')
+    accuracy = compute_accuracy(test_data, preds)
+    log.info("Test loss: {:.6f} | accuracy: %{:.2f}".format(loss, accuracy * 100))
+
+    log.debug("Saving preds.json")
+    with open(os.path.join(model_dir, 'preds.E{}.json'.format(args.load_epoch)), 'w') as f:
+        json.dump(preds, f)
+
