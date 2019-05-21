@@ -195,8 +195,8 @@ if __name__ == '__main__':
     train_data = data.load_data(args.train_file, utt_format, tag_format)
     val_data = data.load_data(args.val_file, utt_format, tag_format)
     if args.training_limit:
-        train_data = train_data[:args.train_limit]
-        val_data = val_data[:int(args.train_limit/2)]
+        train_data = train_data[:args.training_limit]
+        val_data = val_data[:int(args.training_limit/2)]
 
     for epoch in range(1, args.epochs+1):
         log.info("Starting epoch {}".format(epoch))
