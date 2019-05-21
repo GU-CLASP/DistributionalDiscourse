@@ -1,7 +1,7 @@
 import model
 import data
 import util
-from eval_model import eval_model, compute_accuracy
+import eval_model
 
 import torch
 import torch.nn as nn
@@ -112,8 +112,7 @@ def train_epoch(utt_encoder, dar_model, data, n_tags, batch_size, bptt, max_utt_
             batch_loss += loss.item()
         batch_loss = batch_loss / batch_size_
         epoch_loss += batch_loss 
-        if i % 1000 == 0: 
-            log.debug('Batch {} loss {:.6f}'.format(i, batch_loss))
+        log.debug('Batch {} loss {:.6f}'.format(i, batch_loss))
     epoch_loss = epoch_loss / i
     return epoch_loss
 
@@ -137,6 +136,7 @@ if __name__ == '__main__':
     with open(os.path.join(save_dir, 'args.json'), 'w') as f:
         json.dump(args.__dict__, f)
     log = util.create_logger(args.verbose, os.path.join(save_dir, 'train.log'))
+    eval_model.log = log  # set the eval_model logger to go to 'train.log'
 
     device = torch.device('cuda:{}'.format(args.gpu_id) if args.cuda and torch.cuda.is_available() else 'cpu')
     log.info("Training on {}.".format(device))
@@ -189,11 +189,12 @@ if __name__ == '__main__':
                 args.batch_size, args.bptt, args.max_utt_len, 
                 criterion, optimizer, device)
         log.info("Epoch {} training loss:   {:.6f}".format(epoch, train_loss))
-        val_loss, preds = eval_model(utt_encoder, dar_model, val_data, n_tags, 
-                criterion, device)
-        accuracy = compute_accuracy(val_data, preds)
-        log.info("Epoch {} validation loss: {:.6f} | accuracy: %{:.2f}".format(
-            epoch, val_loss, accuracy * 100))
         log.info("Saving epoch {} models.".format(epoch))
         torch.save(dar_model.state_dict(), os.path.join(save_dir, 'dar_model.E{}.bin'.format(epoch)))
         torch.save(utt_encoder.state_dict(), os.path.join(save_dir, 'utt_encoder.E{}.bin'.format(epoch)))
+        log.info("Starting epoch {} valdation".format(epoch))
+        val_loss, preds = eval_model.eval_model(utt_encoder, dar_model, val_data, n_tags, 
+                criterion, device)
+        accuracy = eval_model.compute_accuracy(val_data, preds)
+        log.info("Epoch {} validation loss: {:.6f} | accuracy: %{:.2f}".format(
+            epoch, val_loss, accuracy * 100))
