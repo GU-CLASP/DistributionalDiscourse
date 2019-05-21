@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
     for epoch in range(1, args.epochs+1):
         log.info("Starting epoch {}".format(epoch))
-        train_loss = train_epoch(utt_encoder, dar_model, train_data[:50], n_tags,
+        train_loss = train_epoch(utt_encoder, dar_model, train_data, n_tags,
                 args.batch_size, args.bptt, args.max_utt_len, 
                 criterion, optimizer, device)
         log.info("Epoch {} training loss:   {:.6f}".format(epoch, train_loss))
