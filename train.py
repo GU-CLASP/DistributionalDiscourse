@@ -1,7 +1,7 @@
 import model
 import data
 import util
-from run_model import run_model
+from eval_model import eval_model, compute_accuracy
 
 import torch
 import torch.nn as nn
@@ -12,6 +12,10 @@ import json
 import argparse
 import os
 import logging
+import random
+import math 
+import contextlib
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument("utt_encoder", choices=['wordvec-avg', 'bert'], 
@@ -31,10 +35,12 @@ parser.add_argument('--glove', dest='use_glove', action='store_true', default=Fa
         help="Use GloVe (with compatible utt encoders).")
 parser.add_argument('--epochs', type=int, default=10,
         help='Number of times to iterate through the training data.')
-parser.add_argument('--diag-batch-size', type=int, default=10,
+parser.add_argument('--batch-size', type=int, default=10,
         help='Size of dialogue batches (for DAR seq2seq)')
-parser.add_argument('--utt-batch-size', type=int, default=10,
-        help='Size of utterance batches (for utt encoding)')
+parser.add_argument('--bptt', type=int, default=5,
+        help='Length of sequences for backpropegation through time')
+parser.add_argument('--max-utt-len', type=int, default=50,
+        help='Maximum utterance length (truncates first part of long utterances).')
 parser.add_argument('--vocab-file', type=str, default='data/swda_vocab.json', 
         help='Path of the vocabulary to use (id -> word dict).')
 parser.add_argument('--tag-vocab-file', type=str, default='data/swda_tag_vocab.json', 
@@ -49,17 +55,67 @@ parser.add_argument('--save-suffix', type=str, default='',
         help='A suffix to add to the name of the save directory.')
 parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
         help="Increase output verbosity")
-        
-def compute_accuracy(data, preds):
-    tags = [diag[1] for diag in data]
-    total, total_correct = 0, 0
-    for y, y_hat in zip(tags, preds):
-        len_y = len(y)
-        assert(len_y == len(y_hat))
-        total += len_y
-        correct = sum([a == b for a,b in zip(y, y_hat)])
-        total_correct += correct
-    return total_correct / total
+
+log = util.create_logger(logging.DEBUG)
+
+def pad_lists(ls, max_len=None, pad=0):
+    pad_len = max(len(l) for l in ls)
+    if max_len:
+        pad_len = min(pad_len, max_len)
+    return [(l + ([pad] * (pad_len - len(l))))[-pad_len:] for l in ls]
+
+def gen_batches(data, batch_size):
+    data.sort(key=lambda x: len(x[0]))  # batch similarly lengthed dialogues together
+    batches = [data[i:i+batch_size] for i in range(0, len(data), batch_size)]
+    random.shuffle(batches)  # shuffle the batches so we a mix of lengths
+    return batches
+
+def gen_bptt(batch, bptt, batch_size, max_utt_len):
+    utts_batch, tags_batch = zip(*batch)
+    diag_lens = [len(tags) for tags in tags_batch]
+    max_diag_len = max(diag_lens)
+    utts_batch = [[utts_batch[i][j] if j < diag_lens[i] else []
+            for i in range(batch_size)] for j in range(max_diag_len)]
+    utts_batch = [pad_lists(utts, max_utt_len) for utts in utts_batch]
+    tags_batch = [[tags_batch[i][j] if j < diag_lens[i] else 0
+            for i in range(batch_size)] for j in range(max_diag_len)]
+    for seq in range(0, max_diag_len, bptt):
+        yield utts_batch[seq:seq+bptt], tags_batch[seq:seq+bptt]
+
+def train_epoch(utt_encoder, dar_model, data, n_tags, batch_size, bptt, max_utt_len,
+        criterion, optimizer, device):
+    epoch_loss = 0
+    batches = gen_batches(data, batch_size)
+    for i, batch in enumerate(tqdm(batches), 1):
+        batch_loss = 0
+        batch_size_ = len(batch)
+        hidden = dar_model.init_hidden(batch_size_) 
+        for x, y in gen_bptt(batch, bptt, batch_size_, max_utt_len):
+            # detach history from the previous batch
+            hidden = hidden.detach() 
+            # zero out the gradients 
+            dar_model.zero_grad() 
+            utt_encoder.zero_grad()
+            # create tensors
+            y = torch.LongTensor(y).to(device)
+            # encode utterances (once for each item in the BPTT sequence)
+            x = [torch.LongTensor(xi).to(device) for xi in x]
+            x = [utt_encoder(xi) for xi in x]
+            x = torch.stack(x)
+            # predict DA tag sequences
+            y_hat, hidden = dar_model(x, hidden) 
+            # compute loss, backpropagate, and update model weights
+            loss = criterion(y_hat.view(-1, n_tags), y.view(-1))
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+            batch_loss += loss.item()
+        batch_loss = batch_loss / batch_size_
+        epoch_loss += batch_loss 
+        if i % 1000 == 0: 
+            log.debug('Batch {} loss {:.6f}'.format(i, batch_loss))
+    epoch_loss = epoch_loss / i
+    return epoch_loss
 
 if __name__ == '__main__':
 
@@ -107,6 +163,7 @@ if __name__ == '__main__':
 
     # always use the same dar_model
     dar_model = model.DARRNN(args.utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0, use_lstm=args.lstm)
+    # dar_model = model.SimpleDARRNN(args.utt_dims, n_tags)
 
     # select the parameters to train
     if args.freeze_encoder: 
@@ -120,6 +177,7 @@ if __name__ == '__main__':
     train_data = data.load_data(args.train_file, utt_format, tag_format)
     val_data = data.load_data(args.val_file, utt_format, tag_format)
 
+    criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
     optimizer = optim.Adam(train_params) 
 
     dar_model.to(device)
@@ -127,14 +185,15 @@ if __name__ == '__main__':
 
     for epoch in range(1, args.epochs+1):
         log.info("Starting epoch {}".format(epoch))
-        loss, preds = run_model('train', utt_encoder, dar_model, train_data, n_tags,
-                args.utt_batch_size, args.diag_batch_size, optimizer=optimizer, device=device)
-        log.info("Epoch {} training loss: {:.2f}".format(epoch, loss))
-        loss, preds = run_model('evaluate', utt_encoder, dar_model, val_data, n_tags,
-                args.utt_batch_size, 1, device=device)
-        val_accuracy = compute_accuracy(val_data, preds)
-        log.info("Epoch {} validation loss: {:.2f}. Accuracy: %{:.2f}".format(
-            epoch, loss, val_accuracy*100))
+        train_loss = train_epoch(utt_encoder, dar_model, val_data, n_tags,
+                args.batch_size, args.bptt, args.max_utt_len, 
+                criterion, optimizer, device)
+        log.info("Epoch {} training loss:   {:.6f}".format(epoch, train_loss))
+        val_loss, preds = eval_model(utt_encoder, dar_model, val_data, n_tags, 
+                criterion, device)
+        accuracy = compute_accuracy(val_data, preds)
+        log.info("Epoch {} validation loss: {:.6f} | accuracy: %{:.2f}".format(
+            epoch, val_loss, accuracy * 100))
         log.info("Saving epoch {} models.".format(epoch))
         torch.save(dar_model.state_dict(), os.path.join(save_dir, 'dar_model.E{}.bin'.format(epoch)))
         torch.save(utt_encoder.state_dict(), os.path.join(save_dir, 'utt_encoder.E{}.bin'.format(epoch)))

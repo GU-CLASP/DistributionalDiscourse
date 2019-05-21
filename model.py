@@ -14,6 +14,18 @@ Contents:
 import torch.nn as nn
 from pytorch_pretrained_bert import BertModel 
 
+class SimpleDARRNN(nn.Module):
+    def __init__(self, utt_size, n_tags):
+        super().__init__()
+        self.decoder = nn.Linear(utt_size, n_tags)
+    def forward(self,x,hidden):
+        decoded = self.decoder(x.view(x.size(0)*x.size(1), x.size(2)))
+        return decoded.view(x.size(0), x.size(1), decoded.size(1)), hidden
+    def init_hidden(self, batch_size):
+        import torch
+        return torch.tensor([])
+
+
 class DARRNN(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
 
@@ -68,7 +80,7 @@ class WordVecAvg(nn.Module):
 
     @classmethod
     def from_pretrained(cls, weights):
-        embedding = nn.Embedding.from_pretrained(weights, padding_idx=0)
+        embedding = nn.Embedding.from_pretrained(weights, freeze=False, padding_idx=0)
         return cls(embedding)
 
     @classmethod
@@ -76,8 +88,8 @@ class WordVecAvg(nn.Module):
         embedding = nn.Embedding(num_embeddings, embedding_dim, padding_idx=0)
         return cls(embedding)
 
-    def forward(self, x, x_lens):
-        x = self.embedding(x).sum(dim=1) / x_lens.unsqueeze(1) 
+    def forward(self, x):
+        x = self.embedding(x).sum(dim=1) 
         return x 
 
 class BertUttEncoder(nn.Module):
@@ -87,7 +99,7 @@ class BertUttEncoder(nn.Module):
         self.bert = BertModel.from_pretrained('bert-base-uncased')
         self.linear = nn.Linear(768, utt_size)
 
-    def forward(self, x, x_lens):
+    def forward(self, x):
         _, x = self.bert(x)  # use the pooled [CLS] token output (_ is the 12 hidden states)
         x = self.linear(x)
         return x
