@@ -35,6 +35,8 @@ parser.add_argument('--glove', dest='use_glove', action='store_true', default=Fa
         help="Use GloVe (with compatible utt encoders).")
 parser.add_argument('--epochs', type=int, default=10,
         help='Number of times to iterate through the training data.')
+parser.add_argument("--learning-rate", default=3e-5, type=float,
+        help="The initial learning rate for Adam.")
 parser.add_argument('--batch-size', type=int, default=10,
         help='Size of dialogue batches (for DAR seq2seq)')
 parser.add_argument('--bptt', type=int, default=5,
@@ -57,6 +59,8 @@ parser.add_argument('--save-suffix', type=str, default='',
         help='A suffix to add to the name of the save directory.')
 parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
         help="Increase output verbosity")
+parser.add_argument("--training-limit", type=int, default=None,
+        help="Limit the amount of training data to N dialogues.")
 
 def pad_lists(ls, max_len=None, pad=0):
     pad_len = max(len(l) for l in ls)
@@ -167,21 +171,32 @@ if __name__ == '__main__':
 
     # select the parameters to train
     if args.freeze_encoder: 
-        train_params = dar_model.parameters()
+        for p in utt_encoder.parameters():
+            p.requires_grad = False
     else:
         utt_encoder.train()
-        train_params = itertools.chain(dar_model.parameters(), utt_encoder.parameters())
     dar_model.train()
+
+    params = list(dar_model.named_parameters()) + list(utt_encoder.named_parameters())
+    log.debug("Model parameters ({} total):".format(len(params)))
+    for n, p in params:
+        log.debug("{:<25} | {:<10} | {}".format(
+            str(p.size()),
+            'training' if p.requires_grad else 'frozen',
+            n if n else '<unnamed>'))
+
+    criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
+    optimizer = optim.Adam([p for n, p in params], lr=args.learning_rate)
+
+    dar_model.to(device)
+    utt_encoder.to(device)
 
     tag_format = 'tags_ints'
     train_data = data.load_data(args.train_file, utt_format, tag_format)
     val_data = data.load_data(args.val_file, utt_format, tag_format)
-
-    criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
-    optimizer = optim.Adam(train_params) 
-
-    dar_model.to(device)
-    utt_encoder.to(device)
+    if args.train_limit:
+        train_data = train_data[:args.train_limit]
+        val_data = val_data[:int(args.train_limit/2)]
 
     for epoch in range(1, args.epochs+1):
         log.info("Starting epoch {}".format(epoch))
