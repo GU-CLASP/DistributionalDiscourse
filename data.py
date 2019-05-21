@@ -1,5 +1,5 @@
 import util
-from preproc import tokenize, damsl_tag_cluster
+from preproc import tokenize, damsl_tag_cluster, remove_laughters, remove_disfluencies
 
 from swda.swda import CorpusReader
 from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer
@@ -105,22 +105,28 @@ def prep_swda():
 
     def extract_example(transcript):
         """ Gets the parts we need from the SWDA utterance object """ 
-        tags, tags_ints, utts, utts_ints, utts_ints_bert = [], [], [], [], []
+        tags, tags_ints, utts, utts_ints, utts_ints_bert , utts_ints_nl, utts_ints_bert_nl = [], [], [], [], [], [], []
         for utt in transcript.utterances:
             # Regex tokenization
             words = "[SPKR_{}] ".format(utt.caller) + tokenize(utt.text.lower())
+            words_nl = remove_laughters(remove_disfluencies(words))
             utts.append(words)
             utts_ints.append(words_to_ints(words.split()))
+            utts_ints_nl.append(words_to_ints(words_nl.split()))
             # BERT wordpiece tokenization
             bert_text = "[CLS] [SPKR_{}] ".format(utt.caller) + utt.text
             bert_tokens = bert_tokenizer.tokenize(bert_text) # list of strings
             utts_ints_bert.append(bert_tokenizer.convert_tokens_to_ids(bert_tokens))
+            bert_text_nl = remove_laughters(remove_disfluencies(bert_text))
+            bert_tokens_nl = bert_tokenizer.tokenize(bert_text_nl)
+            utts_ints_bert_nl.append(bert_tokenizer.convert_tokens_to_ids(bert_tokens_nl))
             # dialogue act tags
             tag = damsl_tag_cluster(utt.act_tag)
             tags.append(tag)
             tags_ints.append(tag_to_int(tag))
         return {'id': transcript.conversation_no, 'utts': utts, 'utts_ints': utts_ints, 
-                'utts_ints_bert': utts_ints_bert, 'tags': tags, 'tags_ints': tags_ints}
+                'utts_ints_bert': utts_ints_bert, 'tags': tags, 'tags_ints': tags_ints,
+                'utts_ints_bert_nl': utts_ints_bert_nl, 'utts_ints_nl': utts_ints_nl}
 
     log.info("Extracting data and saving splits.")
     for split in splits:
