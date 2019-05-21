@@ -56,8 +56,6 @@ parser.add_argument('--save-suffix', type=str, default='',
 parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
         help="Increase output verbosity")
 
-log = util.create_logger(logging.DEBUG)
-
 def pad_lists(ls, max_len=None, pad=0):
     pad_len = max(len(l) for l in ls)
     if max_len:
@@ -185,7 +183,7 @@ if __name__ == '__main__':
 
     for epoch in range(1, args.epochs+1):
         log.info("Starting epoch {}".format(epoch))
-        train_loss = train_epoch(utt_encoder, dar_model, val_data, n_tags,
+        train_loss = train_epoch(utt_encoder, dar_model, train_data[:50], n_tags,
                 args.batch_size, args.bptt, args.max_utt_len, 
                 criterion, optimizer, device)
         log.info("Epoch {} training loss:   {:.6f}".format(epoch, train_loss))
