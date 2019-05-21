@@ -194,7 +194,7 @@ if __name__ == '__main__':
     tag_format = 'tags_ints'
     train_data = data.load_data(args.train_file, utt_format, tag_format)
     val_data = data.load_data(args.val_file, utt_format, tag_format)
-    if args.train_limit:
+    if args.training_limit:
         train_data = train_data[:args.train_limit]
         val_data = val_data[:int(args.train_limit/2)]
 
