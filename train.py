@@ -43,6 +43,8 @@ parser.add_argument('--bptt', type=int, default=5,
         help='Length of sequences for backpropegation through time')
 parser.add_argument('--max-utt-len', type=int, default=50,
         help='Maximum utterance length (truncates first part of long utterances).')
+parser.add_argument('--no-laughter', action='store_true', default=False,
+        help='Flag for loading the data with laughters stripped out.')
 parser.add_argument('--vocab-file', type=str, default='data/swda_vocab.json', 
         help='Path of the vocabulary to use (id -> word dict).')
 parser.add_argument('--tag-vocab-file', type=str, default='data/swda_tag_vocab.json', 
@@ -192,6 +194,7 @@ if __name__ == '__main__':
     utt_encoder.to(device)
 
     tag_format = 'tags_ints'
+    utt_format = utt_format + '_nl' if args.no_laughter else utt_format
     train_data = data.load_data(args.train_file, utt_format, tag_format)
     val_data = data.load_data(args.val_file, utt_format, tag_format)
     if args.training_limit:
