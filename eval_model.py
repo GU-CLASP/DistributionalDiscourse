@@ -33,16 +33,17 @@ def eval_model(utt_encoder, dar_model, data, n_tags, criterion, device):
         - returns predictions as well as loss
     """
     preds, loss = [], 0
-    for x, y in data:
-       x = [torch.LongTensor(xi).unsqueeze(0).to(device) for xi in x]
-       y = torch.LongTensor(y).to(device)
-       x = [utt_encoder(xi) for xi in x]
-       x = torch.stack(x)
-       hidden = dar_model.init_hidden(1)
-       y_hat, hidden = dar_model(x, hidden)
-       loss += criterion(y_hat.view(-1, n_tags), y.view(-1)).item()
-       preds.append(y_hat.max(dim=2)[1].squeeze(1).tolist())
-    loss = loss / len(data)
+    with torch.no_grad():
+        for x, y in data:
+           x = [torch.LongTensor(xi).unsqueeze(0).to(device) for xi in x]
+           y = torch.LongTensor(y).to(device)
+           x = [utt_encoder(xi) for xi in x]
+           x = torch.stack(x)
+           hidden = dar_model.init_hidden(1)
+           y_hat, hidden = dar_model(x, hidden)
+           loss += criterion(y_hat.view(-1, n_tags), y.view(-1)).item()
+           preds.append(y_hat.max(dim=2)[1].squeeze(1).tolist())
+        loss = loss / len(data)
     return loss, preds 
 
 

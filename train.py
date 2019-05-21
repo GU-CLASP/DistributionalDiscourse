@@ -51,6 +51,8 @@ parser.add_argument('--val-file', type=str, default='data/swda_val.json',
         help='Path of the file containing validation data.')
 parser.add_argument('--cuda', action='store_true',
         help='use CUDA')
+parser.add_argument('--gpu-id', type=int, default=0,
+        help='Select with GPU to use')
 parser.add_argument('--save-suffix', type=str, default='', 
         help='A suffix to add to the name of the save directory.')
 parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
@@ -136,7 +138,7 @@ if __name__ == '__main__':
         json.dump(args.__dict__, f)
     log = util.create_logger(args.verbose, os.path.join(save_dir, 'train.log'))
 
-    device = torch.device('cuda' if args.cuda and torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda:{}'.format(args.gpu_id) if args.cuda and torch.cuda.is_available() else 'cpu')
     log.info("Training on {}.".format(device))
 
     word_vocab, word2id = data.load_vocab(args.vocab_file)
