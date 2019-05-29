@@ -15,7 +15,7 @@
   - macro F1 / macro precision? See: [Guillou et. al., 2016](https://www.aclweb.org/anthology/W16-2345) (thanks, Sharid!)
   - majority class baseline / tag distribution
   - time to train
-  - # of parameters / # of task-trained parameters
+  - number of parameters / task-trained parameters
 - not super exciting but maybe we should try:
   - DAR model hyperparameter tuning (`hidden_size`, `n_layers`, `dropout`, `use_lstm`)
   - play with learning rate 
