@@ -61,7 +61,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if not args.model_dir.startswith('models'):
+    if args.model_dir.startswith('models'):
+        model_dir = args.model_dir
+    else:
         model_dir = os.path.join('models', args.model_dir)
     with open(os.path.join(model_dir, 'args.json'), 'r') as f:
         model_args = json.load(f)
