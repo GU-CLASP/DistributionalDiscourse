@@ -10,12 +10,16 @@
 - methodological improvements: 
   - use customized BERT vocab/word-piece tokenization for baseline models as well as BERT
 - additional corpora:
-  - [AMI](http://groups.inf.ed.ac.uk/ami/corpus/annotation.shtml)
+  - [AMI](http://groups.inf.ed.ac.uk/ami/corpus/annotation.shtml) -- has dialogue acts 
+  - [SBCSAE](https://www.linguistics.ucsb.edu/research/santa-barbara-corpus#Intro)  -- normalize laughter & use for pre-training
 - improve reporting and analysis:
   - macro F1 / macro precision? See: [Guillou et. al., 2016](https://www.aclweb.org/anthology/W16-2345) (thanks, Sharid!)
-  - majority class baseline / tag distribution
-  - time to train
-  - number of parameters / task-trained parameters
+  - majority class baseline 
+  - time to train / number of parameters / task-trained parameters
+  - laughter impact
+    - story for laughter in each of the DAs
+    - which pairs of DAs is laughter most helpful at distinguishing (i.e. in the confusion matrix, where is there the biggest decrease from NL -> L?)
+    - counts for DAs (total, with/wo laughs)
 - not super exciting but maybe we should try:
   - DAR model hyperparameter tuning (`hidden_size`, `n_layers`, `dropout`, `use_lstm`)
   - play with learning rate 
