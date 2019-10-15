@@ -33,7 +33,10 @@ let
          # If you want to have a local virtualenv, see here: https://github.com/NixOS/nixpkgs/blob/master/doc/languages-frameworks/python.section.md
          pytorch-pretrained-bert
          pytorch
-	 nltk
+	       nltk
+         notebook
+         matplotlib
+         pandas
          # scikitlearn
          # notebook
          # etc
