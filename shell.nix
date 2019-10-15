@@ -46,5 +46,6 @@ in
     shellHook = ''
       export LANG=en_US.UTF-8
       export PYTHONIOENCODING=UTF-8
+      export LD_PRELOAD=/lib64/libcuda.so.1:/lib64/libnvidia-fatbinaryloader.so.418.74  
      '';
   }
