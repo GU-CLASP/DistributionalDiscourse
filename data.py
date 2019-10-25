@@ -2,6 +2,8 @@ import util
 from preproc import tokenize, damsl_tag_cluster, remove_laughters, remove_disfluencies
 
 from swda.swda import CorpusReader
+import ami
+
 from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer
 from pytorch_pretrained_bert.tokenization import load_vocab as load_bert_vocab 
 
@@ -15,7 +17,7 @@ import logging
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument("command", choices=['prep-swda', 'download-glove', 'customize-bert-vocab'], help="What to process")
+parser.add_argument("command", choices=['prep-swda', 'prep-ami', 'download-glove', 'customize-bert-vocab'], help="What to process")
 
 SWDA_CORPUS_DIR = "data/swda"
 SWDA_SPLITS = "data/swda_{}.json"
@@ -142,6 +144,17 @@ def prep_swda():
     with open(SWDA_SPLITS.format("tag_vocab"), 'w') as f:
         json.dump(tag_vocab, f)
 
+def prep_ami():
+
+    meetings = ami.get_corpus('data/AMI/ami_public_manual_1.6.2')
+    for meeting in meetings:
+        meeting.gen_transcript()
+    print("Got {} AMI meetings.".format(len(meetings)))
+
+    # TODO: write an etract_example function like for SWDA...
+    # may have to do a bigger overhaul to accom. shared vocab, etc...
+
+
 
 def customize_bert_vocab():
     vocab_filename = BERT_VOCAB_FILE.format(BERT_MODEL) 
@@ -175,6 +188,8 @@ if __name__ == '__main__':
     log = util.create_logger(logging.INFO)
     if args.command == 'prep-swda':
         prep_swda()
+    if args.command == 'prep-ami':
+        prep_ami()
     if args.command == 'download-glove':
         download_glove()
     if args.command == 'customize-bert-vocab':
