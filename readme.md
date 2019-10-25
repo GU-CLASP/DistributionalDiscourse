@@ -50,8 +50,8 @@
   - In-domain fine-tuning
     - Corpora {SWBD-SWDA, AMI-NODA}
     - Fine-tuning task {Masked token prediction, adjacent utterance}
-- Learning rate (for each task)
-  - N epochs (for each task)
+    - Learning rate (for each task)
+    - N epochs (for each task)
 - BERT output
   - CLS token [final layer, second-to-last layer]
   - Token average [final layer, second-to-last layer]
