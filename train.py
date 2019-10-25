@@ -95,7 +95,7 @@ def train_epoch(utt_encoder, dar_model, data, n_tags, batch_size, bptt, max_utt_
     for i, batch in enumerate(tqdm(batches), 1):
         batch_loss = 0
         batch_size_ = len(batch)
-        hidden = dar_model.init_hidden(batch_size_) 
+        hidden = dar_model.init_hidden(batch_size_).to(device)
         for x, y in gen_bptt(batch, bptt, batch_size_, max_utt_len):
             # detach history from the previous batch
             hidden = hidden.detach() 

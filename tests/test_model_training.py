@@ -31,28 +31,30 @@ train_data = list(zip(data, labels))
 epochs = 2
 batch_size = 2
 bptt = 5
+device = 'cuda'
+
 class TestTraining(unittest.TestCase):
 
     def test_wordvecavg(self):
-        utt_encoder = model.WordVecAvg.random_init(vocab_size, utt_dims)
-        dar_model = model.DARRNN(utt_dims, n_labels, n_hidden, 1, dropout=0)
+        utt_encoder = model.WordVecAvg.random_init(vocab_size, utt_dims).to(device)
+        dar_model = model.DARRNN(utt_dims, n_labels, n_hidden, 1, dropout=0).to(device)
         train_params = itertools.chain(dar_model.parameters(), utt_encoder.parameters())
         optimizer=optim.Adam(train_params)
         criterion = nn.CrossEntropyLoss(ignore_index=0)  
         print("Testing Word2VecAvg on random inputs.")
         for epoch in range(epochs):
             train.train_epoch(utt_encoder, dar_model, train_data, n_labels, 
-                    batch_size, bptt, None, criterion, optimizer, 'cpu')
+                    batch_size, bptt, None, criterion, optimizer, device)
 
     def test_bert(self):
-        utt_encoder = model.BertUttEncoder(utt_dims)
-        dar_model = model.DARRNN(utt_dims, n_labels, n_hidden, 1, dropout=0)
+        utt_encoder = model.BertUttEncoder(utt_dims).to(device)
+        dar_model = model.DARRNN(utt_dims, n_labels, n_hidden, 1, dropout=0).to(device)
         train_params = itertools.chain(dar_model.parameters(), utt_encoder.parameters())
         optimizer=optim.Adam(train_params)
         criterion = nn.CrossEntropyLoss(ignore_index=0)  
         print("Testing BERT on random inputs.")
         for epoch in range(epochs):
             train.train_epoch(utt_encoder, dar_model, train_data, n_labels, 
-                    batch_size, bptt, None, criterion, optimizer, 'cpu')
+                    batch_size, bptt, None, criterion, optimizer, device)
 
 
