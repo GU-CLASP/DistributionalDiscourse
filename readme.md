@@ -31,3 +31,44 @@
   - dialogue model pre-training
     - instead of training the dialogue model to predict DAs directly, predict the encoder representation of the next utterance (unsupervised)
     - test/probe by guessing DAs (or other discourse properties) with an additional linear layer
+
+# Experiments 
+
+## Experimental parameters
+
+- Encoder architecture
+  - BERT ? [12 layers, 24 layers]
+    - ? DistilBert
+    - ? RoBERTa
+  - bi-LSTM [hidden size, n layers]
+- DA model architecture
+  - Elman RNN [hidden size]
+  - LSTM [hidden size]
+- Encoder pre-training
+  - Pre-trained BERT (out-of-domain)
+  - Randomly initialised
+  - In-domain fine-tuning
+    - Corpora {SWBD-SWDA, AMI-NODA}
+    - Fine-tuning task {Masked token prediction, adjacent utterance}
+- Learning rate (for each task)
+  - N epochs (for each task)
+- BERT output
+  - CLS token [final layer, second-to-last layer]
+  - Token average [final layer, second-to-last layer]
+  - ? Token attention [final layer, second-to-last layer]
+- Task-level training (fine-tuning)
+  - Learning rate
+  - N epochs
+
+## Questions to answer
+
+- Which pre-training tasks are most helpful for DA pred.?
+  - Masked LM
+  - Adjacent utterances
+  - Both
+- Does fine-tuning learn/make use of dialogue-specific features?
+  - Fine-tune pre-trained BERT w/laughs (train frozen/unfrozen)
+  - Fine-tune pre-trained BERT w/o laughs (train frozen/unfrozen)
+- Is catastrophic forgetting happening (are we actually using the pre-training)
+  - Fine-tune pre-trained BERT w/laughs (train frozen/unfrozen)
+  - Fine-tune randomly initialised BERT w/laughs (train frozen/unfrozen
