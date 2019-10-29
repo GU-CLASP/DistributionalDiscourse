@@ -48,7 +48,7 @@
   - Pre-trained BERT (out-of-domain)
   - Randomly initialised
   - In-domain fine-tuning
-    - Corpora {SWBD-SWDA, AMI-NODA}
+    - Corpora {SWBD-SWDA, AMI-NODA, Ubuntu}
     - Fine-tuning task {Masked token prediction, adjacent utterance}
     - Learning rate (for each task)
     - N epochs (for each task)
@@ -72,3 +72,6 @@
 - Is catastrophic forgetting happening (are we actually using the pre-training)
   - Fine-tune pre-trained BERT w/laughs (train frozen/unfrozen)
   - Fine-tune randomly initialised BERT w/laughs (train frozen/unfrozen
+- Dialogue model pre-training
+  - representation learning / next representation prediction
+  - question mark prediction task
