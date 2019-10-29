@@ -12,7 +12,7 @@ inside_parens_re = re.compile(r'\(([^\)]+)\)')
 class AMIToken():
     """
     Representation for an element of the AMI trascription words layer.
-    
+
     Attributes:
         meeting_id  - The ID of the meeting the dialogue is from. 
                        See: http://groups.inf.ed.ac.uk/ami/corpus/meetingids.shtml
@@ -25,7 +25,7 @@ class AMIToken():
         punc         - Whether the token is punctutanion (Note: start_time == end_time for punctuation)
         trunc        - Whether the word was truncated
     """
-    
+
     def __init__(self, meeting_id, speaker, index, token_type, start_time, end_time, text, attrib):
         self.meeting_id = meeting_id
         self.speaker = speaker
@@ -35,13 +35,13 @@ class AMIToken():
         self.end_time = end_time
         self.text = text
         self.attrib = attrib
-        
+
     @classmethod
     def from_xml(cls, element):
         """
         Create an AMIToken from a xml.etree.ElementTree.Element from a words file from the corpus
         """
-        
+
         meeting_id, speaker, index = cls.__parse_id(element)
         if index is None:
             return None
@@ -62,9 +62,9 @@ class AMIToken():
             end_time = start_time
         text = element.text
         attrib = element.attrib
-        
+
         return cls(meeting_id, speaker, index, token_type, start_time, end_time, text, attrib)
-    
+
     def __str__(self):
         if self.token_type == 'w':
             return self.text
@@ -76,7 +76,7 @@ class AMIToken():
             return ''
         else:
             raise ValueError("undefined str for token {}".format(self.token_type))
-    
+
     @staticmethod
     def __parse_id(element):
         index_string = element.get('{{{}}}id'.format(xml_ns['nite']))
@@ -86,12 +86,12 @@ class AMIToken():
         else: 
             index = int(index[5:])
         return meeting_id, speaker, index
-    
+
 
 class AMIDialogueAct():
     """
     Representation for an element of the AMI da-layer.
-    
+
     Attributes:
         meeting_id  - The ID of the meeting the dialogue is from. 
                        See: http://groups.inf.ed.ac.uk/ami/corpus/meetingids.shtml
@@ -101,7 +101,7 @@ class AMIDialogueAct():
         start_token  - Index of the starting token in the speaker words stream
         end_token    - Index of the end token in the speaker words stream
     """
-    
+
     def __init__(self, meeting_id, speaker, index, da_tag, start_token, end_token):
         self.meeting_id = meeting_id
         self.speaker = speaker
@@ -109,12 +109,12 @@ class AMIDialogueAct():
         self.da_tag = da_tag
         self.start_token = start_token
         self.end_token = end_token
-        
+
     @classmethod
     def from_xml(cls, element):
-        
+
         meeting_id, speaker, _, _, index = element.get('{{{}}}id'.format(xml_ns['nite'])).split('.')
-        
+
         if len(element) == 2:
             da_tag = inside_parens_re.search(element[0].get('href'))[1]
             token_interval = element[1]
@@ -122,33 +122,33 @@ class AMIDialogueAct():
             token_interval = element[0]
             da_tag = None
         token_interval = [i[5:] for i in inside_parens_re.findall(token_interval.get('href'))]
-        
+
         if len(token_interval) == 2:
             start_token, end_token = token_interval
         else: # len == 1
             start_token = end_token = token_interval[0]
         start_token, end_token = cls.__parse_token_id(start_token), cls.__parse_token_id(end_token)
-            
+
         return cls(meeting_id, speaker, index, da_tag, start_token, end_token)
-    
+
     @staticmethod
     def __parse_token_id(id_str):
         return int(id_str.split('.')[-1][5:])
-    
+
 class AMIUtterance():
-    
+
     def __init__(self, tokens, dialogue_act=None):
-        
+
         if dialogue_act:
             meeting_id = dialogue_act.meeting_id
             speaker = dialogue_act.speaker
         else:
             meeting_id = tokens[0].meeting_id
             speaker = tokens[0].speaker
-        
+
         assert(all(t.meeting_id == meeting_id for t in tokens))
         assert(all(t.speaker == speaker for t in tokens))
-        
+
         self.meeting_id = meeting_id
         self.speaker = speaker
         self.start_time = min(t.start_time for t in tokens)
@@ -160,8 +160,8 @@ class AMIUtterance():
             print(speaker)
         self.dialogue_act = dialogue_act
         self.tokens = tokens
-        
-        
+
+
 class AMIMeeting():
     
     def __init__(self, meeting_id, speaker_streams, speaker_dialogue_acts=None):
@@ -170,7 +170,7 @@ class AMIMeeting():
         self.speaker_streams = speaker_streams
         self.speaker_dialogue_acts = speaker_dialogue_acts
         self.speakers = set(speaker_streams.keys())
-        self._transcript = None
+        self.transcript = None
         
     def gen_transcript(self, split_utts_by_da=True, utt_pause_threshold=3):
         """
@@ -182,7 +182,7 @@ class AMIMeeting():
             utt_pause_threshold - if `split_utts_by_da` is False, consecutive utterances 
                 by the same speaker are split heuristically by the gap between words.
         """
-        if self._transcript:
+        if self.transcript:
             return transcript
         
         if split_utts_by_da and not self.speaker_dialogue_acts:
@@ -197,7 +197,7 @@ class AMIMeeting():
         # interelave utts
         transcript = sorted(utts, key=lambda x: x.start_time)
         
-        self._transcript = transcript
+        self.transcript = transcript
         return transcript
     
     def __get_utts_da(self, speaker):
