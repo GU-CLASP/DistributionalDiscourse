@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 import os
 from collections import defaultdict, namedtuple
-from tqdm import tqdm_notebook as tqdm
+from tqdm import tqdm
 import re
 import warnings
 
@@ -47,20 +47,14 @@ class AMIToken():
             return None
         token_type = element.tag
         start_time = element.get('starttime')
+        end_time   = element.get('endtime')
         if start_time:
             start_time = float(start_time)
-        else:
-            print('st null') 
-            print(meeting_id, speaker, index, token_type)
-            start_time = 0
-        end_time   = element.get('endtime')
         if end_time:
             end_time = float(end_time)
         else:
-            # print('et null')
-            # print(meeting_id, speaker, index, token_type)
             end_time = start_time
-        text = element.text
+        text = element.text if element.text else ''
         attrib = element.attrib
 
         return cls(meeting_id, speaker, index, token_type, start_time, end_time, text, attrib)
@@ -152,14 +146,12 @@ class AMIUtterance():
         self.meeting_id = meeting_id
         self.speaker = speaker
         self.start_time = min(t.start_time for t in tokens)
-        try: 
-            self.end_time = max(t.end_time for t in tokens)
-        except:
-            print([t.end_time for t in tokens])
-            print(meeting_id)
-            print(speaker)
+        self.end_time = max(t.end_time for t in tokens)
         self.dialogue_act = dialogue_act
         self.tokens = tokens
+
+    def text(self):
+        return ' '.join(t.text for t in self.tokens)
 
 
 class AMIMeeting():
@@ -243,42 +235,36 @@ class AMIMeeting():
         
         return utts
                 
-def get_corpus(ami_corpus_dir):
-    """
-    Returns a list of AMIMeetings.
-    """
+def get_corpus(ami_corpus_dir, da_only=True):
 
     words_dir = os.path.join(ami_corpus_dir, 'words')
     words_files = [f for f in os.listdir(words_dir) if f.endswith('.xml')]
-    ######### DEV SAMPLE ##########
-    # words_files = [f for f in words_files if f.startswith('ES2013')]
 
     da_dir = os.path.join(ami_corpus_dir, 'dialogueActs')
     da_files = [f for f in os.listdir(da_dir) if f.endswith('dialog-act.xml')] # ignore the adjacency-pairs files
-    ######### DEV SAMPLE ##########
-    # da_files = [f for f in da_files if f.startswith('ES2013')]
-
-            
-    stream_tokens = defaultdict(lambda: defaultdict(list))
-    for file in tqdm(words_files):
-        
-        tree = ET.parse(os.path.join(words_dir, file))
-        root = tree.getroot()
-        
-        for element in root:
-            token = AMIToken.from_xml(element)
-            if token:
-                stream_tokens[token.meeting_id][token.speaker].append(token)
 
     stream_da_acts = defaultdict(lambda: defaultdict(list))
-    for file in tqdm(da_files):
-        
+    for file in tqdm(da_files, desc="DA files"):
         tree = ET.parse(os.path.join(da_dir, file))
         root = tree.getroot()
         for element in root:
             da_act = AMIDialogueAct.from_xml(element)
             stream_da_acts[da_act.meeting_id][da_act.speaker].append(da_act)
 
+    if da_only:
+        words_files = [w for w in words_files if w.split('.')[0] in stream_da_acts]
+    stream_tokens = defaultdict(lambda: defaultdict(list))
+    for file in tqdm(words_files, desc="Words files"):
+        tree = ET.parse(os.path.join(words_dir, file))
+        root = tree.getroot()
+        for element in root:
+            token = AMIToken.from_xml(element)
+            if token:
+                stream_tokens[token.meeting_id][token.speaker].append(token)
+
     meetings = [AMIMeeting(meeting_id, stream_tokens[meeting_id], stream_da_acts.get(meeting_id, None)) for meeting_id in stream_tokens ]
 
     return meetings
+
+if __name__ == '__main__':
+    get_corpus('data/AMI/ami_public_manual_1.6.2')

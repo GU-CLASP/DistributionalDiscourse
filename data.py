@@ -1,166 +1,35 @@
-import util
-from preproc import tokenize, damsl_tag_cluster, remove_laughters, remove_disfluencies
-
-from swda.swda import CorpusReader
-import ami
-
-from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer
-from pytorch_pretrained_bert.tokenization import load_vocab as load_bert_vocab 
-
-import os
-import re
-import json
-import zipfile
-import random
 import argparse
 import logging
-from tqdm import tqdm
+import json
+import zipfile
+import tarfile
+import os
+
+import util
+import ami
+from swda import swda
+
+from preproc import tokenize, damsl_tag_cluster, remove_laughters, remove_disfluencies
 
 parser = argparse.ArgumentParser()
-parser.add_argument("command", choices=['prep-swda', 'prep-ami', 'download-glove', 'customize-bert-vocab'], help="What to process")
+parser.add_argument("command", choices=['prep-corpora', 'customize-bert-vocab'], 
+        help="What preprocessing to do.")
+parser.add_argument('-c','--corpora', nargs='+', default=[], 
+        help='A list of corpora to preprocess. (Default: preprocess all)'
+             'Options: swbd, swda, ami, ami-da')
 
-SWDA_CORPUS_DIR = "data/swda"
-SWDA_SPLITS = "data/swda_{}.json"
-
-BERT_MODEL = 'bert-base-uncased'
-BERT_VOCAB_FILE = "data/{}-vocab.SWDA.txt"
-BERT_RESERVED_TOKENS = ["[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"] # used by the pre-trained BERT model
-BERT_CUSTOM_TOKENS = ['[SPKR_A]', '[SPKR_B]', '<laughter>'] # added by us TODO: add disfluencies
-
-vocab =  {"@@@@@":0, "[SPKR_A]":1, "[SPKR_B]":2}
-tag_vocab = {'@@@@@':0}
-
-def gen_splits(id_list, train=0.7, val=0.1, test=0.2):
-    assert(train+val+test == 1)
-    random.shuffle(id_list)
-    n_train, n_val, n_test = [int(x * len(id_list)) for x in (train, val, test)]
-    train, val, test = id_list[:n_train], id_list[n_train:n_train+n_val], id_list[n_train+n_val:]
-    return {'train': train, 'val': val, 'test': test} 
-
-def load_vocab(vocab_file):
-    with open(vocab_file) as f:
-        token2id = json.load(f) # token -> int dictionary
-    id2token = [item[0] for item in sorted(token2id.items(), key=lambda x: x[1])]
-    return (id2token, token2id)
-
-def load_glove(glove_dim, vocab):
-    with open('data/glove.6B/glove.6B.{}d.txt'.format(glove_dim), 'rb') as f:
-        word_vectors = {}
-        for line in tqdm(f.readlines(), desc="loading glove {}d".format(glove_dim)):
-            word_vectors[line[0]] = list(map(float, line[1:]))
-    # order the word vectors according to the vocab
-    word_vectors = [word_vectors[w] if w in word_vectors else [0] * glove_dim for w in vocab]
-    return word_vectors
-
-def load_data(data_file, utt_format, tag_format):
-    with open(data_file) as f:
-        data = json.load(f)
-    return [(dialogue[utt_format], dialogue[tag_format]) for dialogue in data]
-
-def prep_swda():
-    """
-    Put the conversations into a json format that torchtext can read easily.
-    Each "example" is a conversation comprised of a list of utterances 
-    and a list of dialogue act tags (each the same length)
-    """
-
-    log.info("Loading SWDA corpus.")
-    if not os.path.isfile(SWDA_CORPUS_DIR):
-        with zipfile.ZipFile("swda/swda.zip") as zip_ref:
-            zip_ref.extractall('data')
-    corpus = CorpusReader(SWDA_CORPUS_DIR)
-    corpus = {t.conversation_no: t for t in corpus.iter_transcripts()}
-
-    bert_vocab_file = BERT_VOCAB_FILE.format(BERT_MODEL)
-    if not os.path.isfile(bert_vocab_file):
-        log.info("Customizing BERT vocab.")
-        customize_bert_vocab()
-    log.info("Loading BERT vocab/tokenizer.")
-    bert_tokenizer = BertTokenizer.from_pretrained(bert_vocab_file, 
-            never_split = BERT_RESERVED_TOKENS + BERT_CUSTOM_TOKENS)
-
-    log.info("Getting splits.")
-    splits_file = SWDA_SPLITS.format('splits')
-    if os.path.isfile(splits_file): # use existing SWDA splits (for reproducibility purposes)
-        with open(splits_file) as f:
-            splits = json.load(f)
-    else: # save the splits file
-        splits = gen_splits(list(corpus.keys()))
-        with open(splits_file, 'w') as f:
-            json.dump(splits, f)
-
-    def words_to_ints(ws):
-        maxvalue = max(vocab.values())
-        for w in ws:
-            if w not in vocab:
-                maxvalue += 1
-                vocab[w] = maxvalue
-        xs = [vocab[x] for x in ws]
-        return xs
-
-    def tag_to_int(tag):
-        maxvalue = max(tag_vocab.values()) if tag_vocab else -1
-        if tag not in tag_vocab:
-            maxvalue += 1
-            tag_vocab[tag] = maxvalue
-        return tag_vocab[tag] 
-
-    def extract_example(transcript):
-        """ Gets the parts we need from the SWDA utterance object """ 
-        tags, tags_ints, utts, utts_ints, utts_ints_bert , utts_ints_nl, utts_ints_bert_nl = [], [], [], [], [], [], []
-        for utt in transcript.utterances:
-            # Regex tokenization
-            words = "[SPKR_{}] ".format(utt.caller) + tokenize(utt.text.lower())
-            words_nl = remove_laughters(remove_disfluencies(words))
-            utts.append(words)
-            utts_ints.append(words_to_ints(words.split()))
-            utts_ints_nl.append(words_to_ints(words_nl.split()))
-            # BERT wordpiece tokenization
-            bert_text = "[CLS] [SPKR_{}] ".format(utt.caller) + utt.text
-            bert_tokens = bert_tokenizer.tokenize(bert_text) # list of strings
-            utts_ints_bert.append(bert_tokenizer.convert_tokens_to_ids(bert_tokens))
-            bert_text_nl = remove_laughters(remove_disfluencies(bert_text))
-            bert_tokens_nl = bert_tokenizer.tokenize(bert_text_nl)
-            utts_ints_bert_nl.append(bert_tokenizer.convert_tokens_to_ids(bert_tokens_nl))
-            # dialogue act tags
-            tag = damsl_tag_cluster(utt.act_tag)
-            tags.append(tag)
-            tags_ints.append(tag_to_int(tag))
-        return {'id': transcript.conversation_no, 'utts': utts, 'utts_ints': utts_ints, 
-                'utts_ints_bert': utts_ints_bert, 'tags': tags, 'tags_ints': tags_ints,
-                'utts_ints_bert_nl': utts_ints_bert_nl, 'utts_ints_nl': utts_ints_nl}
-
-    log.info("Extracting data and saving splits.")
-    for split in splits:
-        data = []
-        for ex_id in tqdm(splits[split], desc=split):
-            data.append(extract_example(corpus[ex_id]))
-        with open(SWDA_SPLITS.format(split), 'w') as f:
-            json.dump(data, f)
-    log.info("Vocab size: {}". format(len(vocab)))
-    with open(SWDA_SPLITS.format("vocab"), 'w') as f:
-        json.dump(vocab, f)
-    log.info("Tag vocab size: {}". format(len(tag_vocab)))
-    with open(SWDA_SPLITS.format("tag_vocab"), 'w') as f:
-        json.dump(tag_vocab, f)
-
-def prep_ami():
-
-    meetings = ami.get_corpus('data/AMI/ami_public_manual_1.6.2')
-    for meeting in meetings:
-        meeting.gen_transcript()
-    print("Got {} AMI meetings.".format(len(meetings)))
-
-    # TODO: write an etract_example function like for SWDA...
-    # may have to do a bigger overhaul to accom. shared vocab, etc...
+DATA_DIR = 'data'
 
 
+def customize_bert_vocab(bert_model='bert-base-uncased'):
 
-def customize_bert_vocab():
-    vocab_filename = BERT_VOCAB_FILE.format(BERT_MODEL) 
-    vocab_url = PRETRAINED_VOCAB_ARCHIVE_MAP[BERT_MODEL]
+    from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer, load_vocab
+    bert_vocab_file = os.path.join(DATA_DIR, f"{bert_model}-vocab.txt")
+
+    vocab_filename = BERT_VOCAB_FILE.format(bert_model) 
+    vocab_url = PRETRAINED_VOCAB_ARCHIVE_MAP[bert_model]
     util.download_url(vocab_url, vocab_filename)
-    vocab = list(load_bert_vocab(vocab_filename).keys()) # load_vocab gives an OrderedDict 
+    vocab = list(load_vocab(vocab_filename).keys()) # load_vocab gives an OrderedDict 
     custom_tokens = ['[SPKR_A]', '[SPKR_B]', '<laughter>'] # TODO: add disfluencies
     # most of the first 1000 tokens are [unusedX], but [PAD], [CLS], etc are scattered in there too 
     for new_token in custom_tokens:
@@ -175,24 +44,167 @@ def customize_bert_vocab():
         for token in vocab:
             f.write(token + '\n')
 
-def download_glove():
-    glove_file = 'data/glove.6B.zip'
-    glove_url = 'http://nlp.stanford.edu/data/glove.6B.zip'
-    if not os.path.isfile(glove_file): 
-        util.download_url(glove_url, 'data/glove.6B.zip')
-    with  zipfile.ZipFile(glove_file, 'r') as zip_ref:
-        zip_ref.extractall('data/glove.6B')
+
+class Utterance():
+
+    def __init__(self, speaker, da_tag, text):
+        self.speaker = speaker
+        self.da_tag = da_tag
+        self.text = text
+
+    def to_dict(self):
+        return {'speaker': self.speaker,
+                'da_tag': self.da_tag,
+                'text': f"[SPKR_{self.speaker}] {self.text}"}
+
+
+class Dialogue():
+
+    def __init__(self, dialogue_id, utts):
+        self.id = dialogue_id
+        self.speakers = list({utt.speaker for utt in utts})
+        self.utts = utts
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'speakers': self.speakers,
+            'utts': [utt.to_dict() for utt in self.utts]}
+
+
+class DialogueCorpus():
+    """
+    Standardized corpus format for dialogue act recoginiton.
+    """
+
+    def __init__(self, corpus_name, corpus_dir, corpus_file):
+        self.name = corpus_name
+        self.corpus_dir = os.path.join(DATA_DIR, corpus_dir)
+        self.corpus_file = os.path.join(DATA_DIR, corpus_file)
+
+    def to_json(self):
+        with open(self.corpus_file, 'w') as f:
+            dialogues = [dialogue.to_dict() for dialogue in self.dialogues]
+            json.dump(dialogues, f)
+        log.info(f"Wrote {self.name} ({len(dialogues)} dialogues) to {self.corpus_file}.")
+
+    def download_corpus():
+        raise NotImplementedError
+
+    def parse_corpus(self):
+        raise NotImplementedError
+
+
+class AMICorpus(DialogueCorpus):
+
+    def __init__(self, da_only=True):
+        """
+        da_only - whether to restrict the corpus to DA-tagged dialogues
+        """
+        corpus_name = "AMI Meeting Corpus"
+        corpus_dir = "AMI"
+        corpus_file = "AMI-DA.json" if da_only else "AMI.json"
+        if da_only:
+            corpus_name += " (dialogue act-tagged)"
+        self.da_only = da_only
+        super().__init__(corpus_name, corpus_dir, corpus_file)
+
+    def download_corpus(self):
+        url = "http://groups.inf.ed.ac.uk/ami/AMICorpusAnnotations/ami_public_manual_1.6.2.zip"
+        zipfilename = os.path.join(DATA_DIR, "ami_public_manual_1.6.2.zip")
+        util.download_url(url, zipfilename)
+        with zipfile.ZipFile(zipfilename, 'r') as f:
+            f.extractall(self.corpus_dir)
+        os.remove(zipfilename)
+
+    def parse_corpus(self):
+        ami_meetings = ami.get_corpus(self.corpus_dir, self.da_only)
+        dialogues = []
+        for m in ami_meetings:
+            m.gen_transcript(split_utts_by_da=self.da_only)
+            utts = [Utterance(u.speaker, u.dialogue_act.da_tag, u.text()) 
+                    for u in m.transcript]
+            dialogues.append(Dialogue(m.meeting_id, utts))
+        self.dialogues = dialogues
+
+
+class SWBDWordAlignedCorpus(DialogueCorpus):
+
+    def __init__(self):
+        corpus_name = "Switchboard Corpus"
+        corpus_dir = "SWBD"
+        corpus_file = "SWBD.json"
+        super().__init__(corpus_name, corpus_dir, corpus_file)
+
+    def download_corpus(self):
+        url = "http://www.isip.piconepress.com/projects/switchboard/releases/ptree_word_alignments.tar.gz"
+        zipfilename = os.path.join(DATA_DIR, "ptree_word_alignments.tar.gz")
+        util.download_url(url, zipfilename)
+        with tarfile.open(zipfilename, "r:gz") as f:
+            f.extractall(self.corpus_dir)
+        os.remove(zipfilename)
+
+
+class SWDACorpus(DialogueCorpus):
+
+    def __init__(self):
+        corpus_name = "Switchboard Dialogue Act Corpus"
+        corpus_dir = "SWDA"
+        corpus_file = "SWDA.json"
+        super().__init__(corpus_name, corpus_dir, corpus_file)
+
+    def download_corpus(self):
+        url = "https://github.com/cgpotts/swda/blob/master/swda.zip?raw=true"
+        zipfilename = os.path.join(DATA_DIR, "swda.zip")
+        util.download_url(url, zipfilename)
+        with zipfile.ZipFile(zipfilename, 'r') as f:
+            f.extractall(self.corpus_dir)
+        os.remove(zipfilename)
+
+    def parse_corpus(self):
+        corpus = swda.CorpusReader(os.path.join(self.corpus_dir,'swda'))
+        dialogues = []
+        for transcript in corpus.iter_transcripts():
+           utts = [Utterance(u.caller, damsl_tag_cluster(u.act_tag), self.normalize(u.text.lower()))
+                   for u in transcript.utterances]
+           dialogues.append(Dialogue(transcript.conversation_no, utts))
+        self.dialogues = dialogues
+
+    def normalize(self, text):
+        return tokenize(text)
+
 
 if __name__ == '__main__':
+
     args = parser.parse_args()
     log = util.create_logger(logging.INFO)
-    if args.command == 'prep-swda':
-        prep_swda()
-    if args.command == 'prep-ami':
-        prep_ami()
-    if args.command == 'download-glove':
-        download_glove()
-    if args.command == 'customize-bert-vocab':
-        customize_bert_vocab()
 
-        
+    corpora = {
+        'swda': SWDACorpus(),
+        'swbd': SWBDWordAlignedCorpus(),
+        'ami':  AMICorpus(da_only=False),
+        'ami-da': AMICorpus(da_only=True)}
+
+    if args.command == 'prep-corpora':
+
+        if not args.corpora:
+            corpora = list(corpora)
+        else:
+            corpora = [corpora[c] for c in corpora if c in args.corpora]
+
+        for corpus in corpora:
+            if os.path.exists(corpus.corpus_dir):
+                log.info(f"{corpus.corpus_dir} already exists." 
+                         "Delete this directory if you want to re-download the corpus.")
+            else:
+                corpus.download_corpus()
+            if os.path.isfile(corpus.corpus_file):
+                log.info(f"{corpus.corpus_file} already exists."
+                        "Delete this file if you want to preprocess the corpus again.")
+            else:
+                corpus.parse_corpus()
+                corpus.to_json()
+
+    if args.command == 'customize-bert-vocab':
+        pass
+
