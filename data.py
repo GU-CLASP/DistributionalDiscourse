@@ -77,10 +77,11 @@ class DialogueCorpus():
     Standardized corpus format for dialogue act recoginiton.
     """
 
-    def __init__(self, corpus_name, corpus_dir, corpus_file):
+    def __init__(self, corpus_name, corpus_dir, corpus_id):
         self.name = corpus_name
+        self.corpus_id = corpus_id
         self.corpus_dir = os.path.join(DATA_DIR, corpus_dir)
-        self.corpus_file = os.path.join(DATA_DIR, corpus_file)
+        self.corpus_file = os.path.join(DATA_DIR, f'{corpus_id}.json')
 
     def to_json(self):
         with open(self.corpus_file, 'w') as f:
@@ -103,11 +104,11 @@ class AMICorpus(DialogueCorpus):
         """
         corpus_name = "AMI Meeting Corpus"
         corpus_dir = "AMI"
-        corpus_file = "AMI-DA.json" if da_only else "AMI.json"
+        corpus_id = "AMI-DA" if da_only else "AMI"
         if da_only:
             corpus_name += " (dialogue act-tagged)"
         self.da_only = da_only
-        super().__init__(corpus_name, corpus_dir, corpus_file)
+        super().__init__(corpus_name, corpus_dir, corpus_id)
 
     def download_corpus(self):
         url = "http://groups.inf.ed.ac.uk/ami/AMICorpusAnnotations/ami_public_manual_1.6.2.zip"
@@ -121,8 +122,8 @@ class AMICorpus(DialogueCorpus):
         ami_meetings = ami.get_corpus(self.corpus_dir, self.da_only)
         dialogues = []
         for m in ami_meetings:
-            m.gen_transcript(split_utts_by_da=self.da_only)
-            utts = [Utterance(u.speaker, u.dialogue_act.da_tag, u.text()) 
+            m.gen_transcript()
+            utts = [Utterance(u.speaker, u.dialogue_act.da_tag if u.dialogue_act else None, u.text()) 
                     for u in m.transcript]
             dialogues.append(Dialogue(m.meeting_id, utts))
         self.dialogues = dialogues
@@ -133,8 +134,8 @@ class SWBDWordAlignedCorpus(DialogueCorpus):
     def __init__(self):
         corpus_name = "Switchboard Corpus"
         corpus_dir = "SWBD"
-        corpus_file = "SWBD.json"
-        super().__init__(corpus_name, corpus_dir, corpus_file)
+        corpus_id = "SWBD"
+        super().__init__(corpus_name, corpus_dir, corpus_id)
 
     def download_corpus(self):
         url = "http://www.isip.piconepress.com/projects/switchboard/releases/ptree_word_alignments.tar.gz"
@@ -144,14 +145,28 @@ class SWBDWordAlignedCorpus(DialogueCorpus):
             f.extractall(self.corpus_dir)
         os.remove(zipfilename)
 
+    def parse_corpus(self):
+        import csv
+        fieldnames = ['id', 'treebank_id', 'start_word', 'end_word', 'alignment_tag',
+                'ldc_word', 'ms98_word']
+        alignmens_dir = os.path.join(self.corpus_dir, 'data', 'alignments')
+        swbd_files = [f for subdir in os.listdir(alignments_dir) for f in subdir]
+        dialogues = []
+        for filename in swbd_files:
+            dialogue_id = filename.split('-')[0]
+            with open(filename) as f:
+                reader = csv.DictReader(f, fieldnames, delimiter='\t')
+            dialogues.append(Dialogue(dialogue_id, utts))
+        self.dialogues = dialogues
+
 
 class SWDACorpus(DialogueCorpus):
 
     def __init__(self):
         corpus_name = "Switchboard Dialogue Act Corpus"
         corpus_dir = "SWDA"
-        corpus_file = "SWDA.json"
-        super().__init__(corpus_name, corpus_dir, corpus_file)
+        corpus_id = "SWDA"
+        super().__init__(corpus_name, corpus_dir, corpus_id)
 
     def download_corpus(self):
         url = "https://github.com/cgpotts/swda/blob/master/swda.zip?raw=true"
@@ -179,27 +194,24 @@ if __name__ == '__main__':
     args = parser.parse_args()
     log = util.create_logger(logging.INFO)
 
-    corpora = {
-        'swda': SWDACorpus(),
-        'swbd': SWBDWordAlignedCorpus(),
-        'ami':  AMICorpus(da_only=False),
-        'ami-da': AMICorpus(da_only=True)}
+    corpora = [
+        SWDACorpus(), SWBDWordAlignedCorpus(), 
+        AMICorpus(da_only=False), AMICorpus(da_only=True)]
 
     if args.command == 'prep-corpora':
 
-        if not args.corpora:
-            corpora = list(corpora)
-        else:
-            corpora = [corpora[c] for c in corpora if c in args.corpora]
+        if args.corpora:
+            corpora = [c for c in corpora if c.corpus_id in args.corpora]
 
         for corpus in corpora:
+            log.info(f"Preprocessing {corpus.name} ({corpus.corpus_id}).")
             if os.path.exists(corpus.corpus_dir):
-                log.info(f"{corpus.corpus_dir} already exists." 
+                log.info(f"{corpus.corpus_dir} already exists. " 
                          "Delete this directory if you want to re-download the corpus.")
             else:
                 corpus.download_corpus()
             if os.path.isfile(corpus.corpus_file):
-                log.info(f"{corpus.corpus_file} already exists."
+                log.info(f"{corpus.corpus_file} already exists. "
                         "Delete this file if you want to preprocess the corpus again.")
             else:
                 corpus.parse_corpus()

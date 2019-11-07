@@ -2,6 +2,7 @@ import logging
 import urllib.request
 import shutil
 from tqdm import tqdm
+from collections import defaultdict
 
 class DownloadProgressBar(tqdm):
     def update_to(self, b=1, bsize=1, tsize=None):
@@ -49,3 +50,30 @@ def create_logger(console_log_level, log_file=None):
 
 def rm_dir(directory):
     shutil.rmtree(directory)
+
+def interleave_streams(stream, speaker, start, end, pause_threshold):
+    """
+    stream - the interable of objects (e.g., utterances) to be ordered.
+    speaker - a function that returtns the speaker for the object in the stream
+    start  - a function that returns the start time for objects in the stream
+    end    - a function returning the end time for objects in the stream
+    """
+
+    utts = defaultdict(list)
+    utt_tokens = []
+    prev_token = []
+
+    stream = sorted(stream, key=start) 
+    while stream:
+        token = stream.pop(0)
+        if not prev_token:
+            utt_tokens.append(token)
+        elif (speaker(token) != speaker(prev_token) or start(token) - end(prev_token) > pause_threshold):
+            utts[speaker(prev_token)].append(utt_tokens)
+            utt_tokens = [token]
+        else: 
+            utt_tokens.append(token)
+        prev_token = token
+    utts[speaker(prev_token)].append(utt_tokens)
+    return utts
+
