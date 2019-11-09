@@ -4,7 +4,6 @@ from collections import defaultdict, namedtuple
 from tqdm import tqdm
 import re
 import warnings
-import util
 
 xml_ns = {"nite": "http://nite.sourceforge.net/"}
 
@@ -69,6 +68,8 @@ class AMIToken():
             return '<disf>'
         elif self.token_type == 'gap':
             return ''
+        elif self.token_type == 'transformerror':  # is this right?
+            return '' 
         else:
             raise ValueError("undefined str for token {}".format(self.token_type))
 
@@ -202,13 +203,47 @@ class AMIMeeting():
         stream = [token for speaker in self.speakers 
                     for token in self.speaker_streams[speaker] 
                     if token.start_time is not None and token.end_time is not None]
-        utts = util.interleave_streams(stream, lambda x: x.speaker, 
+        utts = interleave_streams(stream, lambda x: x.speaker, 
                 lambda x: x.start_time, lambda x: x.end_time,
                 utt_pause_threshold)
         utts = [AMIUtterance(utt) for speaker in self.speakers for utt in utts[speaker]]
         
         return utts
+
+    def get_tokens(self):
+        tokens = [token for speaker in self.speaker_streams for token in self.speaker_streams[speaker]
+                    if token.start_time]
+
+        tokens = sorted(tokens, key=lambda x:x.start_time)
+        return tokens
+
                 
+def interleave_streams(stream, speaker, start, end, pause_threshold):
+    """
+    stream - the interable of objects (e.g., utterances) to be ordered.
+    speaker - a function that returtns the speaker for the object in the stream
+    start  - a function that returns the start time for objects in the stream
+    end    - a function returning the end time for objects in the stream
+    """
+
+    utts = defaultdict(list)
+    utt_tokens = []
+    prev_token = []
+
+    stream = sorted(stream, key=start) 
+    while stream:
+        token = stream.pop(0)
+        if not prev_token:
+            utt_tokens.append(token)
+        elif (speaker(token) != speaker(prev_token) or start(token) - end(prev_token) > pause_threshold):
+            utts[speaker(prev_token)].append(utt_tokens)
+            utt_tokens = [token]
+        else: 
+            utt_tokens.append(token)
+        prev_token = token
+    utts[speaker(prev_token)].append(utt_tokens)
+    return utts
+
 def get_corpus(ami_corpus_dir, da_only=True):
 
     words_dir = os.path.join(ami_corpus_dir, 'words')

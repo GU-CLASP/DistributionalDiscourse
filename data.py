@@ -1,9 +1,12 @@
 import argparse
 import logging
+import os
 import json
+import csv
 import zipfile
 import tarfile
-import os
+from collections import namedtuple
+from tqdm import tqdm
 
 import util
 import ami
@@ -17,8 +20,10 @@ parser.add_argument("command", choices=['prep-corpora', 'customize-bert-vocab'],
 parser.add_argument('-c','--corpora', nargs='+', default=[], 
         help='A list of corpora to preprocess. (Default: preprocess all)'
              'Options: swbd, swda, ami, ami-da')
-
-DATA_DIR = 'data'
+parser.add_argument('-d','--data-dir', default='data',
+        help='Data storage directory.')
+parser.add_argument('-pt','--pause-threshold', default=1,
+        help='Threshold for heuristically segementing same-speaker utterances (seconds).')
 
 
 def customize_bert_vocab(bert_model='bert-base-uncased'):
@@ -45,148 +50,98 @@ def customize_bert_vocab(bert_model='bert-base-uncased'):
             f.write(token + '\n')
 
 
-class Utterance():
-
-    def __init__(self, speaker, da_tag, text):
-        self.speaker = speaker
-        self.da_tag = da_tag
-        self.text = text
-
-    def to_dict(self):
-        return {'speaker': self.speaker,
-                'da_tag': self.da_tag,
-                'text': f"[SPKR_{self.speaker}] {self.text}"}
+Dialogue = namedtuple('SegmentedDialogue', ['id', 'speakers', 'utts', 'da_tags'])
 
 
-class Dialogue():
+def extract_corpus(zip_file, corpus_dir):
+    if os.path.exists(corpus_dir):
+        log.info(f"The corpus directory, {corpus_dir} alrdeay exists.")
+        return
+    log.info(f"Extracting {zip_file} to {corpus_dir}.")
+    if zip_file.endswith('.zip'):
+        file_handler = lambda x: zipfile.ZipFile(x, 'r')
+    elif zip_file.endswith('tar.gz'):
+        file_handler = lambda x: tarfile.open(x, 'r:gz')
+    else:
+        raise ValueError(f"Can't handle extension {zip_ext} when unzipping {zip_file}.")
+    with file_handler(zip_file) as f:
+        f.extractall(corpus_dir)
 
-    def __init__(self, dialogue_id, utts):
-        self.id = dialogue_id
-        self.speakers = list({utt.speaker for utt in utts})
-        self.utts = utts
+def download_corpus(url, zip_file):
+    if os.path.exists(zip_file):
+        log.info(f"Skipping download of {zip_file} (already exists).")
+        return
+    util.download_url(url, zip_file)
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'speakers': self.speakers,
-            'utts': [utt.to_dict() for utt in self.utts]}
+def parse_ami(corpus_dir, pause_threshold):
 
+    log.info("Loading the AMI corpus...")
+    ami_meetings = ami.get_corpus(corpus_dir, da_only=False)
 
-class DialogueCorpus():
-    """
-    Standardized corpus format for dialogue act recoginiton.
-    """
-
-    def __init__(self, corpus_name, corpus_dir, corpus_id):
-        self.name = corpus_name
-        self.corpus_id = corpus_id
-        self.corpus_dir = os.path.join(DATA_DIR, corpus_dir)
-        self.corpus_file = os.path.join(DATA_DIR, f'{corpus_id}.json')
-
-    def to_json(self):
-        with open(self.corpus_file, 'w') as f:
-            dialogues = [dialogue.to_dict() for dialogue in self.dialogues]
-            json.dump(dialogues, f)
-        log.info(f"Wrote {self.name} ({len(dialogues)} dialogues) to {self.corpus_file}.")
-
-    def download_corpus():
-        raise NotImplementedError
-
-    def parse_corpus(self):
-        raise NotImplementedError
-
-
-class AMICorpus(DialogueCorpus):
-
-    def __init__(self, da_only=True):
-        """
-        da_only - whether to restrict the corpus to DA-tagged dialogues
-        """
-        corpus_name = "AMI Meeting Corpus"
-        corpus_dir = "AMI"
-        corpus_id = "AMI-DA" if da_only else "AMI"
-        if da_only:
-            corpus_name += " (dialogue act-tagged)"
-        self.da_only = da_only
-        super().__init__(corpus_name, corpus_dir, corpus_id)
-
-    def download_corpus(self):
-        url = "http://groups.inf.ed.ac.uk/ami/AMICorpusAnnotations/ami_public_manual_1.6.2.zip"
-        zipfilename = os.path.join(DATA_DIR, "ami_public_manual_1.6.2.zip")
-        util.download_url(url, zipfilename)
-        with zipfile.ZipFile(zipfilename, 'r') as f:
-            f.extractall(self.corpus_dir)
-        os.remove(zipfilename)
-
-    def parse_corpus(self):
-        ami_meetings = ami.get_corpus(self.corpus_dir, self.da_only)
-        dialogues = []
-        for m in ami_meetings:
-            m.gen_transcript()
-            utts = [Utterance(u.speaker, u.dialogue_act.da_tag if u.dialogue_act else None, u.text()) 
-                    for u in m.transcript]
-            dialogues.append(Dialogue(m.meeting_id, utts))
-        self.dialogues = dialogues
+    dialogues_da, dialogues_noda = [], []
+    for m in tqdm(ami_meetings):
+        m.gen_transcript(utt_pause_threshold=pause_threshold)
+        if m.speaker_dialogue_acts:  # DA-tagged meeting
+            speakers, utts, da_tags = [], [], []
+            for utt in m.transcript:
+                speakers.append(utt.speaker)
+                utts.append(utt.text())
+                da_tags.append(utt.dialogue_act.da_tag)
+            dialogues_da.append(Dialogue(m.meeting_id, speakers, utts, da_tags))
+        else:  # not DA-tagged meeting
+            speakers, utts = [], []
+            for utt in m.transcript:
+                speakers.append(utt.speaker)
+                utts.append(utt.text())
+            dialogues_noda.append(Dialogue(m.meeting_id, speakers, utts, None))
+    return dialogues_da, dialogues_noda
 
 
-class SWBDWordAlignedCorpus(DialogueCorpus):
-
-    def __init__(self):
-        corpus_name = "Switchboard Corpus"
-        corpus_dir = "SWBD"
-        corpus_id = "SWBD"
-        super().__init__(corpus_name, corpus_dir, corpus_id)
-
-    def download_corpus(self):
-        url = "http://www.isip.piconepress.com/projects/switchboard/releases/ptree_word_alignments.tar.gz"
-        zipfilename = os.path.join(DATA_DIR, "ptree_word_alignments.tar.gz")
-        util.download_url(url, zipfilename)
-        with tarfile.open(zipfilename, "r:gz") as f:
-            f.extractall(self.corpus_dir)
-        os.remove(zipfilename)
-
-    def parse_corpus(self):
-        import csv
-        fieldnames = ['id', 'treebank_id', 'start_word', 'end_word', 'alignment_tag',
-                'ldc_word', 'ms98_word']
-        alignmens_dir = os.path.join(self.corpus_dir, 'data', 'alignments')
-        swbd_files = [f for subdir in os.listdir(alignments_dir) for f in subdir]
-        dialogues = []
-        for filename in swbd_files:
-            dialogue_id = filename.split('-')[0]
-            with open(filename) as f:
-                reader = csv.DictReader(f, fieldnames, delimiter='\t')
-            dialogues.append(Dialogue(dialogue_id, utts))
-        self.dialogues = dialogues
+# def parse_swbd(corpus_dir):
+    # log.info("Parsing SWBD.")
+    # fieldnames = ['id', 'treebank_id', 'start_word', 'end_word', 'alignment_tag',
+            # 'ldc_word', 'ms98_word']
+    # words_dir = os.path.join(corpus_dir, 'data', 'alignments')
+    # swbd_files = [os.path.join(words_dir, subdir, f)
+                    # for subdir in os.listdir(words_dir) 
+                    # for f in os.listdir(os.path.join(words_dir, subdir))]
+    # dialogue_ids = list({os.path.basename(f)[:6] for f in swbd_files})
+    # dialogues = []
+    # for dialogue_id in dialogue_ids:
+        # speakers, tokens = [], [] 
+        # dialogue_files = [f for f in swbd_files if os.path.basename(f).startswith(dialogue_id)]
+        # for filename in dialogue_files:
+            # speaker = os.path.basename(filename)[6]
+            # with open(filename) as f:
+                # reader = csv.DictReader(f, fieldnames, delimiter='\t')
+                # for line in reader:
+                    # tokens.append(line['ldc_word'])
+                    # speakers.append(speaker)
+        # dialogues.append(UnsegmentedDialogue(dialogue_id, speakers, tokens))
+    # return dialogues
 
 
-class SWDACorpus(DialogueCorpus):
+def parse_swda(corpus_dir):
+    log.info("Parsing SWDA.")
+    corpus = swda.CorpusReader(os.path.join(corpus_dir,'swda'))
+    dialogues = []
+    for transcript in corpus.iter_transcripts():
+        speakers, utts, da_tags = [], [], []
+        for utt in transcript.utterances:
+            speakers.append(utt.caller)
+            utts.append(utt.text)
+            da_tags.append(utt.damsl_act_tag())  # Utterance.damsl_act_tag implements clustering
+        dialogue_id = 'sw' + str(transcript.conversation_no)
+        dialogues.append(Dialogue(dialogue_id, speakers, utts, da_tags))
+    return dialogues
 
-    def __init__(self):
-        corpus_name = "Switchboard Dialogue Act Corpus"
-        corpus_dir = "SWDA"
-        corpus_id = "SWDA"
-        super().__init__(corpus_name, corpus_dir, corpus_id)
 
-    def download_corpus(self):
-        url = "https://github.com/cgpotts/swda/blob/master/swda.zip?raw=true"
-        zipfilename = os.path.join(DATA_DIR, "swda.zip")
-        util.download_url(url, zipfilename)
-        with zipfile.ZipFile(zipfilename, 'r') as f:
-            f.extractall(self.corpus_dir)
-        os.remove(zipfilename)
-
-    def parse_corpus(self):
-        corpus = swda.CorpusReader(os.path.join(self.corpus_dir,'swda'))
-        dialogues = []
-        for transcript in corpus.iter_transcripts():
-           utts = [Utterance(u.caller, damsl_tag_cluster(u.act_tag), self.normalize(u.text.lower()))
-                   for u in transcript.utterances]
-           dialogues.append(Dialogue(transcript.conversation_no, utts))
-        self.dialogues = dialogues
-
-    def normalize(self, text):
-        return tokenize(text)
+def write_corpus(dialogues, data_dir, filename):
+    path = os.path.join(data_dir, filename)
+    dialogues = [d._asdict() for d in dialogues]
+    with open(path, 'w') as f:
+        json.dump(dialogues, f)
+    log.info(f"Wrote {len(dialogues)} dialogues to {filename}.")
 
 
 if __name__ == '__main__':
@@ -194,28 +149,35 @@ if __name__ == '__main__':
     args = parser.parse_args()
     log = util.create_logger(logging.INFO)
 
-    corpora = [
-        SWDACorpus(), SWBDWordAlignedCorpus(), 
-        AMICorpus(da_only=False), AMICorpus(da_only=True)]
+    ami_url = "http://groups.inf.ed.ac.uk/ami/AMICorpusAnnotations/ami_public_manual_1.6.2.zip"
+    # swbd_url = "http://www.isip.piconepress.com/projects/switchboard/releases/ptree_word_alignments.tar.gz"
+
+    ami_zip_file = os.path.join(args.data_dir, os.path.basename(ami_url))
+    # swbd_zip_file = os.path.join(args.data_dir, os.path.basename(swbd_url))
+    swda_zip_file = "swda/swda.zip"  # included in the swda sub-module
+
+    ami_dir = os.path.join(args.data_dir, 'AMI')
+    # swbd_dir = os.path.join(args.data_dir, 'SWBD')
+    swda_dir = os.path.join(args.data_dir, 'SWDA')
 
     if args.command == 'prep-corpora':
 
-        if args.corpora:
-            corpora = [c for c in corpora if c.corpus_id in args.corpora]
 
-        for corpus in corpora:
-            log.info(f"Preprocessing {corpus.name} ({corpus.corpus_id}).")
-            if os.path.exists(corpus.corpus_dir):
-                log.info(f"{corpus.corpus_dir} already exists. " 
-                         "Delete this directory if you want to re-download the corpus.")
-            else:
-                corpus.download_corpus()
-            if os.path.isfile(corpus.corpus_file):
-                log.info(f"{corpus.corpus_file} already exists. "
-                        "Delete this file if you want to preprocess the corpus again.")
-            else:
-                corpus.parse_corpus()
-                corpus.to_json()
+        download_corpus(ami_url, ami_zip_file)
+        # download_corpus(swbd_url, swbd_zip_file)
+
+        extract_corpus(ami_zip_file, ami_dir)
+        # extract_corpus(swbd_zip_file, swbd_dir)
+        extract_corpus(swda_zip_file, swda_dir)
+
+        ami_da, ami_noda = parse_ami(ami_dir, args.pause_threshold)
+        # swbd = parse_swbd(swbd_dir)
+        swda = parse_swda(swda_dir)
+
+        write_corpus(ami_da, args.data_dir,  'AMI-DA.json')
+        write_corpus(ami_noda, args.data_dir, 'AMI-noDA.json')
+        write_corpus(swda, args.data_dir , 'SWDA.json')
+        # write_corpus(swbd, args.data_dir, 'SWBD.unsegmented.json')
 
     if args.command == 'customize-bert-vocab':
         pass
