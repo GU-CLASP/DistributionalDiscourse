@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 import os
 from collections import defaultdict, namedtuple
-from tqdm import tqdm_notebook as tqdm
+from tqdm import tqdm
 import re
 import warnings
 
@@ -47,20 +47,14 @@ class AMIToken():
             return None
         token_type = element.tag
         start_time = element.get('starttime')
+        end_time   = element.get('endtime')
         if start_time:
             start_time = float(start_time)
-        else:
-            print('st null') 
-            print(meeting_id, speaker, index, token_type)
-            start_time = 0
-        end_time   = element.get('endtime')
         if end_time:
             end_time = float(end_time)
         else:
-            # print('et null')
-            # print(meeting_id, speaker, index, token_type)
             end_time = start_time
-        text = element.text
+        text = element.text if element.text else ''
         attrib = element.attrib
 
         return cls(meeting_id, speaker, index, token_type, start_time, end_time, text, attrib)
@@ -74,6 +68,8 @@ class AMIToken():
             return '<disf>'
         elif self.token_type == 'gap':
             return ''
+        elif self.token_type == 'transformerror':  # is this right?
+            return '' 
         else:
             raise ValueError("undefined str for token {}".format(self.token_type))
 
@@ -152,14 +148,12 @@ class AMIUtterance():
         self.meeting_id = meeting_id
         self.speaker = speaker
         self.start_time = min(t.start_time for t in tokens)
-        try: 
-            self.end_time = max(t.end_time for t in tokens)
-        except:
-            print([t.end_time for t in tokens])
-            print(meeting_id)
-            print(speaker)
+        self.end_time = max(t.end_time for t in tokens)
         self.dialogue_act = dialogue_act
         self.tokens = tokens
+
+    def text(self):
+        return ' '.join(t.text for t in self.tokens)
 
 
 class AMIMeeting():
@@ -172,7 +166,7 @@ class AMIMeeting():
         self.speakers = set(speaker_streams.keys())
         self.transcript = None
         
-    def gen_transcript(self, split_utts_by_da=True, utt_pause_threshold=3):
+    def gen_transcript(self, split_utts_by_da=True, utt_pause_threshold=1):
         """
         Create a chronological transcript of the dialogue, split by utterances.
         
@@ -185,100 +179,101 @@ class AMIMeeting():
         if self.transcript:
             return transcript
         
-        if split_utts_by_da and not self.speaker_dialogue_acts:
-            warnings.warn("No dialogue acts in transcript {}. Proceeding with heuristic split.". format(
-                self.meeting_id))
-            split_utts_by_da = False
-        if split_utts_by_da:
-            utts = [utt for speaker in self.speakers for utt in self.__get_utts_da(speaker)]
+        if split_utts_by_da and self.speaker_dialogue_acts:
+            transcript = self.__get_transcript_da()
         else:
-            utts = [utt for speaker in self.speakers for utt in self.__get_utts_noda(speaker, utt_pause_threshold)]
-        
-        # interelave utts
-        transcript = sorted(utts, key=lambda x: x.start_time)
+            transcript = self.__get_transcript_noda(utt_pause_threshold) 
         
         self.transcript = transcript
         return transcript
     
-    def __get_utts_da(self, speaker):
-        dialogue_acts = self.speaker_dialogue_acts[speaker]
-        stream = {token.index: token for token in self.speaker_streams[speaker] 
-                if token.start_time is not None and token.end_time is not None}
+    def __get_transcript_da(self):
         utts = []
-        for da in dialogue_acts:
-            utts.append(AMIUtterance([stream[i] for i in range(da.start_token, da.end_token+1) if i in stream], da))
+        for speaker in self.speakers:
+            dialogue_acts = self.speaker_dialogue_acts[speaker]
+            stream = {token.index: token for token in self.speaker_streams[speaker] 
+                    if token.start_time is not None and token.end_time is not None}
+            for da in dialogue_acts:
+                utts.append(AMIUtterance([stream[i] for i in range(da.start_token, da.end_token+1) if i in stream], da))
+        utts = sorted(utts, key=lambda x: x.start_time)  # interleave utts
         return utts
     
-    def __get_utts_noda(self, speaker, utt_pause_threshold):
+    def __get_transcript_noda(self, utt_pause_threshold):
 
-        stream = [token for token in self.speaker_streams[speaker]]
-        stream = [token for token in stream 
-                if token.start_time is not None and token.end_time is not None]
-        stream.sort(key=lambda x: x.start_time)
-
-        other_stream = [token for other_speaker in self.speakers 
-                for token in self.speaker_streams[other_speaker]
-                if other_speaker != speaker]
-        other_stream = [token for token in other_stream 
-                if token.start_time is not None and token.end_time is not None]
-
-        utts = []
-        utt_tokens = []
-        prev_token = None
-        
-        while stream:
-            token = stream.pop(0)
-            if not prev_token:
-                utt_tokens.append(token)
-            elif ( # the pause between utterances exceedes the theshold
-                token.start_time - prev_token.end_time > utt_pause_threshold 
-                or # another speaker talks between the previous token and the next token
-                any(prev_token.end_time < other_token.start_time and other_token.start_time < token.start_time
-                    for other_token in other_stream)):
-                utts.append(AMIUtterance(utt_tokens))
-                utt_tokens = [token]
-            else:
-                utt_tokens.append(token)
-        utts.append(AMIUtterance(utt_tokens))
+        stream = [token for speaker in self.speakers 
+                    for token in self.speaker_streams[speaker] 
+                    if token.start_time is not None and token.end_time is not None]
+        utts = interleave_streams(stream, lambda x: x.speaker, 
+                lambda x: x.start_time, lambda x: x.end_time,
+                utt_pause_threshold)
+        utts = [AMIUtterance(utt) for speaker in self.speakers for utt in utts[speaker]]
         
         return utts
+
+    def get_tokens(self):
+        tokens = [token for speaker in self.speaker_streams for token in self.speaker_streams[speaker]
+                    if token.start_time]
+
+        tokens = sorted(tokens, key=lambda x:x.start_time)
+        return tokens
+
                 
-def get_corpus(ami_corpus_dir):
+def interleave_streams(stream, speaker, start, end, pause_threshold):
     """
-    Returns a list of AMIMeetings.
+    stream - the interable of objects (e.g., utterances) to be ordered.
+    speaker - a function that returtns the speaker for the object in the stream
+    start  - a function that returns the start time for objects in the stream
+    end    - a function returning the end time for objects in the stream
     """
+
+    utts = defaultdict(list)
+    utt_tokens = []
+    prev_token = []
+
+    stream = sorted(stream, key=start) 
+    while stream:
+        token = stream.pop(0)
+        if not prev_token:
+            utt_tokens.append(token)
+        elif (speaker(token) != speaker(prev_token) or start(token) - end(prev_token) > pause_threshold):
+            utts[speaker(prev_token)].append(utt_tokens)
+            utt_tokens = [token]
+        else: 
+            utt_tokens.append(token)
+        prev_token = token
+    utts[speaker(prev_token)].append(utt_tokens)
+    return utts
+
+def get_corpus(ami_corpus_dir, da_only=True):
 
     words_dir = os.path.join(ami_corpus_dir, 'words')
     words_files = [f for f in os.listdir(words_dir) if f.endswith('.xml')]
-    ######### DEV SAMPLE ##########
-    # words_files = [f for f in words_files if f.startswith('ES2013')]
 
     da_dir = os.path.join(ami_corpus_dir, 'dialogueActs')
     da_files = [f for f in os.listdir(da_dir) if f.endswith('dialog-act.xml')] # ignore the adjacency-pairs files
-    ######### DEV SAMPLE ##########
-    # da_files = [f for f in da_files if f.startswith('ES2013')]
-
-            
-    stream_tokens = defaultdict(lambda: defaultdict(list))
-    for file in tqdm(words_files):
-        
-        tree = ET.parse(os.path.join(words_dir, file))
-        root = tree.getroot()
-        
-        for element in root:
-            token = AMIToken.from_xml(element)
-            if token:
-                stream_tokens[token.meeting_id][token.speaker].append(token)
 
     stream_da_acts = defaultdict(lambda: defaultdict(list))
-    for file in tqdm(da_files):
-        
+    for file in tqdm(da_files, desc="Reading DA files"):
         tree = ET.parse(os.path.join(da_dir, file))
         root = tree.getroot()
         for element in root:
             da_act = AMIDialogueAct.from_xml(element)
             stream_da_acts[da_act.meeting_id][da_act.speaker].append(da_act)
 
+    if da_only:
+        words_files = [w for w in words_files if w.split('.')[0] in stream_da_acts]
+    stream_tokens = defaultdict(lambda: defaultdict(list))
+    for file in tqdm(words_files, desc="Reading words files"):
+        tree = ET.parse(os.path.join(words_dir, file))
+        root = tree.getroot()
+        for element in root:
+            token = AMIToken.from_xml(element)
+            if token:
+                stream_tokens[token.meeting_id][token.speaker].append(token)
+
     meetings = [AMIMeeting(meeting_id, stream_tokens[meeting_id], stream_da_acts.get(meeting_id, None)) for meeting_id in stream_tokens ]
 
     return meetings
+
+if __name__ == '__main__':
+    get_corpus('data/AMI/ami_public_manual_1.6.2')
