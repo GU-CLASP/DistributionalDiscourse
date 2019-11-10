@@ -157,6 +157,8 @@ if __name__ == '__main__':
 
     tag_vocab, tag2id = data.load_tag_vocab(tag_vocab_file)
     n_tags = len(tag_vocab)
+    if not os.path.exists(vocab_file):
+        raise ValueError("Vocab file {vocab_file} does not exist. Run data.py customize-bert-vocab first.")
     tokenizer = BertTokenizer.from_pretrained(vocab_file, 
             never_split=data.BERT_RESERVED_TOKENS + data.BERT_CUSTOM_TOKENS)
     vocab_size = len(tokenizer.vocab)
@@ -170,16 +172,13 @@ if __name__ == '__main__':
             utt_encoder = model.WordVecAvg.from_pretrained(weights)
         else:
             utt_encoder = model.WordVecAvg.random_init(vocab_size, args.utt_dims)
-        utt_format = 'utts_ints'
     elif args.utt_encoder == 'bert':
-        utt_format = 'utts_ints_bert'
         utt_encoder = model.BertUttEncoder(args.utt_dims)
     else:
         raise ValueError(f"Unknown encoder model: {args.utt_encoder}")
 
     # always use the same dar_model
     dar_model = model.DARRNN(args.utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0, use_lstm=args.lstm)
-    # dar_model = model.SimpleDARRNN(args.utt_dims, n_tags)
 
     # select the parameters to train
     if args.freeze_encoder: 
@@ -203,8 +202,6 @@ if __name__ == '__main__':
     dar_model.to(device)
     utt_encoder.to(device)
 
-    tag_format = 'tags_ints'
-    utt_format = utt_format + '_nl' if args.no_laughter else utt_format
     train_data = data.load_data(train_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
     val_data = data.load_data(val_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
     if args.training_limit:

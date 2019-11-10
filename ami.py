@@ -152,8 +152,8 @@ class AMIUtterance():
         self.dialogue_act = dialogue_act
         self.tokens = tokens
 
-    def text(self):
-        return ' '.join(t.text for t in self.tokens)
+    def __str__(self):
+        return ' '.join(str(t) for t in self.tokens)
 
 
 class AMIMeeting():

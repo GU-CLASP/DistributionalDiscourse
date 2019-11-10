@@ -14,10 +14,11 @@ import util
 import ami
 from swda import swda
 
+from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer, load_vocab
 from preproc import tokenize, remove_laughters, remove_disfluencies
 
 parser = argparse.ArgumentParser()
-parser.add_argument("command", choices=['prep-corpora', 'customize-bert-vocab'], 
+parser.add_argument("command", choices=['prep-corpora', 'customize-bert-vocab', 'test-tokenization'], 
         help="What preprocessing to do.")
 parser.add_argument('-d','--data-dir', default='data',
         help='Data storage directory.')
@@ -32,7 +33,6 @@ BERT_RESERVED_TOKENS = ["[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"] # used by 
 
 def customize_bert_vocab(data_dir, custom_tokens, bert_model):
 
-    from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer, load_vocab
     vocab_file = os.path.join(data_dir, f'{bert_model}_vocab.txt' )
     vocab_url = PRETRAINED_VOCAB_ARCHIVE_MAP[bert_model]
     if not os.path.exists(vocab_file):
@@ -82,7 +82,7 @@ def load_data(data_file, tokenizer, tag2id, strip_laughter=False):
     with open(data_file) as f:
         dialogues = json.load(f)
     data = []
-    for dialogue in dialogues.values():
+    for dialogue in dialogues:
         utts, tags = [], []
         for speaker,utt,tag in zip(dialogue['speakers'], dialogue['utts'], dialogue['da_tags']):
             utt = [f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
@@ -120,6 +120,19 @@ def download_corpus(url, zip_file):
         return
     util.download_url(url, zip_file)
 
+def normalize_ami(utt):
+    s = str(utt) # AMIUtterance to string defined in ami.py
+    # Remove disfluencies and vocal sounds other than laughter standardly: 
+    #    <other>, <cough>, but also custom trascriber tokens  which might 
+    #    include whitespace and hyphens (e.g., <imitates zapping> (IS1007b.D),
+    #    or <long sh- sound> (ISI1004.A))
+        
+    s = re.sub(r'([A-Z])_', r'\1 ', s) # acronyms: D_V_D_ -> D V D 
+    s = re.sub(r'((?!<laugh>)<[\w -]+>)', '', s)
+    # normalize the laughter token
+    s = re.sub(r'<laugh>', '<laughter>', s)
+    return s
+
 def parse_ami(corpus_dir, pause_threshold):
 
     log.info("Parsing AMI...")
@@ -132,14 +145,14 @@ def parse_ami(corpus_dir, pause_threshold):
             speakers, utts, da_tags = [], [], []
             for utt in m.transcript:
                 speakers.append(utt.speaker)
-                utts.append(utt.text())
+                utts.append(normalize_ami(utt))
                 da_tags.append(utt.dialogue_act.da_tag)
             dialogues_da.append(Dialogue(m.meeting_id, speakers, utts, da_tags))
         else:  # not DA-tagged meeting
             speakers, utts = [], []
             for utt in m.transcript:
                 speakers.append(utt.speaker)
-                utts.append(utt.text())
+                utts.append(normalize_ami(utt))
             dialogues_noda.append(Dialogue(m.meeting_id, speakers, utts, None))
     return dialogues_da, dialogues_noda
 
@@ -167,6 +180,28 @@ def parse_ami(corpus_dir, pause_threshold):
         # dialogues.append(UnsegmentedDialogue(dialogue_id, speakers, tokens))
     # return dialogues
 
+def normalize_swda(s):
+
+    def remove_disfluencies(s):
+        s = re.sub(r'{\w', '', s)
+        s = re.sub(r'}', '', s)
+        return s
+
+    s = re.sub(r'\*\[\[.+\]\]', '', s) # annotator comments: *[[listen; is this a question?]]
+    s = re.sub(r'\[(.+?)\+(.+?)\]', r'\1 \2', s) # repairs: [a, + a] -> a a 
+    s = re.sub(r'(\-)(?=\W)', r' \1', s)
+    s = re.sub(r'([,.?!])', r' \1', s) 
+    # s = re.sub(r'(n\'t)', r' \1',s) 
+    # s = re.sub(r'(\'re|\'s|\'m|\'d)', r' \1',s)
+    s = re.sub(r'\s(?=[\w\s]+>>)', '_',s)
+    s = remove_disfluencies(s)
+    s = re.sub(r'\s+', ' ', s)
+    s = re.sub(r'((?!<[lL]aughter>)<[\w_]+>)', '', s)
+    s = re.sub(r'<Laughter>', '<laughter>', s) # normalize the laughter token
+    s = re.sub(r' */ *$', '', s) # remove the slash at the end of lines
+    s = s.strip()
+
+    return s
 
 def parse_swda(corpus_dir):
     log.info("Parsing SWDA...")
@@ -176,7 +211,7 @@ def parse_swda(corpus_dir):
         speakers, utts, da_tags = [], [], []
         for utt in transcript.utterances:
             speakers.append(utt.caller)
-            utts.append(utt.text)
+            utts.append(normalize_swda(utt.text))
             da_tags.append(utt.damsl_act_tag())  # Utterance.damsl_act_tag implements clustering
         dialogue_id = 'sw' + str(transcript.conversation_no)
         dialogues.append(Dialogue(dialogue_id, speakers, utts, da_tags))
@@ -208,7 +243,7 @@ def load_tag_vocab(vocab_file):
 
 def write_corpus(dialogues, data_dir, filename):
     path = os.path.join(data_dir, filename)
-    dialogues = {d.id:d._asdict() for d in dialogues}
+    dialogues = [d._asdict() for d in dialogues]
     with open(path, 'w') as f:
         json.dump(dialogues, f)
     log.info(f"Wrote {len(dialogues)} dialogues to {filename}.")
@@ -283,3 +318,20 @@ if __name__ == '__main__':
 
     if args.command == 'customize-bert-vocab':
         customize_bert_vocab(args.data_dir, BERT_CUSTOM_TOKENS, bert_model='bert-base-uncased')
+
+    if args.command == 'test-tokenization':
+        corpus = 'AMI-DA'
+        tokenizer = BertTokenizer.from_pretrained('data/bert-base-uncased_vocab.txt', 
+                never_split=BERT_RESERVED_TOKENS + BERT_CUSTOM_TOKENS)
+        tag_vocab, tag2id = load_tag_vocab(f'data/{corpus}_tags.txt')
+        data = load_data(f'data/{corpus}_train.json', tokenizer, tag2id)
+        with open (f'data/{corpus}_train.json') as f:
+            dialogues = json.load(f)
+        for (x, y), d in zip(data, dialogues):
+            print(f"Dialogue {d['id']}")
+            for utt, tag, utt_d, tag_d in zip(x,y,d['utts'],d['da_tags']):
+                utt = tokenizer.convert_ids_to_tokens(utt)
+                tag = tag_vocab[tag]
+                print(f"{tag: <12} {' '.join(utt)}")
+                print(f"{tag_d if tag_d else 'None': <12}          {utt_d}")
+            print()

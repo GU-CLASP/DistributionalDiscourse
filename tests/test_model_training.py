@@ -7,6 +7,7 @@ import util
 import model
 import train
 
+import torch
 import torch.optim as optim
 import torch.nn as nn
 
@@ -31,7 +32,7 @@ train_data = list(zip(data, labels))
 epochs = 2
 batch_size = 2
 bptt = 5
-device = 'cuda'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class TestTraining(unittest.TestCase):
 
