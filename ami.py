@@ -235,7 +235,8 @@ def interleave_streams(stream, speaker, start, end, pause_threshold):
         token = stream.pop(0)
         if not prev_token:
             utt_tokens.append(token)
-        elif (speaker(token) != speaker(prev_token) or start(token) - end(prev_token) > pause_threshold):
+        elif (speaker(token) != speaker(prev_token) 
+          or start(token) - end(prev_token) > pause_threshold):
             utts[speaker(prev_token)].append(utt_tokens)
             utt_tokens = [token]
         else: 

@@ -7,6 +7,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+from pytorch_pretrained_bert.tokenization import BertTokenizer
+
 import itertools
 import json 
 import argparse
@@ -20,6 +22,8 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser()
 parser.add_argument("utt_encoder", choices=['wordvec-avg', 'bert'], 
         help="Which utt_encoder model to use")
+parser.add_argument('corpus', choices=['SWDA', 'AMI-DA'],
+        help='Which dialouge act corpus to train on.')
 parser.add_argument('--utt-dims', default=100, type=int,
         help='Set the number of dimensions of the utterance embedding.'
         'For wordvec-* models, this is equal to the word vector size.')
@@ -45,22 +49,20 @@ parser.add_argument('--max-utt-len', type=int, default=50,
         help='Maximum utterance length (truncates first part of long utterances).')
 parser.add_argument('--no-laughter', action='store_true', default=False,
         help='Flag for loading the data with laughters stripped out.')
-parser.add_argument('--vocab-file', type=str, default='data/swda_vocab.json', 
-        help='Path of the vocabulary to use (id -> word dict).')
-parser.add_argument('--tag-vocab-file', type=str, default='data/swda_tag_vocab.json', 
-        help='Path of the tag vocabulary to use (id -> tag dict).')
-parser.add_argument('--train-file', type=str, default='data/swda_train.json', 
-        help='Path of the file containing training data.')
-parser.add_argument('--val-file', type=str, default='data/swda_val.json', 
-        help='Path of the file containing validation data.')
-parser.add_argument('--cuda', action='store_true',
-        help='use CUDA')
-parser.add_argument('--gpu-id', type=int, default=0,
-        help='Select with GPU to use')
+parser.add_argument('--vocab-file', type=str, default='bert-base-uncased_vocab.txt', 
+        help='Path of the customized BERT vocabulary to use.')
+parser.add_argument('-d','--data-dir', default='data',
+        help='Data storage directory.')
+parser.add_argument('-m','--model-dir', default='models',
+        help='Trained model storage directory.')
 parser.add_argument('--save-suffix', type=str, default='', 
         help='A suffix to add to the name of the save directory.')
 parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
         help="Increase output verbosity")
+parser.add_argument('--cuda', action='store_true',
+        help='use CUDA')
+parser.add_argument('--gpu-id', type=int, default=0,
+        help='Select with GPU to use')
 parser.add_argument("--training-limit", type=int, default=None,
         help="Limit the amount of training data to N dialogues.")
 
@@ -118,20 +120,26 @@ def train_epoch(utt_encoder, dar_model, data, n_tags, batch_size, bptt, max_utt_
             batch_loss += loss.item()
         batch_loss = batch_loss / batch_size_
         epoch_loss += batch_loss 
-        log.debug('Batch {} loss {:.6f}'.format(i, batch_loss))
+        log.debug(f'Batch {i} loss {batch_loss:.6f}')
     epoch_loss = epoch_loss / i
     return epoch_loss
 
 if __name__ == '__main__':
 
     args = parser.parse_args()
-    save_dir = os.path.join('models', args.utt_encoder + args.save_suffix) 
+
+    lnl = 'NL' if args.no_laughter else 'L'
+    save_dir = os.path.join(args.model_dir, f'{args.corpus}-{lnl}_{args.utt_encoder}_{args.save_suffix}')
+    train_file = os.path.join(args.data_dir, f'{args.corpus}_train.json')
+    val_file   = os.path.join(args.data_dir, f'{args.corpus}_val.json')
+    vocab_file = os.path.join(args.data_dir, args.vocab_file)
+    tag_vocab_file = os.path.join(args.data_dir, f'{args.corpus}_tags.txt')
 
     # create the save directory (for trianed model paremeters, logs, arguments)
-    if not os.path.exists('models'):
-        os.mkdir('models')
+    if not os.path.exists(args.model_dir):
+        os.mkdir(args.model_dir)
     if os.path.exists(save_dir):
-        go_ahead = input("Overwriting files in {}. Continue? (y/n): ".format(save_dir))
+        go_ahead = input(f"Overwriting files in {save_dir}. Continue? (y/n): ")
         if go_ahead == 'y':
             util.rm_dir(save_dir)
         else:
@@ -144,28 +152,30 @@ if __name__ == '__main__':
     log = util.create_logger(args.verbose, os.path.join(save_dir, 'train.log'))
     eval_model.log = log  # set the eval_model logger to go to 'train.log'
 
-    device = torch.device('cuda:{}'.format(args.gpu_id) if args.cuda and torch.cuda.is_available() else 'cpu')
-    log.info("Training on {}.".format(device))
+    device = torch.device(f'cuda:{args.gpu_id}' if args.cuda and torch.cuda.is_available() else 'cpu')
+    log.info(f"Training on {device}.")
 
-    word_vocab, word2id = data.load_vocab(args.vocab_file)
-    tag_vocab, tag2id = data.load_vocab(args.tag_vocab_file)
+    tag_vocab, tag2id = data.load_tag_vocab(tag_vocab_file)
     n_tags = len(tag_vocab)
+    tokenizer = BertTokenizer.from_pretrained(vocab_file, 
+            never_split=data.BERT_RESERVED_TOKENS + data.BERT_CUSTOM_TOKENS)
+    vocab_size = len(tokenizer.vocab)
 
     # select an utt_encoder and compatible utt tokenization
-    log.info("Utt encoder: {}".format(args.utt_encoder))
-    log.info("DAR model uses LSTM: {}".format(args.lstm))
+    log.info(f"Utt encoder: {args.utt_encoder}")
+    log.info(f"DAR model uses LSTM: {args.lstm}")
     if args.utt_encoder == 'wordvec-avg': 
         if args.use_glove:
-            weights = torch.FloatTensor(data.load_glove(args.utt_dims, word_vocab))
+            weights = torch.FloatTensor(data.load_glove(args.utt_dims, [t[0] for t in tokenizer.vocab]))
             utt_encoder = model.WordVecAvg.from_pretrained(weights)
         else:
-            utt_encoder = model.WordVecAvg.random_init(len(word_vocab), args.utt_dims)
+            utt_encoder = model.WordVecAvg.random_init(vocab_size, args.utt_dims)
         utt_format = 'utts_ints'
     elif args.utt_encoder == 'bert':
         utt_format = 'utts_ints_bert'
         utt_encoder = model.BertUttEncoder(args.utt_dims)
     else:
-        raise ValueError("Unknown encoder model: {}".format(args.utt_encoder))
+        raise ValueError(f"Unknown encoder model: {args.utt_encoder}")
 
     # always use the same dar_model
     dar_model = model.DARRNN(args.utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0, use_lstm=args.lstm)
@@ -180,7 +190,7 @@ if __name__ == '__main__':
     dar_model.train()
 
     params = list(dar_model.named_parameters()) + list(utt_encoder.named_parameters())
-    log.debug("Model parameters ({} total):".format(len(params)))
+    log.debug(f"Model parameters ({len(params)} total):")
     for n, p in params:
         log.debug("{:<25} | {:<10} | {}".format(
             str(p.size()),
@@ -195,24 +205,23 @@ if __name__ == '__main__':
 
     tag_format = 'tags_ints'
     utt_format = utt_format + '_nl' if args.no_laughter else utt_format
-    train_data = data.load_data(args.train_file, utt_format, tag_format)
-    val_data = data.load_data(args.val_file, utt_format, tag_format)
+    train_data = data.load_data(train_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
+    val_data = data.load_data(val_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
     if args.training_limit:
         train_data = train_data[:args.training_limit]
         val_data = val_data[:int(args.training_limit/2)]
 
     for epoch in range(1, args.epochs+1):
-        log.info("Starting epoch {}".format(epoch))
+        log.info(f"Starting epoch {epoch}")
         train_loss = train_epoch(utt_encoder, dar_model, train_data, n_tags,
                 args.batch_size, args.bptt, args.max_utt_len, 
                 criterion, optimizer, device)
-        log.info("Epoch {} training loss:   {:.6f}".format(epoch, train_loss))
-        log.info("Saving epoch {} models.".format(epoch))
-        torch.save(dar_model.state_dict(), os.path.join(save_dir, 'dar_model.E{}.bin'.format(epoch)))
-        torch.save(utt_encoder.state_dict(), os.path.join(save_dir, 'utt_encoder.E{}.bin'.format(epoch)))
-        log.info("Starting epoch {} valdation".format(epoch))
+        log.info(f"Epoch {epoch} training loss:   {train_loss:.6f}")
+        log.info(f"Saving epoch {epoch} models.")
+        torch.save(dar_model.state_dict(), os.path.join(save_dir, f'dar_model.E{epoch}.bin'))
+        torch.save(utt_encoder.state_dict(), os.path.join(save_dir, f'utt_encoder.E{epoch}.bin'))
+        log.info(f"Starting epoch {epoch} valdation")
         val_loss, preds = eval_model.eval_model(utt_encoder, dar_model, val_data, n_tags, 
                 criterion, device)
         accuracy = eval_model.compute_accuracy(val_data, preds)
-        log.info("Epoch {} validation loss: {:.6f} | accuracy: %{:.2f}".format(
-            epoch, val_loss, accuracy * 100))
+        log.info(f"Epoch {epoch} validation loss: {val_loss:.6f} | accuracy: %{accuracy*100:.2f}")
