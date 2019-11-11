@@ -148,7 +148,7 @@ if __name__ == '__main__':
    
     # save the args so we can recover hyperparameters, etc.
     with open(os.path.join(save_dir, 'args.json'), 'w') as f:
-        json.dump(args.__dict__, f)
+        json.dump(args.__dict__, f, indent=4)
     log = util.create_logger(args.verbose, os.path.join(save_dir, 'train.log'))
     eval_model.log = log  # set the eval_model logger to go to 'train.log'
 
