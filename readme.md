@@ -34,31 +34,17 @@
 
 # Experiments 
 
-## Experimental parameters
+## Model zoo
 
-- Encoder architecture
-  - BERT ? [12 layers, 24 layers]
-    - ? DistilBert
-    - ? RoBERTa
-  - bi-LSTM [hidden size, n layers]
-- DA model architecture
-  - Elman RNN [hidden size]
-  - LSTM [hidden size]
-- Encoder pre-training
-  - Pre-trained BERT (out-of-domain)
-  - Randomly initialised
-  - In-domain fine-tuning
-    - Corpora {SWBD-SWDA, AMI-NODA, Ubuntu}
-    - Fine-tuning task {Masked token prediction, adjacent utterance}
-    - Learning rate (for each task)
-    - N epochs (for each task)
-- BERT output
-  - CLS token [final layer, second-to-last layer]
-  - Token average [final layer, second-to-last layer]
-  - ? Token attention [final layer, second-to-last layer]
-- Task-level training (fine-tuning)
-  - Learning rate
-  - N epochs
+|    | encoder model | pre-training |  additional pre-training        | task corpus                   |  fine tune encoder |
+|----|---------------|--------------|---------------------------------|-------------------------------|--------------------|
+|  1 | LSTM          | gloVe        | No                              | AMI-DA/AMI-DA-NL/SWDA/SWDA-NL | Yes                |
+| 2  | BERT          | Yes          | No                              | AMI-DA/AMI-DA-NL/SWDA/SWDA-NL | Yes                |
+| 3  | BERT          | Yes          | No                              | AMI-DA/SWDA                   | Yes                |
+| 4  | BERT          | NO           | NO                              | AMI-DA/SWDA                   | Yes                |
+| 5  | BERT          | YES          | AMI/SWBD (token/utterance/both) |                               |                    |
+| 6  | BERT          | YES          | No                              | AMI-DA/SWDA                   | No                 |
+| 7  | BERT          | Yes          | Ubuntu                          |                               |                    |
 
 ## Questions to answer
 
