@@ -62,16 +62,38 @@
 
 ## Questions to answer
 
-- Which pre-training tasks are most helpful for DA pred.?
-  - Masked LM
-  - Adjacent utterances
-  - Both
-- Does fine-tuning learn/make use of dialogue-specific features?
-  - Fine-tune pre-trained BERT w/laughs (train frozen/unfrozen)
-  - Fine-tune pre-trained BERT w/o laughs (train frozen/unfrozen)
-- Is catastrophic forgetting happening (are we actually using the pre-training)
-  - Fine-tune pre-trained BERT w/laughs (train frozen/unfrozen)
-  - Fine-tune randomly initialised BERT w/laughs (train frozen/unfrozen
-- Dialogue model pre-training
-  - representation learning / next representation prediction
-  - question mark prediction task
+### Is pre-trained BERT useful for dialogue at all?
+
+- baseline LSTM model (1) vs. pre-trained BERT (2)
+- pre-trained BERT (2) vs. randomly-initalized BERT (4) vs. BERT w/ additional pre-training (5)
+- **Analysis**: 
+  - Compare performance on SWDA & AMI-DA of model w/ highest val. accuracy after 20 epochs
+  - Does randomly initialized BERT catch up to pre-trained BERT in performance (if so, maybe catastrophic forgetting is happening)
+
+### Does the model make use of dialogue-specific features?
+
+- BERT fine-tuned on SWDA/AMI-DA (2.1/2.3) vs. BERT fine tuned on SWDA-NL/AMI-DA-NL (2.2/2.4)
+- LSTM trained on SWDA/AMI-DA (1.1/1.3) vs. LSTM trained on SWDA-NL/AMI-DA-NL (1.2/1.4)
+- **Analysis**: 
+  - Compare performance of models trained with and without laughter. If models with laughter do better, the model must be using the laughter.
+  - Compare increase (assuming there is one) in performance for LSTM vs. BERT
+  - DA-specific performance. Which DAs does laughter help disambiguate?
+  - Performance difference on utterances with/following/preceding laughter
+
+- BERT fine-tuned on SWDA
+- **Analysis**: Compare the model trained with laughter on the test set with/without laughter. _Is this better/worse than comparing the with the model that was also trained with the no-laughter condition? Not sure..._
+
+### Does additional in-domain pre-training help?
+
+- BERT with additional pre-training (masked token/next utterance/both) and frozen during fine-tuning (5) vs. BERT with no additional pre-training (frozen/not-frozen) (2,6)
+- **Analysis**
+  - Compare performance of 5 and 2
+  - How long does it take 6 to catch up to 5? (if at all)
+
+### (bonus) How well do dialogue-tuned models transfer to other dialogue settings?
+
+- BERT pre-trained on one domain (AMI/SWBD) and fine tuned on the other (AMI-DA/SWDA)
+- BERT pre-trained on a big dialogue corpus like Ubuntu
+- **Analysis** 
+  - Compare performance of 5.1-3 vs. 5.4-6 on AMI and visa versa on SWDA.
+  - Compare performance of 7 to 5 and 2. (Is Ubuntu pre-training as good as in-genre pre-training? Is it better than no dialogue pre-training at all?)
