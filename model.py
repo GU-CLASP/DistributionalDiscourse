@@ -98,10 +98,8 @@ class KimCNN(nn.Module):
     """ CNN utt encoder based on Kim (2014): https://github.com/yoonkim/CNN_sentence
     """
 
-    def __init__(self, vocab_size, utt_size, embedding_dim, embedding):
+    def __init__(self, vocab_size, utt_size, embedding_dim, embedding, window_sizes, feature_maps):
         super().__init__()
-        window_sizes = [3,4,5]
-        feature_maps = 100
 
         self.embedding = embedding
         self.convs = nn.ModuleList([nn.Conv2d(1, feature_maps, (window_size, embedding_dim))
@@ -110,14 +108,14 @@ class KimCNN(nn.Module):
         self.dropout = nn.Dropout(0.5)
 
     @classmethod
-    def from_pretrained(cls, vocab_size, utt_size, embedding_dim, weights, freeze_embedding):
+    def from_pretrained(cls, vocab_size, utt_size, embedding_dim, weights, *args):
         embedding = nn.Embedding.from_pretrained(weights, freeze=freeze_embedding, padding_idx=0)
-        return cls(vocab_size, utt_size, embedding_dim, embedding)
+        return cls(vocab_size, utt_size, embedding_dim, embedding, *args)
 
     @classmethod
-    def random_init(cls, vocab_size, utt_size, embedding_dim):
+    def random_init(cls, vocab_size, utt_size, embedding_dim, *args):
         embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
-        return cls(vocab_size, utt_size, embedding_dim, embedding)
+        return cls(vocab_size, utt_size, embedding_dim, embedding, *args)
 
     def forward(self, x):
         x = self.embedding(x)

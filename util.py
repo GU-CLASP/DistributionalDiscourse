@@ -5,6 +5,14 @@ from tqdm import tqdm
 from collections import defaultdict
 import os
 
+def pad_lists(ls, min_len=None, max_len=None, pad=0):
+    pad_len = max(len(l) for l in ls)
+    if max_len:
+        pad_len = min(pad_len, max_len)
+    if min_len:
+        pad_len = max(pad_len, min_len)
+    return [(l + ([pad] * (pad_len - len(l))))[-pad_len:] for l in ls]
+
 class TqdmLoggingHandler(logging.Handler):
     def __init__(self, level=logging.NOTSET):
         super().__init__(level)

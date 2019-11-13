@@ -72,31 +72,25 @@ parser.add_argument('--gpu-id', type=int, default=0,
 parser.add_argument("--training-limit", type=int, default=None,
         help="Limit the amount of training data to N dialogues.")
 
-def pad_lists(ls, max_len=None, pad=0):
-    pad_len = max(len(l) for l in ls)
-    if max_len:
-        pad_len = min(pad_len, max_len)
-    return [(l + ([pad] * (pad_len - len(l))))[-pad_len:] for l in ls]
-
 def gen_batches(data, batch_size):
     data.sort(key=lambda x: len(x[0]))  # batch similarly lengthed dialogues together
     batches = [data[i:i+batch_size] for i in range(0, len(data), batch_size)]
     random.shuffle(batches)  # shuffle the batches so we a mix of lengths
     return batches
 
-def gen_bptt(batch, bptt, batch_size, max_utt_len):
+def gen_bptt(batch, bptt, batch_size, min_utt_len, max_utt_len):
     utts_batch, tags_batch = zip(*batch)
     diag_lens = [len(tags) for tags in tags_batch]
     max_diag_len = max(diag_lens)
     utts_batch = [[utts_batch[i][j] if j < diag_lens[i] else []
             for i in range(batch_size)] for j in range(max_diag_len)]
-    utts_batch = [pad_lists(utts, max_utt_len) for utts in utts_batch]
+    utts_batch = [util.pad_lists(utts, max_utt_len, min_utt_len) for utts in utts_batch]
     tags_batch = [[tags_batch[i][j] if j < diag_lens[i] else 0
             for i in range(batch_size)] for j in range(max_diag_len)]
     for seq in range(0, max_diag_len, bptt):
         yield utts_batch[seq:seq+bptt], tags_batch[seq:seq+bptt]
 
-def train_epoch(utt_encoder, dar_model, data, n_tags, batch_size, bptt, max_utt_len,
+def train_epoch(utt_encoder, dar_model, data, n_tags, batch_size, bptt, min_utt_len, max_utt_len,
         criterion, optimizer, device):
     epoch_loss = 0
     batches = gen_batches(data, batch_size)
@@ -104,7 +98,7 @@ def train_epoch(utt_encoder, dar_model, data, n_tags, batch_size, bptt, max_utt_
         batch_loss = 0
         batch_size_ = len(batch)
         hidden = dar_model.init_hidden(batch_size_).to(device)
-        for x, y in gen_bptt(batch, bptt, batch_size_, max_utt_len):
+        for x, y in gen_bptt(batch, bptt, batch_size_, min_utt_len, max_utt_len):
             # detach history from the previous batch
             hidden = hidden.detach() 
             # zero out the gradients 
@@ -172,6 +166,7 @@ if __name__ == '__main__':
     # select an utt_encoder and compatible utt tokenization
     log.info(f"Utt encoder: {args.utt_encoder}")
     log.info(f"DAR model uses LSTM: {args.lstm}")
+    min_utt_len = None  # CNNs require a min utt len (no utterance can be shorter than the biggest window size)
     if args.utt_encoder == 'wordvec-avg': 
         assert args.embedding_size == args.utt_dims
         if args.use_glove:
@@ -180,11 +175,16 @@ if __name__ == '__main__':
         else:
             utt_encoder = model.WordVecAvg.random_init(vocab_size, args.embedding_size)
     if args.utt_encoder == 'cnn':
+        window_sizes = [3, 4, 5]
+        feature_maps = 100
+        min_utt_len = max(window_sizes) 
         if args.use_glove:
             weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, [t[0] for t in tokenizer.vocab]))
-            utt_encoder = model.KimCNN(vocab_size, args.utt_dims, args.embedding_size, weights, args.freeze_embedding)
+            utt_encoder = model.KimCNN.from_pretrained(vocab_size, args.utt_dims, args.embedding_size, weights, args.freeze_embedding, 
+                    window_sizes, feature_maps)
         else:
-            utt_encoder = model.KimCNN.random_init(vocab_size, args.utt_dims, args.embedding_size)
+            utt_encoder = model.KimCNN.random_init(vocab_size, args.utt_dims, args.embedding_size, 
+                    window_sizes, feature_maps)
     elif args.utt_encoder == 'bert':
         utt_encoder = model.BertUttEncoder(args.utt_dims, from_pretrained=not args.random_init)
     else:
@@ -224,7 +224,7 @@ if __name__ == '__main__':
     for epoch in range(1, args.epochs+1):
         log.info(f"Starting epoch {epoch}")
         train_loss = train_epoch(utt_encoder, dar_model, train_data, n_tags,
-                args.batch_size, args.bptt, args.max_utt_len, 
+                args.batch_size, args.bptt, min_utt_len, args.max_utt_len, 
                 criterion, optimizer, device)
         log.info(f"Epoch {epoch} training loss:   {train_loss:.6f}")
         log.info(f"Saving epoch {epoch} models.")
@@ -232,6 +232,6 @@ if __name__ == '__main__':
         torch.save(utt_encoder.state_dict(), os.path.join(save_dir, f'utt_encoder.E{epoch}.bin'))
         log.info(f"Starting epoch {epoch} valdation")
         val_loss, preds = eval_model.eval_model(utt_encoder, dar_model, val_data, n_tags, 
-                criterion, device)
+                criterion, device, min_utt_len)
         accuracy = eval_model.compute_accuracy(val_data, preds)
         log.info(f"Epoch {epoch} validation loss: {val_loss:.6f} | accuracy: %{accuracy*100:.2f}")

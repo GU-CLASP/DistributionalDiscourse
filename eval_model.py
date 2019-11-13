@@ -32,7 +32,7 @@ def compute_accuracy(data, preds):
         total_correct += correct
     return total_correct / total
 
-def eval_model(utt_encoder, dar_model, data, n_tags, criterion, device):
+def eval_model(utt_encoder, dar_model, data, n_tags, criterion, device, min_utt_len=None):
     """ Similar to train.train_epoch but:
         - runs through dialogues one at a time (instead of in batches)
         - hidden state retained for the whole dialogue (instead of using bptt sequences)
@@ -43,10 +43,11 @@ def eval_model(utt_encoder, dar_model, data, n_tags, criterion, device):
     with torch.no_grad():
         for i, (x, y) in enumerate(data, 1):
            log.debug("Evaluating on dialogue {:3d} of {} ({} utterances).".format(i, len(data), len(x)))
+           x = util.pad_lists(x, min_len=min_utt_len)
            x = [torch.LongTensor(xi).unsqueeze(0).to(device) for xi in x]
-           y = torch.LongTensor(y).to(device)
            x = [utt_encoder(xi) for xi in x]
            x = torch.stack(x)
+           y = torch.LongTensor(y).to(device)
            hidden = dar_model.init_hidden(1)
            y_hat, hidden = dar_model(x, hidden)
            diag_loss = criterion(y_hat.view(-1, n_tags), y.view(-1)).item()
