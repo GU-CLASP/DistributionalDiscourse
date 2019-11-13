@@ -12,7 +12,7 @@ Contents:
 """
 
 import torch.nn as nn
-from pytorch_pretrained_bert import BertModel 
+from pytorch_pretrained_bert import BertModel, BertConfig
 
 class SimpleDARRNN(nn.Module):
     def __init__(self, utt_size, n_tags):
@@ -94,9 +94,13 @@ class WordVecAvg(nn.Module):
 
 class BertUttEncoder(nn.Module):
 
-    def __init__(self, utt_size):
+    def __init__(self, utt_size, from_pretrained=True):
         super().__init__()
-        self.bert = BertModel.from_pretrained('bert-base-uncased')
+        if from_pretrained:
+            self.bert = BertModel.from_pretrained('bert-base-uncased')
+        else:
+            config = BertConfig.from_json_file('data/bert-base-uncased_config.json')
+            self.bert = BertModel(config)
         self.linear = nn.Linear(768, utt_size)
 
     def forward(self, x):

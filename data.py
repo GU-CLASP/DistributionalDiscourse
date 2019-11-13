@@ -15,9 +15,10 @@ import ami
 from swda import swda
 
 from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer, load_vocab
+from pytorch_pretrained_bert import BertModel
 
 parser = argparse.ArgumentParser()
-parser.add_argument("command", choices=['prep-corpora', 'customize-bert-vocab', 'test-tokenization'], 
+parser.add_argument("command", choices=['prep-corpora', 'customize-bert-vocab', 'get-bert-config', 'test-tokenization'], 
         help="What preprocessing to do.")
 parser.add_argument('-d','--data-dir', default='data',
         help='Data storage directory.')
@@ -317,6 +318,14 @@ if __name__ == '__main__':
 
     if args.command == 'customize-bert-vocab':
         customize_bert_vocab(args.data_dir, BERT_CUSTOM_TOKENS, bert_model='bert-base-uncased')
+
+    if args.command == 'get-bert-config':
+        """
+        Really silly, but we need to save the config from the pre-trained BERT so we can replicate it 
+        when we're using the randomly-initalized BERT.
+        """
+        bert = BertModel.from_pretrained('bert-base-uncased')
+        bert.config.to_json_file(os.path.join(args.data_dir, 'bert-base-uncased_config.json'))
 
     if args.command == 'test-tokenization':
         corpus = 'AMI-DA'

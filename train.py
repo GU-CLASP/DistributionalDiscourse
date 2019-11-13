@@ -35,6 +35,8 @@ parser.add_argument('--dar-layers', default=1, type=int,
         help="Number of hidden layers in the DAR RNN.")
 parser.add_argument('--freeze-encoder', action='store_true', default=False,
         help='Train the utterance encoder. (Otherwise only the DAG RNN is trained.)')
+parser.add_argument('--random-init', action='store_true', default=False,
+        help='Start from an un-trained BERT model.')
 parser.add_argument('--glove', dest='use_glove', action='store_true', default=False,
         help="Use GloVe (with compatible utt encoders).")
 parser.add_argument('--epochs', type=int, default=10,
@@ -173,7 +175,7 @@ if __name__ == '__main__':
         else:
             utt_encoder = model.WordVecAvg.random_init(vocab_size, args.utt_dims)
     elif args.utt_encoder == 'bert':
-        utt_encoder = model.BertUttEncoder(args.utt_dims)
+        utt_encoder = model.BertUttEncoder(args.utt_dims, from_pretrained=not args.random_init)
     else:
         raise ValueError(f"Unknown encoder model: {args.utt_encoder}")
 
