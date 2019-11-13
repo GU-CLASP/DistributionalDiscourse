@@ -53,6 +53,7 @@ def mask_text(tokens, tokenizer, vocab):
     masked_lm_labels = [-1] * len(tokens)
     for i in mask_indices:
         masked_lm_labels[i] = tokenizer.vocab[tokens[i]]
+    # return tokenizer.convert_tokens_to_ids(masked_tokens), tokenizer.convert_tokens_to_ids(tokens)#masked_lm_labels
     return tokenizer.convert_tokens_to_ids(masked_tokens), masked_lm_labels
 
 
@@ -68,12 +69,12 @@ def gen_batches_masked_lm(data, batch_size, max_len, tokenizer):
         if i == batch_size:
             x = util.pad_lists(x, max_len)
             y = util.pad_lists(y, max_len)
-            yield torch.LongTensor(x), torch.LongTensor(y)
+            yield x, y
             x, y, i = [], [], 0
     if x: # batch remainder
         x = util.pad_lists(x, max_len)
         y = util.pad_lists(y, max_len)
-        yield torch.LongTensor(x), torch.LongTensor(y)
+        yield x, y
 
 
 def train_epoch_masked_lm(bert_model, data, tokenizer, batch_size, max_len, optimizer, device):
@@ -81,8 +82,10 @@ def train_epoch_masked_lm(bert_model, data, tokenizer, batch_size, max_len, opti
     batches = list(gen_batches_masked_lm(data, batch_size, max_len, tokenizer))
 
     for i, (x, y) in enumerate(tqdm(batches), 1): 
-        x = x.to(device)
-        y = y.to(device)
+        batch_size_ = len(x) 
+        bert_model.zero_grad()
+        x = torch.LongTensor(x).to(device)
+        y = torch.LongTensor(y).to(device)
         loss = bert_model(x, masked_lm_labels=y)
         loss.backward()
         optimizer.step()
@@ -104,15 +107,19 @@ if __name__ == '__main__':
 
     config = BertConfig.from_json_file('data/bert-base-uncased_config.json')
     bert_model = BertForMaskedLM(config)
+    bert_model.to(device)
+    bert_model.train()
 
     tokenizer = BertTokenizer.from_pretrained(vocab_file, 
             never_split=data.BERT_RESERVED_TOKENS + data.BERT_CUSTOM_TOKENS)
+    log.debug(f"Vocab length: {len(tokenizer.vocab)}")
     train_data = data.load_data_pretraining(train_file, tokenizer)
     optimizer = optim.Adam(bert_model.parameters(), lr=args.learning_rate)
     
 
     for epoch in range(1, args.epochs+1):
         log.info(f"Starting epoch {epoch}")
+
         train_loss = train_epoch_masked_lm(bert_model, train_data, tokenizer, args.batch_size, args.max_utt_len, optimizer, device)
         log.info(f"Epoch {epoch} training loss:   {train_loss:.6f}")
         log.info(f"Saving epoch {epoch} model")
