@@ -20,7 +20,7 @@ import contextlib
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument("utt_encoder", choices=['wordvec-avg', 'bert'], 
+parser.add_argument("utt_encoder", choices=['wordvec-avg', 'cnn', 'bert'], 
         help="Which utt_encoder model to use")
 parser.add_argument('corpus', choices=['SWDA', 'AMI-DA'],
         help='Which dialouge act corpus to train on.')
@@ -37,6 +37,10 @@ parser.add_argument('--freeze-encoder', action='store_true', default=False,
         help='Train the utterance encoder. (Otherwise only the DAG RNN is trained.)')
 parser.add_argument('--glove', dest='use_glove', action='store_true', default=False,
         help="Use GloVe (with compatible utt encoders).")
+parser.add_argument('--embedding-size', type=int, default=100,
+        help="Size of embedding (not used for BERT).")
+parser.add_argument('--freeze-embedding', action='store_true', default=False,
+        help='Freeze the embedding layer (e.g., pre-trained gloVe vectors)')
 parser.add_argument('--epochs', type=int, default=10,
         help='Number of times to iterate through the training data.')
 parser.add_argument("--learning-rate", default=3e-5, type=float,
@@ -167,11 +171,18 @@ if __name__ == '__main__':
     log.info(f"Utt encoder: {args.utt_encoder}")
     log.info(f"DAR model uses LSTM: {args.lstm}")
     if args.utt_encoder == 'wordvec-avg': 
+        assert args.embedding_size == args.utt_dims
         if args.use_glove:
-            weights = torch.FloatTensor(data.load_glove(args.utt_dims, [t[0] for t in tokenizer.vocab]))
+            weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, [t[0] for t in tokenizer.vocab]))
             utt_encoder = model.WordVecAvg.from_pretrained(weights)
         else:
-            utt_encoder = model.WordVecAvg.random_init(vocab_size, args.utt_dims)
+            utt_encoder = model.WordVecAvg.random_init(vocab_size, args.embedding_size)
+    if args.utt_encoder == 'cnn':
+        if args.use_glove:
+            weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, [t[0] for t in tokenizer.vocab]))
+            utt_encoder = model.KimCNN(vocab_size, args.utt_dims, args.embedding_size, weights, args.freeze_embedding)
+        else:
+            utt_encoder = model.KimCNN.random_init(vocab_size, args.utt_dims, args.embedding_size)
     elif args.utt_encoder == 'bert':
         utt_encoder = model.BertUttEncoder(args.utt_dims)
     else:
