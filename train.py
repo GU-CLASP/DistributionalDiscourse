@@ -6,8 +6,7 @@ import eval_model
 import torch
 import torch.nn as nn
 import torch.optim as optim
-
-from pytorch_pretrained_bert.tokenization import BertTokenizer
+import transformers
 
 import itertools
 import json 
@@ -159,7 +158,7 @@ if __name__ == '__main__':
     n_tags = len(tag_vocab)
     if not os.path.exists(vocab_file):
         raise ValueError("Vocab file {vocab_file} does not exist. Run data.py customize-bert-vocab first.")
-    tokenizer = BertTokenizer.from_pretrained(vocab_file, 
+    tokenizer = transformers.BertTokenizer.from_pretrained(vocab_file, 
             never_split=data.BERT_RESERVED_TOKENS + data.BERT_CUSTOM_TOKENS)
     vocab_size = len(tokenizer.vocab)
 

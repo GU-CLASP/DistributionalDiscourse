@@ -14,7 +14,9 @@ let
          {
           python3 = super.python3.override {
            packageOverrides = python-self: python-super: {
-             pytorch-pretrained-bert = python-self.callPackage /opt/nix/pytorch-pretrained-bert-0.6.2.nix { };
+	     sacremoses = python-self.callPackage /opt/nix/sacremoses-0.0.35.nix {};
+	     sentencepiece = python-self.callPackage /opt/nix/sentencepiece-0.1.84.nix {};
+             transformers = python-self.callPackage /opt/nix/transformers-2.1.1.nix { };
            };};})
       (import /opt/nix/nvidia-410.78.nix)  # fix version of nvidia drivers
       (self: super: {
@@ -31,9 +33,9 @@ let
       extraLibs = with py.pkgs;
         [
          # If you want to have a local virtualenv, see here: https://github.com/NixOS/nixpkgs/blob/master/doc/languages-frameworks/python.section.md
-         pytorch-pretrained-bert
+         transformers 
          pytorch
-	       nltk
+	 nltk
          notebook
          matplotlib
          pandas

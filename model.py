@@ -13,8 +13,8 @@ Contents:
 
 import torch
 import torch.nn as nn
-from pytorch_pretrained_bert import BertModel, BertConfig
 import torch.nn.functional as F
+import transformers
 
 class SimpleDARRNN(nn.Module):
     def __init__(self, utt_size, n_tags):
@@ -132,10 +132,10 @@ class BertUttEncoder(nn.Module):
     def __init__(self, utt_size, from_pretrained=True):
         super().__init__()
         if from_pretrained:
-            self.bert = BertModel.from_pretrained('bert-base-uncased')
+            self.bert = transformers.BertModel.from_pretrained('bert-base-uncased')
         else:
-            config = BertConfig.from_json_file('data/bert-base-uncased_config.json')
-            self.bert = BertModel(config)
+            config = transformers.BertConfig.from_json_file('data/bert-base-uncased_config.json')
+            self.bert = transformers.BertModel(config)
         self.linear = nn.Linear(768, utt_size)
 
     def forward(self, x):

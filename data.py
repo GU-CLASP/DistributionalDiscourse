@@ -14,8 +14,7 @@ import util
 import ami
 from swda import swda
 
-from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, BertTokenizer, load_vocab
-from pytorch_pretrained_bert import BertModel
+import transformers 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("command", choices=[
@@ -39,10 +38,10 @@ BERT_RESERVED_TOKENS = ["[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"] # used by 
 def customize_bert_vocab(data_dir, custom_tokens, bert_model):
 
     vocab_file = os.path.join(data_dir, f'{bert_model}_vocab.txt' )
-    vocab_url = PRETRAINED_VOCAB_ARCHIVE_MAP[bert_model]
+    vocab_url = transformers.PRETRAINED_VOCAB_ARCHIVE_MAP[bert_model]
     if not os.path.exists(vocab_file):
         util.download_url(vocab_url, vocab_file)
-    vocab = list(load_vocab(vocab_file).keys()) # load_vocab gives an OrderedDict 
+    vocab = list(transformers.load_vocab(vocab_file).keys()) # load_vocab gives an OrderedDict 
     # most of the first 1000 tokens are [unusedX], but [PAD], [CLS], etc are scattered in there too 
     for new_token in custom_tokens:
         if new_token in vocab:
@@ -343,12 +342,12 @@ if __name__ == '__main__':
         Really silly, but we need to save the config from the pre-trained BERT so we can replicate it 
         when we're using the randomly-initalized BERT.
         """
-        bert = BertModel.from_pretrained('bert-base-uncased')
+        bert = transformers.BertModel.from_pretrained('bert-base-uncased')
         bert.config.to_json_file(os.path.join(args.data_dir, 'bert-base-uncased_config.json'))
 
     if args.command == 'test-tokenization':
         corpus = 'AMI-DA'
-        tokenizer = BertTokenizer.from_pretrained('data/bert-base-uncased_vocab.txt', 
+        tokenizer = transformers.BertTokenizer.from_pretrained('data/bert-base-uncased_vocab.txt', 
                 never_split=BERT_RESERVED_TOKENS + BERT_CUSTOM_TOKENS)
         tag_vocab, tag2id = load_tag_vocab(f'data/{corpus}_tags.txt')
         data = load_data(f'data/{corpus}_train.json', tokenizer, tag2id)
