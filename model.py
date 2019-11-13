@@ -11,8 +11,10 @@ Contents:
     - DARRNN - a simple RNN DAR model
 """
 
+import torch
 import torch.nn as nn
 from pytorch_pretrained_bert import BertModel, BertConfig
+import torch.nn.functional as F
 
 class SimpleDARRNN(nn.Module):
     def __init__(self, utt_size, n_tags):
@@ -91,6 +93,41 @@ class WordVecAvg(nn.Module):
     def forward(self, x):
         x = self.embedding(x).sum(dim=1) 
         return x 
+
+class KimCNN(nn.Module):
+    """ CNN utt encoder based on Kim (2014): https://github.com/yoonkim/CNN_sentence
+    """
+
+    def __init__(self, vocab_size, utt_size, embedding_dim, embedding):
+        super().__init__()
+        window_sizes = [3,4,5]
+        feature_maps = 100
+
+        self.embedding = embedding
+        self.convs = nn.ModuleList([nn.Conv2d(1, feature_maps, (window_size, embedding_dim))
+                                    for window_size in window_sizes])
+        self.linear = nn.Linear(len(window_sizes)*feature_maps, utt_size)
+        self.dropout = nn.Dropout(0.5)
+
+    @classmethod
+    def from_pretrained(cls, vocab_size, utt_size, embedding_dim, weights, freeze_embedding):
+        embedding = nn.Embedding.from_pretrained(weights, freeze=freeze_embedding, padding_idx=0)
+        return cls(vocab_size, utt_size, embedding_dim, embedding)
+
+    @classmethod
+    def random_init(cls, vocab_size, utt_size, embedding_dim):
+        embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
+        return cls(vocab_size, utt_size, embedding_dim, embedding)
+
+    def forward(self, x):
+        x = self.embedding(x)
+        x = x.unsqueeze(1)
+        x = [F.relu(conv(x)).squeeze(3) for conv in self.convs]
+        x = [F.max_pool1d(i, i.size(2)).squeeze(2) for i in x]
+        x = torch.cat(x, 1)
+        x = self.dropout(x)
+        x = self.linear(x)
+        return x
 
 class BertUttEncoder(nn.Module):
 

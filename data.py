@@ -18,8 +18,13 @@ from pytorch_pretrained_bert.tokenization import PRETRAINED_VOCAB_ARCHIVE_MAP, B
 from pytorch_pretrained_bert import BertModel
 
 parser = argparse.ArgumentParser()
-parser.add_argument("command", choices=['prep-corpora', 'customize-bert-vocab', 'get-bert-config', 'test-tokenization'], 
-        help="What preprocessing to do.")
+parser.add_argument("command", choices=[
+    'prep-corpora', 
+    'customize-bert-vocab', 
+    'download-glove', 
+    'get-bert-config',
+    'test-tokenization'
+    ],  help="What preprocessing to do.")
 parser.add_argument('-d','--data-dir', default='data',
         help='Data storage directory.')
 parser.add_argument('-pt','--pause-threshold', default=1,
@@ -57,9 +62,12 @@ def customize_bert_vocab(data_dir, custom_tokens, bert_model):
 
 def load_glove(data_dir, glove_dim, vocab):
     # TODO: this can deal with word pieces better...
-    glove_file = os.path.join(data_dir, 'glove.6B/glove.6B.{glove_dim}d.txt')
-    if not os.path.exists(glove_file):
+    glove_dir = os.path.join(data_dir, 'glove.6B')
+    if not os.path.exists(glove_dir):
         download_glove(data_dir)
+    glove_file = os.path.join(glove_dir, f'glove.6B.{glove_dim}d.txt')
+    if not os.path.exists(glove_file):
+        raise ValueError(f"We don't have {glove_dim}-dimensional gloVe vectors.")
     with open(glove_file, 'rb') as f:
         word_vectors = {}
         for line in tqdm(f.readlines(), desc="loading glove {}d".format(glove_dim)):
@@ -343,3 +351,7 @@ if __name__ == '__main__':
                 print(f"{tag: <12} {' '.join(utt)}")
                 print(f"{tag_d if tag_d else 'None': <12}          {utt_d}")
             print()
+
+    if args.command == 'download-glove':
+        download_glove(args.data_dir)
+
