@@ -93,7 +93,7 @@ def load_data(data_file, tokenizer, tag2id, strip_laughter=False):
     for dialogue in dialogues:
         utts, tags = [], []
         for speaker,utt,tag in zip(dialogue['speakers'], dialogue['utts'], dialogue['da_tags']):
-            utt = [f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
+            utt = ['[CLS]', f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
             if strip_laughter:
                 utt = [t for t in utt if t != LAUGHTER_TOKEN]
                 if not utt:  # laughter is the only token; skip this utt
