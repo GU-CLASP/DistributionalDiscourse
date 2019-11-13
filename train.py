@@ -52,7 +52,7 @@ parser.add_argument('--batch-size', type=int, default=10,
 parser.add_argument('--bptt', type=int, default=5,
         help='Length of sequences for backpropegation through time')
 parser.add_argument('--max-utt-len', type=int, default=50,
-        help='Maximum utterance length (truncates first part of long utterances).')
+        help='Maximum utterance length in tokens (truncates first part of long utterances).')
 parser.add_argument('--no-laughter', action='store_true', default=False,
         help='Flag for loading the data with laughters stripped out.')
 parser.add_argument('--vocab-file', type=str, default='bert-base-uncased_vocab.txt', 

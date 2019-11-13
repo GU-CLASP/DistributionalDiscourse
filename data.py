@@ -86,13 +86,13 @@ def download_glove(data_dir):
         zip_ref.extractall('data/glove.6B')
 
 
-def load_data(data_file, tokenizer, tag2id, strip_laughter=False):
-    with open(data_file) as f:
+def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False):
+    with open(corpus_file) as f:
         dialogues = json.load(f)
     data = []
-    for dialogue in dialogues:
+    for d in dialogues:
         utts, tags = [], []
-        for speaker,utt,tag in zip(dialogue['speakers'], dialogue['utts'], dialogue['da_tags']):
+        for speaker,utt,tag in zip(d['speakers'], d['utts'], d['da_tags']):
             utt = ['[CLS]', f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
             if strip_laughter:
                 utt = [t for t in utt if t != LAUGHTER_TOKEN]
@@ -103,6 +103,17 @@ def load_data(data_file, tokenizer, tag2id, strip_laughter=False):
             tags.append(tag2id[tag])
         data.append((utts, tags))
     return data 
+
+
+def load_data_pretraining(corpus_file, tokenizer):
+    with open(corpus_file) as f:
+        dialogues = json.load(f)
+    data = []
+    for d in dialogues:
+        for speaker,utt in zip(d['speakers'], d['utts']):
+           utt = ['[CLS]', f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
+           data.append(utt)
+    return data
 
 
 Dialogue = namedtuple('Dialogue', ['id', 'speakers', 'utts', 'da_tags'])
