@@ -94,7 +94,6 @@ def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False):
             utts.append(encoded_utt)
             tags.append(tag2id[tag])
         data.append((utts, tags))
-        exit()
     return data 
 
 
