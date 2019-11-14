@@ -19,7 +19,6 @@ import transformers
 parser = argparse.ArgumentParser()
 parser.add_argument("command", choices=[
     'prep-corpora', 
-    'customize-bert-vocab', 
     'download-glove', 
     'get-bert-config',
     'test-tokenization'
@@ -35,31 +34,14 @@ LAUGHTER_TOKEN = '<laughter>'
 BERT_CUSTOM_TOKENS = SPEAKER_TOKENS + [LAUGHTER_TOKEN]
 BERT_RESERVED_TOKENS = ["[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]"] # used by the pre-trained BERT model
 
-def customize_bert_vocab(data_dir, custom_tokens, bert_model):
 
-    vocab_file = os.path.join(data_dir, f'{bert_model}_vocab.txt' )
-    vocab_url = transformers.PRETRAINED_VOCAB_ARCHIVE_MAP[bert_model]
-    if not os.path.exists(vocab_file):
-        util.download_url(vocab_url, vocab_file)
-    vocab = list(transformers.load_vocab(vocab_file).keys()) # load_vocab gives an OrderedDict 
-    # most of the first 1000 tokens are [unusedX], but [PAD], [CLS], etc are scattered in there too 
-    for new_token in custom_tokens:
-        if new_token in vocab:
-            log.info(f"The token '{new_token}' already exists in {vocab_file}.")
-            continue
-        for i, existing_token in enumerate(vocab):
-            if re.match(r"\[unused\d+\]", existing_token):
-                vocab[i] = new_token
-                log.info(f"Custom BERT vocab token: {new_token} -> {i} (replaced {existing_token})")
-                break
-            elif i > 1000:
-                raise ValueError("All out of unused tokens :(")
-    with open(vocab_file, 'w', encoding="utf-8") as f:
-        for token in vocab:
-            f.write(token + '\n')
+def load_tokenizer(bert_model):
+    tokenizer = transformers.BertTokenizer.from_pretrained(bert_model)
+    tokenizer.add_tokens(BERT_CUSTOM_TOKENS)
+    return tokenizer
 
 
-def load_glove(data_dir, glove_dim, vocab):
+def load_glove(data_dir, glove_dim, tokenizer, log=None):
     # TODO: this can deal with word pieces better...
     glove_dir = os.path.join(data_dir, 'glove.6B')
     if not os.path.exists(glove_dir):
@@ -67,13 +49,24 @@ def load_glove(data_dir, glove_dim, vocab):
     glove_file = os.path.join(glove_dir, f'glove.6B.{glove_dim}d.txt')
     if not os.path.exists(glove_file):
         raise ValueError(f"We don't have {glove_dim}-dimensional gloVe vectors.")
-    with open(glove_file, 'rb') as f:
+    with open(glove_file, 'r') as f:
         word_vectors = {}
         for line in tqdm(f.readlines(), desc="loading glove {}d".format(glove_dim)):
-            word_vectors[line[0]] = list(map(float, line[1:]))
-    # order the word vectors according to the vocab
-    word_vectors = [word_vectors[w] if w in word_vectors else [0] * glove_dim for w in vocab]
-    return word_vectors
+            line = line.strip().split(' ')
+            w = str(line[0])
+            v = [float(vi) for vi in line[1:]]
+            word_vectors[w] = v
+    vocab = dict(tokenizer.vocab, **tokenizer.added_tokens_encoder)
+    weights = [[random.uniform(-1,1) for i in range(glove_dim)] for j in range(len(vocab))]
+    n = 0
+    for w in vocab:
+        if w in word_vectors:
+            weights[vocab[w]] = word_vectors[w]
+            n += 1
+    if log:
+        log.info(f"Initialized {n} of {len(vocab)} words with GloVe")
+
+    return weights 
 
 
 def download_glove(data_dir):
@@ -92,13 +85,12 @@ def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False):
     for d in dialogues:
         utts, tags = [], []
         for speaker,utt,tag in zip(d['speakers'], d['utts'], d['da_tags']):
-            utt = ['[CLS]', f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
             if strip_laughter:
                 utt = [t for t in utt if t != LAUGHTER_TOKEN]
                 if not utt:  # laughter is the only token; skip this utt
                     continue
-            utt = tokenizer.convert_tokens_to_ids(utt)
-            utts.append(utt)
+            encoded_utt = tokenizer.encode(f'[SPKR_{speaker}] ' + utt, add_special_tokens=True)
+            utts.append(encoded_utt)
             tags.append(tag2id[tag])
         data.append((utts, tags))
     return data 
@@ -294,8 +286,8 @@ def write_splits(dialogues, data_dir, corpus_name):
 
 if __name__ == '__main__':
 
-    args = parser.parse_args()
     log = util.create_logger(logging.INFO)
+    args = parser.parse_args()
 
     ami_url = "http://groups.inf.ed.ac.uk/ami/AMICorpusAnnotations/ami_public_manual_1.6.2.zip"
     # swbd_url = "http://www.isip.piconepress.com/projects/switchboard/releases/ptree_word_alignments.tar.gz"
@@ -334,9 +326,6 @@ if __name__ == '__main__':
         # write_corpus(swbd, args.data_dir, 'SWBD.unsegmented.json')
 
 
-    if args.command == 'customize-bert-vocab':
-        customize_bert_vocab(args.data_dir, BERT_CUSTOM_TOKENS, bert_model='bert-base-uncased')
-
     if args.command == 'get-bert-config':
         """
         Really silly, but we need to save the config from the pre-trained BERT so we can replicate it 
@@ -347,8 +336,7 @@ if __name__ == '__main__':
 
     if args.command == 'test-tokenization':
         corpus = 'AMI-DA'
-        tokenizer = transformers.BertTokenizer.from_pretrained('data/bert-base-uncased_vocab.txt', 
-                never_split=BERT_RESERVED_TOKENS + BERT_CUSTOM_TOKENS)
+        tokenizer = load_tokenizer('bert-base-uncased')
         tag_vocab, tag2id = load_tag_vocab(f'data/{corpus}_tags.txt')
         data = load_data(f'data/{corpus}_train.json', tokenizer, tag2id)
         with open (f'data/{corpus}_train.json') as f:

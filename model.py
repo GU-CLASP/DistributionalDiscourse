@@ -108,7 +108,7 @@ class KimCNN(nn.Module):
         self.dropout = nn.Dropout(0.5)
 
     @classmethod
-    def from_pretrained(cls, vocab_size, utt_size, embedding_dim, weights, *args):
+    def from_pretrained(cls, vocab_size, utt_size, embedding_dim, weights, freeze_embedding, *args):
         embedding = nn.Embedding.from_pretrained(weights, freeze=freeze_embedding, padding_idx=0)
         return cls(vocab_size, utt_size, embedding_dim, embedding, *args)
 

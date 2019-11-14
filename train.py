@@ -52,8 +52,6 @@ parser.add_argument('--max-utt-len', type=int, default=50,
         help='Maximum utterance length in tokens (truncates first part of long utterances).')
 parser.add_argument('--no-laughter', action='store_true', default=False,
         help='Flag for loading the data with laughters stripped out.')
-parser.add_argument('--vocab-file', type=str, default='bert-base-uncased_vocab.txt', 
-        help='Path of the customized BERT vocabulary to use.')
 parser.add_argument('-d','--data-dir', default='data',
         help='Data storage directory.')
 parser.add_argument('-m','--model-dir', default='models',
@@ -129,7 +127,6 @@ if __name__ == '__main__':
     save_dir = os.path.join(args.model_dir, f'{args.corpus}-{lnl}_{args.encoder_model}_{args.save_suffix}')
     train_file = os.path.join(args.data_dir, f'{args.corpus}_train.json')
     val_file   = os.path.join(args.data_dir, f'{args.corpus}_val.json')
-    vocab_file = os.path.join(args.data_dir, args.vocab_file)
     tag_vocab_file = os.path.join(args.data_dir, f'{args.corpus}_tags.txt')
 
     # create the save directory (for trianed model paremeters, logs, arguments)
@@ -154,12 +151,8 @@ if __name__ == '__main__':
 
     tag_vocab, tag2id = data.load_tag_vocab(tag_vocab_file)
     n_tags = len(tag_vocab)
-    if not os.path.exists(vocab_file):
-        raise ValueError("Vocab file {vocab_file} does not exist. Run data.py customize-bert-vocab first.")
-    tokenizer = transformers.BertTokenizer.from_pretrained(vocab_file, 
-            never_split=data.BERT_RESERVED_TOKENS + data.BERT_CUSTOM_TOKENS)
-    vocab = [t[0] for t in tokenizer.vocab]
-    vocab_size = len(vocab)
+    tokenizer = data.load_tokenizer('bert-base-uncased')
+    vocab_size = len(tokenizer)
     min_utt_len = None  # CNNs require a min utt len (no utterance can be shorter than the biggest window size)
 
     # select an encoder_model and compatible utt tokenization
@@ -170,7 +163,7 @@ if __name__ == '__main__':
     if args.encoder_model == 'wordvec-avg': 
         assert args.embedding_size == args.utt_dims
         if args.use_glove:
-            weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, vocab))
+            weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, tokenizer, log=log))
             encoder_model = model.WordVecAvg.from_pretrained(weights, args.freeze_embedding)
         else:
             encoder_model = model.WordVecAvg.random_init(vocab_size, args.embedding_size)
@@ -181,7 +174,7 @@ if __name__ == '__main__':
         feature_maps = 100
         min_utt_len = max(window_sizes) 
         if args.use_glove:
-            weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, vocab))
+            weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, tokenizer, log=log))
             encoder_model = model.KimCNN.from_pretrained(vocab_size, args.utt_dims, args.embedding_size, 
                     weights, args.freeze_embedding, window_sizes, feature_maps)
         else:
