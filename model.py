@@ -81,8 +81,8 @@ class WordVecAvg(nn.Module):
         self.embedding = embedding 
 
     @classmethod
-    def from_pretrained(cls, weights):
-        embedding = nn.Embedding.from_pretrained(weights, freeze=False, padding_idx=0)
+    def from_pretrained(cls, weights, freeze_embedding=False):
+        embedding = nn.Embedding.from_pretrained(weights, freeze=freeze_embedding, padding_idx=0)
         return cls(embedding)
 
     @classmethod
@@ -127,15 +127,18 @@ class KimCNN(nn.Module):
         x = self.linear(x)
         return x
 
-class BertUttEncoder(nn.Module):
+class BertEncoder(nn.Module):
 
-    def __init__(self, utt_size, from_pretrained=True):
+    def __init__(self, utt_size, from_pretrained=True, finetune_bert=True):
         super().__init__()
         if from_pretrained:
             self.bert = transformers.BertModel.from_pretrained('bert-base-uncased')
         else:
             config = transformers.BertConfig.from_json_file('data/bert-base-uncased_config.json')
             self.bert = transformers.BertModel(config)
+        if not finetune_bert:
+            for param in self.bert.parameters():
+                param.requires_grad = False
         self.linear = nn.Linear(768, utt_size)
 
     def forward(self, x):

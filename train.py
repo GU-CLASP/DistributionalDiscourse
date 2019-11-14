@@ -19,8 +19,8 @@ import contextlib
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument("utt_encoder", choices=['wordvec-avg', 'cnn', 'bert'], 
-        help="Which utt_encoder model to use")
+parser.add_argument("encoder_model", choices=['wordvec-avg', 'cnn', 'bert'], 
+        help="Which encoder_model model to use")
 parser.add_argument('corpus', choices=['SWDA', 'AMI-DA'],
         help='Which dialouge act corpus to train on.')
 parser.add_argument('--utt-dims', default=100, type=int,
@@ -32,8 +32,6 @@ parser.add_argument('--lstm', action='store_true',
         help="Use an LSTM for the DAR RNN.")
 parser.add_argument('--dar-layers', default=1, type=int,
         help="Number of hidden layers in the DAR RNN.")
-parser.add_argument('--freeze-encoder', action='store_true', default=False,
-        help='Train the utterance encoder. (Otherwise only the DAG RNN is trained.)')
 parser.add_argument('--random-init', action='store_true', default=False,
         help='Start from an un-trained BERT model.')
 parser.add_argument('--glove', dest='use_glove', action='store_true', default=False,
@@ -89,7 +87,7 @@ def gen_bptt(batch, bptt, batch_size, min_utt_len, max_utt_len):
     for seq in range(0, max_diag_len, bptt):
         yield utts_batch[seq:seq+bptt], tags_batch[seq:seq+bptt]
 
-def train_epoch(utt_encoder, dar_model, data, n_tags, batch_size, bptt, min_utt_len, max_utt_len,
+def train_epoch(encoder_model, dar_model, data, n_tags, batch_size, bptt, min_utt_len, max_utt_len,
         criterion, optimizer, device):
     epoch_loss = 0
     batches = gen_batches(data, batch_size)
@@ -102,12 +100,12 @@ def train_epoch(utt_encoder, dar_model, data, n_tags, batch_size, bptt, min_utt_
             hidden = hidden.detach() 
             # zero out the gradients 
             dar_model.zero_grad() 
-            utt_encoder.zero_grad()
+            encoder_model.zero_grad()
             # create tensors
             y = torch.LongTensor(y).to(device)
             # encode utterances (once for each item in the BPTT sequence)
             x = [torch.LongTensor(xi).to(device) for xi in x]
-            x = [utt_encoder(xi) for xi in x]
+            x = [encoder_model(xi) for xi in x]
             x = torch.stack(x)
             # predict DA tag sequences
             y_hat, hidden = dar_model(x, hidden) 
@@ -128,7 +126,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     lnl = 'NL' if args.no_laughter else 'L'
-    save_dir = os.path.join(args.model_dir, f'{args.corpus}-{lnl}_{args.utt_encoder}_{args.save_suffix}')
+    save_dir = os.path.join(args.model_dir, f'{args.corpus}-{lnl}_{args.encoder_model}_{args.save_suffix}')
     train_file = os.path.join(args.data_dir, f'{args.corpus}_train.json')
     val_file   = os.path.join(args.data_dir, f'{args.corpus}_val.json')
     vocab_file = os.path.join(args.data_dir, args.vocab_file)
@@ -160,47 +158,53 @@ if __name__ == '__main__':
         raise ValueError("Vocab file {vocab_file} does not exist. Run data.py customize-bert-vocab first.")
     tokenizer = transformers.BertTokenizer.from_pretrained(vocab_file, 
             never_split=data.BERT_RESERVED_TOKENS + data.BERT_CUSTOM_TOKENS)
-    vocab_size = len(tokenizer.vocab)
-
-    # select an utt_encoder and compatible utt tokenization
-    log.info(f"Utt encoder: {args.utt_encoder}")
-    log.info(f"DAR model uses LSTM: {args.lstm}")
+    vocab = [t[0] for t in tokenizer.vocab]
+    vocab_size = len(vocab)
     min_utt_len = None  # CNNs require a min utt len (no utterance can be shorter than the biggest window size)
-    if args.utt_encoder == 'wordvec-avg': 
+
+    # select an encoder_model and compatible utt tokenization
+    log.info(f"Utt encoder: {args.encoder_model}")
+    log.info(f"DAR model uses LSTM: {args.lstm}")
+
+    ### WORDVEC-AVG
+    if args.encoder_model == 'wordvec-avg': 
         assert args.embedding_size == args.utt_dims
         if args.use_glove:
-            weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, [t[0] for t in tokenizer.vocab]))
-            utt_encoder = model.WordVecAvg.from_pretrained(weights)
+            weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, vocab))
+            encoder_model = model.WordVecAvg.from_pretrained(weights, args.freeze_embedding)
         else:
-            utt_encoder = model.WordVecAvg.random_init(vocab_size, args.embedding_size)
-    if args.utt_encoder == 'cnn':
+            encoder_model = model.WordVecAvg.random_init(vocab_size, args.embedding_size)
+
+    ### YOON KIM CNN
+    if args.encoder_model == 'cnn':
         window_sizes = [3, 4, 5]
         feature_maps = 100
         min_utt_len = max(window_sizes) 
         if args.use_glove:
-            weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, [t[0] for t in tokenizer.vocab]))
-            utt_encoder = model.KimCNN.from_pretrained(vocab_size, args.utt_dims, args.embedding_size, weights, args.freeze_embedding, 
-                    window_sizes, feature_maps)
+            weights = torch.FloatTensor(data.load_glove(args.data_dir, args.embedding_size, vocab))
+            encoder_model = model.KimCNN.from_pretrained(vocab_size, args.utt_dims, args.embedding_size, 
+                    weights, args.freeze_embedding, window_sizes, feature_maps)
         else:
-            utt_encoder = model.KimCNN.random_init(vocab_size, args.utt_dims, args.embedding_size, 
+            encoder_model = model.KimCNN.random_init(vocab_size, args.utt_dims, args.embedding_size, 
                     window_sizes, feature_maps)
-    elif args.utt_encoder == 'bert':
-        utt_encoder = model.BertUttEncoder(args.utt_dims, from_pretrained=not args.random_init)
+
+    ### BERT
+    elif args.encoder_model == 'bert':
+        encoder_model = model.BertEncoder(args.utt_dims, 
+                from_pretrained=not args.random_init, 
+                finetune_bert=not args.freeze_embedding)
+        
     else:
-        raise ValueError(f"Unknown encoder model: {args.utt_encoder}")
+        raise ValueError(f"Unknown encoder model: {args.encoder_model}")
 
     # always use the same dar_model
     dar_model = model.DARRNN(args.utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0, use_lstm=args.lstm)
 
-    # select the parameters to train
-    if args.freeze_encoder: 
-        for p in utt_encoder.parameters():
-            p.requires_grad = False
-    else:
-        utt_encoder.train()
-    dar_model.train()
+    # encoder_model.train()
+    # dar_model.train()
 
-    params = list(dar_model.named_parameters()) + list(utt_encoder.named_parameters())
+
+    params = list(dar_model.named_parameters()) + list(encoder_model.named_parameters())
     log.debug(f"Model parameters ({len(params)} total):")
     for n, p in params:
         log.debug("{:<25} | {:<10} | {}".format(
@@ -209,10 +213,10 @@ if __name__ == '__main__':
             n if n else '<unnamed>'))
 
     criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
-    optimizer = optim.Adam([p for n, p in params], lr=args.learning_rate)
+    optimizer = optim.Adam([p for n, p in params if p.requires_grad], lr=args.learning_rate)
 
     dar_model.to(device)
-    utt_encoder.to(device)
+    encoder_model.to(device)
 
     train_data = data.load_data(train_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
     val_data = data.load_data(val_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
@@ -222,15 +226,15 @@ if __name__ == '__main__':
 
     for epoch in range(1, args.epochs+1):
         log.info(f"Starting epoch {epoch}")
-        train_loss = train_epoch(utt_encoder, dar_model, train_data, n_tags,
+        train_loss = train_epoch(encoder_model, dar_model, train_data, n_tags,
                 args.batch_size, args.bptt, min_utt_len, args.max_utt_len, 
                 criterion, optimizer, device)
         log.info(f"Epoch {epoch} training loss:   {train_loss:.6f}")
         log.info(f"Saving epoch {epoch} models.")
         torch.save(dar_model.state_dict(), os.path.join(save_dir, f'dar_model.E{epoch}.bin'))
-        torch.save(utt_encoder.state_dict(), os.path.join(save_dir, f'utt_encoder.E{epoch}.bin'))
+        torch.save(encoder_model.state_dict(), os.path.join(save_dir, f'encoder_model.E{epoch}.bin'))
         log.info(f"Starting epoch {epoch} valdation")
-        val_loss, preds = eval_model.eval_model(utt_encoder, dar_model, val_data, n_tags, 
+        val_loss, preds = eval_model.eval_model(encoder_model, dar_model, val_data, n_tags, 
                 criterion, device, min_utt_len)
         accuracy = eval_model.compute_accuracy(val_data, preds)
         log.info(f"Epoch {epoch} validation loss: {val_loss:.6f} | accuracy: %{accuracy*100:.2f}")
