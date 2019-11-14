@@ -85,14 +85,16 @@ def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False):
     for d in dialogues:
         utts, tags = [], []
         for speaker,utt,tag in zip(d['speakers'], d['utts'], d['da_tags']):
+            utt = [f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
             if strip_laughter:
                 utt = [t for t in utt if t != LAUGHTER_TOKEN]
                 if not utt:  # laughter is the only token; skip this utt
                     continue
-            encoded_utt = tokenizer.encode(f'[SPKR_{speaker}] ' + utt, add_special_tokens=True)
+            encoded_utt = tokenizer.encode(utt, add_special_tokens=True)
             utts.append(encoded_utt)
             tags.append(tag2id[tag])
         data.append((utts, tags))
+        exit()
     return data 
 
 
