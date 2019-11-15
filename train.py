@@ -169,7 +169,7 @@ if __name__ == '__main__':
             encoder_model = model.WordVecAvg.random_init(vocab_size, args.embedding_size)
 
     ### YOON KIM CNN
-    if args.encoder_model == 'cnn':
+    elif args.encoder_model == 'cnn':
         window_sizes = [3, 4, 5]
         feature_maps = 100
         min_utt_len = max(window_sizes) 
