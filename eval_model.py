@@ -19,6 +19,10 @@ parser.add_argument('corpus', choices=['SWDA', 'AMI-DA'],
         help='Which dialouge act corpus to eval on.')
 parser.add_argument('-d','--data-dir', default='data',
         help='Data storage directory.')
+parser.add_argument('--cuda', action='store_true',
+        help='use CUDA')
+parser.add_argument('--gpu-id', type=int, default=0,
+        help='Select with GPU to use')
 parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
         help="Increase output verbosity")
 
@@ -69,6 +73,9 @@ if __name__ == '__main__':
     args.__dict__ = dict(list(model_args.items()) + list(args.__dict__.items()))
     log = util.create_logger(args.verbose, os.path.join(args.model_dir, 'eval.log'))
 
+    device = torch.device(f'cuda:{args.gpu_id}' if args.cuda and torch.cuda.is_available() else 'cpu')
+    log.info(f"Evaluating on {device}.")
+
     tag_vocab_file = os.path.join(args.data_dir, f'{args.corpus}_tags.txt')
     test_file = os.path.join(args.data_dir, f'{args.corpus}_test.json')
     preds_file = os.path.join(args.model_dir, f'preds.E{args.epoch}.json')
@@ -105,16 +112,19 @@ if __name__ == '__main__':
     dar_model.load_state_dict(torch.load(dar_model_file))
 
     dar_model.eval()
+    dar_model.to(device)
     encoder_model.eval()
+    encoder_model.to(device)
 
     test_data = data.load_data(test_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
 
     criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
-    loss, preds = eval_model(encoder_model, dar_model, test_data, n_tags, criterion, 'cpu')
+    loss, preds = eval_model(encoder_model, dar_model, test_data, n_tags, criterion, device)
     accuracy = compute_accuracy(test_data, preds)
-    log.info("Test loss: {:.6f} | accuracy: %{:.2f}".format(loss, accuracy * 100))
+    log.info(f"Test loss: {loss:.6f} | accuracy: %{accuracy*100:.2f}")
 
-    log.debug("Saving preds.json")
+    preds = [[tag_vocab[t] for t in dialogue] for dialogue in preds]
+    log.debug(f"Saving {preds_file}")
     with open(preds_file, 'w') as f:
         json.dump(preds, f)
 
