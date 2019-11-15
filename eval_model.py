@@ -91,8 +91,9 @@ if __name__ == '__main__':
         encoder_model = model.KimCNN.random_init(vocab_size, args.utt_dims, 
                 args.embedding_size, window_sizes, feature_maps)
     elif args.encoder_model == 'bert':
-        encoder_model = model.BertUttEncoder(args.utt_dims,
-                from_pretrained/False, finetune_bert=False) 
+        encoder_model = model.BertEncoder(args.utt_dims,
+                from_pretrained=False, finetune_bert=False,
+                resize=len(tokenizer)) 
     else:
         raise ValueError("Unknown encoder model: {}".format(args.encoder_model))
 
