@@ -183,9 +183,10 @@ if __name__ == '__main__':
 
     ### BERT
     elif args.encoder_model == 'bert':
-        encoder_model = model.BertEncoder(args.utt_dims, 
+        encoder_model = model.BertEncoder(args.utt_dims,
                 from_pretrained=not args.random_init, 
-                finetune_bert=not args.freeze_embedding)
+                finetune_bert=not args.freeze_embedding,
+                resize=len(tokenizer))
         
     else:
         raise ValueError(f"Unknown encoder model: {args.encoder_model}")
@@ -193,8 +194,8 @@ if __name__ == '__main__':
     # always use the same dar_model
     dar_model = model.DARRNN(args.utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0, use_lstm=args.lstm)
 
-    # encoder_model.train()
-    # dar_model.train()
+    encoder_model.train()
+    dar_model.train()
 
 
     params = list(dar_model.named_parameters()) + list(encoder_model.named_parameters())
