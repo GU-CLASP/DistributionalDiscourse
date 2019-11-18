@@ -76,30 +76,44 @@ Also useful for predicting DAs (is that already a result?)
 In this work, we investigate whether BERT, a well-know pre-trained language model, is useful for dialogue.
 We use dialogue act recoginition as a proxy task, since both the interal content of conributions, and their sequential structure have bearing on the task.
 
-\section{Background}
+\section{Background} % Vlad
 %  - dialogue acts
 %  - laughter
 %  - BERT 
 
-\section{Related work}
+\section{Related work} % add references first
 %  - BERT domain transfer
 %  - BERT/LM for DAR
 
 \section{Data}
-%  - AMI, SWBD + comparison table
-%  - Laughter with/without
+% - DA distribution              % Vlad
+% - Laughter frequencies per DA  % Vlad
+% - AMI, SWBD + comparison table % Bill
+% - Preprocessing: remove disfluencies, acronyms and speaker tokens in AMI, removing laughter % Bill
   
-\section{Model}
+\section{Model} % Bill
 %  - DAR model -> utt encoder, RNN sequence tagger
 %  - BERT encoder (12 heads, uncased,...)
 %  - baseline encoder
 
 \section{Experiments}
-%  - BERT vs. baseline (L/NL)
-%  - in-domain pre-training (L/NL)
+\subsection{Experiment 1: Impact of laughter}   % Vlad
+% per dialogue act analysis
+% compare impacts of CNN vs BERT
+% for both AMI and SWDA
+
+\subsection{Experiment 2: Impact of pre-training}
+% - compare i) pre-trained BERT with freezing ii) pretrained with no freezing iii) randolmly initialized
+
+\subsection{Experiment 3: Impact of dialogue pre-training}
+% - pre-train AMI+SWBD -> train SWDA/AMI-DA -> test SWDA/AMI-DA
+% - pre-traing tasks: 1) next utterance, 2) masked token, 3) both ?
+% - compare frozen with no dialogue pre-training vs pre-trained on dialogue w.r.t. L/NL (same as in Experiment 1)
+
+\subsection{Experiment 4: Cross-domain pre-training (if time permits)}
 %  - cross-domain pre-training
 
-\section{Results and discussion}
+\section{Discussion} % add items to discuss
 
 \bibliography{anthology,acl2020}
 \bibliographystyle{acl_natbib}
