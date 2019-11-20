@@ -93,7 +93,7 @@ class DialogueActStats(DialogueActStats):
         return f'|{self.nm}|{vals}|'
 
 if __name__ == '__main__':
-    names = json.load(open('dialogue-acts.json'))
+    names = json.load(open('SWDA_dialogue-acts.json'))
     totals = calculate_totals()
     total_c = sum([t[1] for t in totals])
     pre_c = sum([t[2] for t in totals])

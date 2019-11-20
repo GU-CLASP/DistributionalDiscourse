@@ -1,0 +1,17 @@
+{   
+    "ami_da_1": "Backchannel",
+    "ami_da_2": "Stall",
+    "ami_da_3": "Fragment",
+    "ami_da_4": "Inform",
+    "ami_da_6": "Suggest",
+    "ami_da_9": "Assess",
+    "ami_da_5":  "Elicit-Inform",
+    "ami_da_8":  "Elicit-Offer-Or-Suggestion",
+    "ami_da_11": "Elicit-Assessment",
+    "ami_da_13":  "Elicit-Comment-Understanding",
+    "ami_da_7": "Offer",
+    "ami_da_12": "Comment-About-Understanding",
+    "ami_da_14":  "Be-Positive",
+    "ami_da_15":  "Be-Negative",
+    "ami_da_16": "Other"
+}
