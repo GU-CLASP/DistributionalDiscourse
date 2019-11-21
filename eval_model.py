@@ -13,10 +13,10 @@ import logging
 parser = argparse.ArgumentParser()
 parser.add_argument('model_dir', type=str, 
         help='The save directory for the model to evaluate')
-parser.add_argument('epoch', type=int, 
-        help='The model checkpoint (training epoch) to load.')
 parser.add_argument('corpus', choices=['SWDA', 'AMI-DA'],
         help='Which dialouge act corpus to eval on.')
+parser.add_argument('-e', '--epoch', type=int, default=None
+        help='The model checkpoint (training epoch) to load.')
 parser.add_argument('-d','--data-dir', default='data',
         help='Data storage directory.')
 parser.add_argument('--cuda', action='store_true',
@@ -37,6 +37,19 @@ def compute_accuracy(data, preds):
         correct = sum([a == b for a,b in zip(y, y_hat)])
         total_correct += correct
     return total_correct / total
+
+def get_max_val_loss(model_dir):
+    """
+    model_dir - the full path to the save directory for the model
+    returns: a tuple containing the training epoch (stating with 1),
+             with the maxiumum validation accuracy, and its value 
+    """
+    val_loss_re = re.compile(r"\[INFO    \] Epoch (\d) validation loss: \d+\.\d+ \| accuracy: %(\d+\.\d+)")
+    with open(os.path.join(model_dir, 'train.log')) as f:
+        train_log = f.read()
+    epoch_val_loss = re.findall(val_loss_re, train_log)
+    max_epoch, max_loss = max(epoch_val_loss, key=lambda x:x[1])
+    return max_epoch, max_loss
 
 def eval_model(encoder_model, dar_model, data, n_tags, criterion, device, min_utt_len=None):
     """ Similar to train.train_epoch but:
@@ -68,6 +81,8 @@ def eval_model(encoder_model, dar_model, data, n_tags, criterion, device, min_ut
 if __name__ == '__main__':
 
     args = parser.parse_args()
+    if not args.epoch:
+        args.epoch = get_max_val_loss(args.model_dir)
     with open(os.path.join(args.model_dir, 'args.json'), 'r') as f:
         model_args = json.load(f)
     args.__dict__ = dict(list(model_args.items()) + list(args.__dict__.items()))
