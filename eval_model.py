@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     if not args.epoch:
-        args.epoch = get_max_val_loss(args.model_dir)
+        args.epoch, _= get_max_val_loss(args.model_dir)
     with open(os.path.join(args.model_dir, 'args.json'), 'r') as f:
         model_args = json.load(f)
     args.__dict__ = dict(list(model_args.items()) + list(args.__dict__.items()))
