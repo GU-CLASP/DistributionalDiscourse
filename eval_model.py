@@ -15,7 +15,7 @@ parser.add_argument('model_dir', type=str,
         help='The save directory for the model to evaluate')
 parser.add_argument('corpus', choices=['SWDA', 'AMI-DA'],
         help='Which dialouge act corpus to eval on.')
-parser.add_argument('-e', '--epoch', type=int, default=None
+parser.add_argument('-e', '--epoch', type=int, default=None,
         help='The model checkpoint (training epoch) to load.')
 parser.add_argument('-d','--data-dir', default='data',
         help='Data storage directory.')
