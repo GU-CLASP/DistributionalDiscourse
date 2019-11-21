@@ -40,9 +40,9 @@ parser.add_argument('--embedding-size', type=int, default=100,
         help="Size of embedding (not used for BERT).")
 parser.add_argument('--freeze-embedding', action='store_true', default=False,
         help='Freeze the embedding layer (e.g., pre-trained gloVe vectors)')
-parser.add_argument('--epochs', type=int, default=10,
+parser.add_argument('--epochs', type=int, default=20,
         help='Number of times to iterate through the training data.')
-parser.add_argument("--learning-rate", default=3e-5, type=float,
+parser.add_argument("--learning-rate", default=None, type=float,
         help="The initial learning rate for Adam.")
 parser.add_argument('--batch-size', type=int, default=10,
         help='Size of dialogue batches (for DAR seq2seq)')
@@ -123,6 +123,14 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # set the default learning rate 
+    if not args.learning_rate:
+        if args.encoder_model == 'bert':
+            args.learning_rate = 3e-5
+        else:
+            args.learning_rate = 1e-4
+
+
     lnl = 'NL' if args.no_laughter else 'L'
     save_dir = os.path.join(args.model_dir, f'{args.corpus}-{lnl}_{args.encoder_model}_{args.save_suffix}')
     train_file = os.path.join(args.data_dir, f'{args.corpus}_train.json')
@@ -158,6 +166,7 @@ if __name__ == '__main__':
     # select an encoder_model and compatible utt tokenization
     log.info(f"Utt encoder: {args.encoder_model}")
     log.info(f"DAR model uses LSTM: {args.lstm}")
+    log.info(f"Learning rate: {args.learning_rate}")
 
     ### WORDVEC-AVG
     if args.encoder_model == 'wordvec-avg': 
