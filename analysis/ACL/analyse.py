@@ -8,6 +8,7 @@ import transformers
 import argparse
 import json
 
+from eval_model import get_max_val_loss
 from swda import swda
 corpus = swda.CorpusReader('../../data/SWDA/swda')
 
@@ -88,11 +89,12 @@ DialogueActStats = namedtuple('DialogueActStats',
                               'nm name total total_ pre_l pre_l_ l l_ post_l post_l_ p1 p2')
 class DialogueActStats(DialogueActStats):
     def __repr__(self):
-        stats = list(self._asdict().items())[1:]
+        stats = list(self._asdict().items())[2:]
         vals = "|".join([str(round(v, 7)) for k,v in stats])
-        return f'|{self.nm}|{vals}|'
+        return f'|{self.nm}|{self.name}|{vals}|'
 
 if __name__ == '__main__':
+    models_dir = '../../models/'
     names = json.load(open('SWDA_dialogue-acts.json'))
     totals = calculate_totals()
     total_c = sum([t[1] for t in totals])
@@ -101,8 +103,12 @@ if __name__ == '__main__':
     post_c = sum([t[4] for t in totals])
 
     test = test_data()
-    pred1 = pred_data('/scratch/DistributionalDiscourse/models/SWDA-L_bert_2019-11-14/preds.E5.json')
-    pred2 = pred_data('/scratch/DistributionalDiscourse/models/SWDA-NL_bert_2019-11-14/preds.E4.json')
+    model_dir1 = os.path.join(models_dir, 'SWDA-L_bert_2019-11-20')
+    best_epoch1, _ = get_max_val_loss(model_dir1)
+    pred2 = pred_data(os.path.join(model_dir1, f'preds.E{best_epoch1}.json'))
+    model_dir2 = os.path.join(models_dir, 'SWDA-NL_bert_2019-11-20')
+    best_epoch2, _ = get_max_val_loss(model_dir1)
+    pred1 = pred_data(os.path.join(model_dir1, f'preds.E{best_epoch1}.json'))
     stats = []
     for t in totals:
         total_ = t[1] / total_c
