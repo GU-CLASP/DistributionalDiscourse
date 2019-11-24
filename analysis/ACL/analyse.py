@@ -94,7 +94,7 @@ class DialogueActStats(DialogueActStats):
         return f'|{self.nm}|{self.name}|{vals}|'
 
 if __name__ == '__main__':
-    models_dir = '../../models/'
+    models_dir = '/scratch/DistributionalDiscourse/models/'
     names = json.load(open('SWDA_dialogue-acts.json'))
     totals = calculate_totals()
     total_c = sum([t[1] for t in totals])
