@@ -280,8 +280,9 @@ def write_splits(dialogues, data_dir, corpus_name):
         splits = gen_splits([d.id for d in dialogues])
         with open(splits_file, 'w') as f:
             json.dump(splits, f)
+    dialogues = {d.id: d for d in dialogues}
     for split in splits:
-        split_data = [d for d in dialogues if d.id in splits[split]]
+        split_data = [dialogues[dialogue_id] for dialogue_id in split[split]]
         write_corpus(split_data, data_dir, f"{corpus_name}_{split}.json")
 
 
