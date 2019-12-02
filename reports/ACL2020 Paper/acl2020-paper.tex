@@ -94,9 +94,32 @@ For AMI-DA, the effect is less pronounced, but still present§: \%8.5 of utteran
 %  - BERT/LM for DAR
 
 \section{Data}
+We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA).
+
 % - DA distribution              % Vlad
 % - Laughter frequencies per DA  % Vlad
+
 % - AMI, SWBD + comparison table % Bill
+\begin{table}[]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Switchboard}       & \textbf{AMI Corpus}                     \\ \midrule
+Dyadic                     & Multi-party                             \\
+Casual conversation        & Mock business meeting                   \\
+Telephone                  & In-person \& video                      \\ \midrule
+English                    & English                                 \\ 
+Native speakers            & Native \& non-native speakers           \\ 
+early '90s                 & 2000s                                   \\ \midrule
+2200 conversations         & 171 meetings                            \\
+  \hspace{1em} 1155 in SWDA               & \hspace{1em} 139 in AMI-DA                           \\
+400 utterances             & 118k utterances                         \\
+3M tokens                  & 1.2M tokens                             \\ \bottomrule
+\end{tabular}
+  \caption{Comparison between Switchboard and the AMI Meeting Corpus}
+  \label{table:corpora}
+\end{table}
+
 % - Preprocessing: remove disfluencies, acronyms and speaker tokens in AMI, removing laughter % Bill
   
 \section{Model} % Bill
