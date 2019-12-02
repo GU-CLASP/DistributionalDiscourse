@@ -17,6 +17,7 @@
 \usepackage{times}
 \usepackage{latexsym}
 \renewcommand{\UrlFont}{\ttfamily\small}
+\usepackage{booktabs}
 
 % This is not strictly necessary, and may be commented out,
 % but it will improve the layout of the manuscript,
@@ -76,6 +77,13 @@ Also useful for predicting DAs (is that already a result?)
 In this work, we investigate whether BERT, a well-know pre-trained language model, is useful for dialogue.
 We use dialogue act recoginition as a proxy task, since both the interal content of conributions, and their sequential structure have bearing on the task.
 
+\paragraph{Fine-tuning and laughter}
+Since the laughter token doesn't appear in the original BERT vocabulary, only fine-tuned models can meaningfully make use of laughter in utterance representations. 
+This gives us another opportunity to assess whether laughter is useful in dialogue act recognition.
+We find that although \%4.6 of utterances in SWDA contain laughter, \%7.3 of utterances misclassified by \texttt{BERT} but correctly classified by \texttt{BERT-FT} contain laughter, suggesting that the fine-tuned model utterance encoder is making use of laughter. 
+For AMI-DA, the effect is less pronounced, but still present§: \%8.5 of utterances contain laughter, and \%9.6 of utterances where fine-tuning makes a difference contain laughter.
+
+
 \section{Background} % Vlad
 %  - dialogue acts
 %  - laughter
@@ -102,15 +110,47 @@ We use dialogue act recoginition as a proxy task, since both the interal content
 % compare impacts of CNN vs BERT
 % for both AMI and SWDA
 
-\subsection{Experiment 2: Impact of pre-training}
+\subsection{Experiment 2: Impact of pre-training} % Bill
 % - compare i) pre-trained BERT with freezing ii) pretrained with no freezing iii) randolmly initialized
+Next, we take a direct look at how pre-training affects BERT's performance as an utterance encoder for our DAR model.
+In particular, we consider the performance of DAR models with three different utterance encoders:
+\begin{itemize}
+  \item \texttt{BERT} -- pre-trained BERT without fine-tuning (frozen during DAR training)
+  \item \texttt{BERT-FT} -- pre-trained BERT with fine-tuninig 
+  \item \texttt{BERT-RI} -- randomly initialized BERT with fine-tuning 
+\end{itemize}
 
-\subsection{Experiment 3: Impact of dialogue pre-training}
+\begin{table}[]
+\centering 
+\begin{tabular}{@{}lll@{}}
+\toprule
+                 & SWDA  & AMI-DA \\ \midrule
+\texttt{BERT}       & 55.61 & 46.59  \\
+\texttt{BERT-FT}    & 76.93 & 66.94  \\
+\texttt{BERT-RI}    & 73.80 & 61.53  
+\end{tabular}
+  \caption{Micro-average DAR accuracy}
+  \label{table:exp2-avg}
+\end{table}    
+
+The pre-trained model performs better than the randomly initialized model by several percentage points on both DA corpora (table \ref{table:exp2-avg}). 
+These results suggest that BERT's extensive pre-training do provide some useful information for dialogue act recoginition.
+However, we note that pre-training is not enough: the poor performance of the frozen \texttt{BERT} model indicates that fine-tuning is important for BERT's performance as an utterance encoder.
+These observations raise two questions.
+First, how does BERT's pre-training help with DAR? 
+And second, in what way are the representations learned by pre-trained BERT lacking?
+In other words, what is the contribution of fine-tuning?
+
+To help answer these questions, we compare accuracy results of the above three models by dialogue act tag.
+
+% TODO: add per dialogue act accuracy figures
+
+\subsection{Experiment 3: Impact of dialogue pre-training} % Bill
 % - pre-train AMI+SWBD -> train SWDA/AMI-DA -> test SWDA/AMI-DA
 % - pre-traing tasks: 1) next utterance, 2) masked token, 3) both ?
 % - compare frozen with no dialogue pre-training vs pre-trained on dialogue w.r.t. L/NL (same as in Experiment 1)
 
-\subsection{Experiment 4: Cross-domain pre-training (if time permits)}
+\subsection{Experiment 4: Cross-domain pre-training (if time permits)} % Bill
 %  - cross-domain pre-training
 
 \section{Discussion} % add items to discuss
