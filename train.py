@@ -34,6 +34,8 @@ parser.add_argument('--dar-layers', default=1, type=int,
         help="Number of hidden layers in the DAR RNN.")
 parser.add_argument('--random-init', action='store_true', default=False,
         help='Start from an un-trained BERT model.')
+parser.add_argument('--pretrained-dir', type=str, default=None,
+        help='Custom path to a pre-trained encoder model')
 parser.add_argument('--glove', dest='use_glove', action='store_true', default=False,
         help="Use GloVe (with compatible utt encoders).")
 parser.add_argument('--embedding-size', type=int, default=100,
@@ -194,6 +196,7 @@ if __name__ == '__main__':
     elif args.encoder_model == 'bert':
         encoder_model = model.BertEncoder(args.utt_dims,
                 from_pretrained=not args.random_init, 
+                pretrained_dir=args.pretrained_dir,
                 finetune_bert=not args.freeze_embedding,
                 resize=len(tokenizer))
         

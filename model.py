@@ -129,10 +129,11 @@ class KimCNN(nn.Module):
 
 class BertEncoder(nn.Module):
 
-    def __init__(self, utt_size, from_pretrained=True, finetune_bert=True, resize=False):
+    def __init__(self, utt_size, from_pretrained=True, pretrained_dir=None, finetune_bert=True, resize=False):
         super().__init__()
         if from_pretrained:
-            self.bert = transformers.BertModel.from_pretrained('bert-base-uncased')
+            pretrained_str = pretrained_dir or 'bert-base-uncased'  # default to library-suppled pre-trained model
+            self.bert = transformers.BertModel.from_pretrained(pretrained_str)
         else:
             config = transformers.BertConfig.from_json_file('data/bert-base-uncased_config.json')
             self.bert = transformers.BertModel(config)
