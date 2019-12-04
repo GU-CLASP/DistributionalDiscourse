@@ -10,11 +10,10 @@ import json
 
 from eval_model import get_max_val_loss
 from swda import swda
-corpus = swda.CorpusReader('../../data/SWDA/swda')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('corpus', choices=['SWDA', 'AMI-DA'],
-        help='Which dialouge act corpus to analyse.')
+        help='Which dialogue act corpus to analyse.')
 parser.add_argument('-d','--data-dir', default='../../data',
         help='Data storage directory.')
 args = parser.parse_args()
@@ -32,15 +31,26 @@ def corpus_data():
     das_postL = defaultdict(int)
     # DAs associated with laughter
     das_assocL = defaultdict(int)
-    
-    for trans in corpus.iter_transcripts():
-        utts = [(u.damsl_act_tag(), u.text.lower()) for u in list(trans.utterances)]
-        for pre, utt, post in zip(['@@@@@']+utts, utts, (utts+['@@@@@'])[1:]):
-            das[utt[0]] += 1
-            if '<laughter>' in utt[1]:
-                das_L[utt[0]] += 1
-            if '<laughter>' in " ".join([pre[1], utt[1], post[1]]):
-                das_assocL[utt[0]] += 1
+    if args.corpus == 'SWDA':
+        corpus = swda.CorpusReader('../../data/SWDA/swda')
+        for trans in corpus.iter_transcripts():
+            utts = [(u.damsl_act_tag(), u.text.lower()) for u in list(trans.utterances)]
+            for pre, utt, post in zip(['@@@@@']+utts, utts, (utts+['@@@@@'])[1:]):
+                das[utt[0]] += 1
+                if '<laughter>' in utt[1]:
+                    das_L[utt[0]] += 1
+                if '<laughter>' in " ".join([pre[1], utt[1], post[1]]):
+                    das_assocL[utt[0]] += 1
+    elif args.corpus == 'AMI-DA':
+        transcripts = json.load(open(f'../../data/AMI-DA_train.json')) + json.load(open('../../data/AMI-DA_val.json')) + json.load(open('../../data/AMI-DA_test.json'))
+        for trans in transcripts:
+            utts = [(z[0], z[1]) for z in zip(trans['da_tags'], trans['utts'])]
+            for pre, utt, post in zip(['@@@@@']+utts, utts, (utts+['@@@@@'])[1:]):
+                das[utt[0]] += 1
+                if '<laughter>' in utt[1]:
+                    das_L[utt[0]] += 1
+                if '<laughter>' in " ".join([pre[1], utt[1], post[1]]):
+                    das_assocL[utt[0]] += 1
     return das, das_assocL, das_preL, das_L, das_postL
 
 def test_data():
@@ -81,7 +91,7 @@ def compute_accuracy_for_da(da, test, pred):
         if t == da:
             res = 1 if t == p else 0
             comp.append([t, p, res])
-    accuracy = lambda xs: sum([c[2] for c in xs ]) / len(xs)
+    accuracy = lambda xs: sum([c[2] for c in xs ]) / (len(xs) + 1e-6)
     return accuracy(comp)
 
 DialogueActStats = namedtuple('DialogueActStats', 
@@ -94,7 +104,8 @@ class DialogueActStats(DialogueActStats):
 
 if __name__ == '__main__':
     models_dir = '/scratch/DistributionalDiscourse/models/'
-    names = json.load(open('SWDA_dialogue-acts.json'))
+    with open(args.corpus+'_dialogue-acts.json') as f:
+        names = json.load(f)
     totals = calculate_totals()
     total_c = sum([t[1] for t in totals])
     assoc_c = sum([t[2] for t in totals])
@@ -103,14 +114,18 @@ if __name__ == '__main__':
     post_c = sum([t[5] for t in totals])
 
     test = test_data()
-    model_dir1 = os.path.join(models_dir, 'SWDA-L_bert_2019-11-20')
+    model_dir1 = os.path.join(models_dir, f'{args.corpus}-L_bert_2019-11-20')
     best_epoch1, _ = get_max_val_loss(model_dir1)
-    pred2 = pred_data(os.path.join(model_dir1, f'preds.E{best_epoch1}.json'))
-    model_dir2 = os.path.join(models_dir, 'SWDA-NL_bert_2019-11-20')
-    best_epoch2, _ = get_max_val_loss(model_dir1)
     pred1 = pred_data(os.path.join(model_dir1, f'preds.E{best_epoch1}.json'))
+    model_dir2 = os.path.join(models_dir, f'{args.corpus}-NL_bert_2019-11-20')
+    best_epoch2, _ = get_max_val_loss(model_dir2)
+    pred2 = pred_data(os.path.join(model_dir2, f'preds.E{best_epoch2}.json'))
     stats = []
     for t in totals:
+        if not t[0]:
+            key = "None"
+        else:
+            key = t[0]
         total_ = t[1] / total_c
         assoc_l_ = t[2] / t[1]
         pre_l_ = t[3] / t[1]
@@ -118,7 +133,7 @@ if __name__ == '__main__':
         post_l_ = t[5] / t[1]
         p1acc = compute_accuracy_for_da(t[0], test, pred1)
         p2acc = compute_accuracy_for_da(t[0], test, pred2)
-        stats.append(DialogueActStats(t[0], names[t[0]], t[1], total_, t[2], assoc_l_,
+        stats.append(DialogueActStats(t[0], names[key], t[1], total_, t[2], assoc_l_,
                                       t[3], pre_l_, t[4], l_, t[5], post_l_, p1acc, p2acc))
     for s in stats:
         print(s)
