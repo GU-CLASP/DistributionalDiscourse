@@ -67,72 +67,7 @@ Recently, large-scale language models, trained on massive corpora of text data, 
 We investigate whether such models might be useful for processing dialogue, and if so, whether they adapt to make use of dialogue-specific features.
 
 Dialogue, especially spoken dialogue, is radically different from the kind of data that neural language models are prestrained on.
-Not only is the internal structure of contributions different---with features such as disfluencies, repair, incomplete sentences, and various vocal sounds---but the sequential structure of the discourse is also very different.
-In dialouge speakers take turns and switch perpsectives.
-More generally, the way that utterances contribute and cohere to the discourse is different from the relationship between sentences in a piece of written text.
-
-One important dialogical feature missing from text data is laughter.
-In the Switchboard dialogue corpus, laughter appears in approximately \%X of utterances.
-Laughter also relates to the discourse structure of dialogue. 
-Laughables.
-Also useful for predicting DAs (is that already a result?)
-
-In this work, we investigate whether BERT, a well-know pre-trained language model, is useful for dialogue.
-We use dialogue act recoginition as a proxy task, since both the interal content of conributions, and their sequential structure have bearing on the task.
-
-\paragraph{Fine-tuning and laughter}
-Since the laughter token doesn't appear in the original BERT vocabulary, only fine-tuned models can meaningfully make use of laughter in utterance representations. 
-This gives us another opportunity to assess whether laughter is useful in dialogue act recognition.
-We find that although \%4.6 of utterances in SWDA contain laughter, \%7.3 of utterances misclassified by \texttt{BERT} but correctly classified by \texttt{BERT-FT} contain laughter, suggesting that the fine-tuned model utterance encoder is making use of laughter. 
-For AMI-DA, the effect is less pronounced, but still present§: \%8.5 of utterances contain laughter, and \%9.6 of utterances where fine-tuning makes a difference contain laughter.
-
-
-\section{Background} % Vlad
-%  - dialogue acts
-%  - laughter
-%  - BERT 
-
-References
-\begin{itemize}
-  \item \citet{austinHowThingsWords2009} -- speeh acts
-  \item \citet{coreCodingDialogsDAMSL1997} -- DAMSL dialogue act tagging scheme. SWDA tags are based on this (I think AMI are too). Concept of multi-layer DA tags; forward/backward function
-  \item \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a} -- SWBD-DAMSL coders manual
-  \item \citet{devlinBERTPretrainingDeep2018} -- Original BERT paper
-  \item \citet{sunHowFineTuneBERT2019} -- recommendations for fine-tuninig BERT
-  \item \citet{mikolovDistributedRepresentationsWords2013} -- word2vec
-  \item \citet{petersTuneNotTune2019} -- when and how to fine-tune pre-trained representations
-  \item \citet{kimConvolutionalNeuralNetworks2014} -- CNN sentence representation
-\end{itemize}
-
-\section{Related work} % add references first
-Dialogue act recoginition
-\begin{itemize}
-  \item \citet{pragstVectorRepresentationUtterances2018} -- dialogue vector models. Uses vector-manual DA tag correspondance to argue for semantic relevance of their vector models (related to how we use DA tagging to verrify BERT usefulness)
-  \item \citet{cerisaraEffectsUsingWord2vec2017} -- standard pre-trained word embeddings do not help for DAR in any of three tested languages (English, French, Czech)
-  \item \citet{kalchbrennerRecurrentConvolutionalNeural2013} -- DAR model similar to our architecture. Uses an RNN ``discourse model'' and a CNN similar to our baseline encoder
-  \item \citet{stolckeDialogueActModeling2000} -- OG DAR model. Uses an HMM with various lexical and prosodic features
-  \item \citet{khanpourDialogueActClassification2016} -- Deep LSTM utt representation. No notion of context. Finds word vectors are useful.
-  \item \citet{tranPreservingDistributionalInformation2017} -- Sequential DA prediction with uncertainty propegation
-  \item \citet{chenDialogueActRecognition2017} -- SOTA? SWDA DAR using attention and CRF over utterances
-  \item \citet{ortegaNeuralbasedContextRepresentation2017} -- SWDA DAR with attention-based context representations and CNN utterance representations
-  \item \citet{shenNeuralAttentionModels2016} -- Uses attention for utt encoding in DAR. No notion of context, I think.
-  \item \citet{tranHierarchicalNeuralModel2017} -- RNNs at both the utteranec and dialogue level. Also attention. Very similar to our architecture.
-\end{itemize}
-
-Pre-training/transfer learning for dialogue
-\begin{itemize}
-  \item \citet{mehriStructuredFusionNetworks2019} -- ``Structured fusion networks''. Traditional dialogue system design with neural models.
-  \item \citet{chenSemanticallyConditionedDialog2019a} -- uses BERT for response generation
-  \item \citet{baoPLATOPretrainedDialogue2019} -- pre-traininig for dialogue generation
-  \item \citet{mehriPretrainingMethodsDialog2019} -- looks at various dialogue tasks using pre-training, including DAR and using BERT
-  \item \citet{vigComparisonTransferLearningApproaches} -- Transfer learning for response selection
-\end{itemize}
-
-
-\section{Data}
-We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA).
-
-% - DA distribution              % Vlad
+Not only is the internal structure of contributions differ% - DA distribution              % Vlad
 % - Laughter frequencies per DA  % Vlad
 
 % - AMI, SWBD + comparison table % Bill
@@ -179,8 +114,9 @@ Conceptually, the encoded utterance represents the context-agnostic semantic con
 \subsection{Experiment 1: Impact of laughter}   % Vlad
 In the first experiment we investigated whether laughter, as an example of a dialogue-specific signal, is a helpful feature for DAR.
 Therefore, we train another version of each model: one containing laughters (L) and with laughters left out (NL), and compare their performances in DAR task.
-
+From the results (see Table~\ref{tab:laughter}) we can conclude that .
 \begin{table}
+  \label{tab:laughter}
   \centering
   \begin{tabular}{@{}lll@{}}
     \toprule
@@ -196,8 +132,14 @@ Therefore, we train another version of each model: one containing laughters (L) 
 
 \begin{figure*}
   \centering
-  \includegraphics[width=\textwidth]{img/bertLvsNL.pdf}
-  \caption{Change in accuracy for each dialogue act. Positive changes when adding laughter are shown in blue. }
+  \includegraphics[width=\textwidth]{img/SWDA-bertLvsNL.pdf}
+  \caption{Change in accuracy for each SWDA dialogue act. Positive changes when adding laughter are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter.}
+\end{figure*}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\textwidth]{img/AMI-DA-bertLvsNL.pdf}
+  \caption{Change in accuracy for each AMI dialogue act. Positive changes when adding laughter are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter.}
 \end{figure*}
 % TODO per dialogue act analysis
 % DONE compare impacts of CNN vs BERT
