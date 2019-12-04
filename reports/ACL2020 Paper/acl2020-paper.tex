@@ -89,9 +89,42 @@ For AMI-DA, the effect is less pronounced, but still present§: \%8.5 of utteran
 %  - laughter
 %  - BERT 
 
+References
+\begin{itemize}
+  \item \citet{austinHowThingsWords2009} -- speeh acts
+  \item \citet{coreCodingDialogsDAMSL1997} -- DAMSL dialogue act tagging scheme. SWDA tags are based on this (I think AMI are too). Concept of multi-layer DA tags; forward/backward function
+  \item \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a} -- SWBD-DAMSL coders manual
+  \item \citet{devlinBERTPretrainingDeep2018} -- Original BERT paper
+  \item \citet{sunHowFineTuneBERT2019} -- recommendations for fine-tuninig BERT
+  \item \citet{mikolovDistributedRepresentationsWords2013} -- word2vec
+  \item \citet{petersTuneNotTune2019} -- when and how to fine-tune pre-trained representations
+  \item \citet{kimConvolutionalNeuralNetworks2014} -- CNN sentence representation
+\end{itemize}
+
 \section{Related work} % add references first
-%  - BERT domain transfer
-%  - BERT/LM for DAR
+Dialogue act recoginition
+\begin{itemize}
+  \item \citet{pragstVectorRepresentationUtterances2018} -- dialogue vector models. Uses vector-manual DA tag correspondance to argue for semantic relevance of their vector models (related to how we use DA tagging to verrify BERT usefulness)
+  \item \citet{cerisaraEffectsUsingWord2vec2017} -- standard pre-trained word embeddings do not help for DAR in any of three tested languages (English, French, Czech)
+  \item \citet{kalchbrennerRecurrentConvolutionalNeural2013} -- DAR model similar to our architecture. Uses an RNN ``discourse model'' and a CNN similar to our baseline encoder
+  \item \citet{stolckeDialogueActModeling2000} -- OG DAR model. Uses an HMM with various lexical and prosodic features
+  \item \citet{khanpourDialogueActClassification2016} -- Deep LSTM utt representation. No notion of context. Finds word vectors are useful.
+  \item \citet{tranPreservingDistributionalInformation2017} -- Sequential DA prediction with uncertainty propegation
+  \item \citet{chenDialogueActRecognition2017} -- SOTA? SWDA DAR using attention and CRF over utterances
+  \item \citet{ortegaNeuralbasedContextRepresentation2017} -- SWDA DAR with attention-based context representations and CNN utterance representations
+  \item \citet{shenNeuralAttentionModels2016} -- Uses attention for utt encoding in DAR. No notion of context, I think.
+  \item \citet{tranHierarchicalNeuralModel2017} -- RNNs at both the utteranec and dialogue level. Also attention. Very similar to our architecture.
+\end{itemize}
+
+Pre-training/transfer learning for dialogue
+\begin{itemize}
+  \item \citet{mehriStructuredFusionNetworks2019} -- ``Structured fusion networks''. Traditional dialogue system design with neural models.
+  \item \citet{chenSemanticallyConditionedDialog2019a} -- uses BERT for response generation
+  \item \citet{baoPLATOPretrainedDialogue2019} -- pre-traininig for dialogue generation
+  \item \citet{mehriPretrainingMethodsDialog2019} -- looks at various dialogue tasks using pre-training, including DAR and using BERT
+  \item \citet{vigComparisonTransferLearningApproaches} -- Transfer learning for response selection
+\end{itemize}
+
 
 \section{Data}
 We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA).
@@ -172,13 +205,26 @@ To help answer these questions, we compare accuracy results of the above three m
 % - pre-train AMI+SWBD -> train SWDA/AMI-DA -> test SWDA/AMI-DA
 % - pre-traing tasks: 1) next utterance, 2) masked token, 3) both ?
 % - compare frozen with no dialogue pre-training vs pre-trained on dialogue w.r.t. L/NL (same as in Experiment 1)
+\begin{itemize}
+  \item Setup
+    \begin{itemize}
+      \item we do additional pre-training for the BERT encoder on in-domain data
+      \item note: this is sometimes referred to as fine-tuning, but we reserve that term for task-specific training of the encoder model
+
+      \item SWDA/AMI (excluding dialogues in the DAR test set)
+      \item 10 epoch AMI / 10 epochs SWBD / 5 epochs of each
+    \end{itemize}
+\end{itemize}
 
 \subsection{Experiment 4: Cross-domain pre-training (if time permits)} % Bill
 %  - cross-domain pre-training
 
 \section{Discussion} % add items to discuss
+\begin{itemize}
+  \item RoBERTa training scheme finds that next sentence prediction is of little importance. Is this true for us too? (suspect not due to discourse importance). see: https://github.com/huggingface/transformers/issues/1622
+\end{itemize}
 
-\bibliography{anthology,acl2020}
+\bibliography{acl2020}
 \bibliographystyle{acl_natbib}
 
 \end{document}
