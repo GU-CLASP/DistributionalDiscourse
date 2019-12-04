@@ -30,19 +30,18 @@ def corpus_data():
     das_preL = defaultdict(int)
     # DAs with laughter in the following utterance 
     das_postL = defaultdict(int)
+    # DAs associated with laughter
+    das_assocL = defaultdict(int)
     
     for trans in corpus.iter_transcripts():
-        for utt in trans.utterances:
-            das[utt.damsl_act_tag()] += 1
-            if '<laughter>' in utt.text.lower():
-                das_L[utt.damsl_act_tag()] += 1
-        for pre, utt in zip(trans.utterances, trans.utterances[1:]):
-            if '<laughter>' in pre.text.lower():
-                das_preL[utt.damsl_act_tag()] += 1
-        for utt, post in zip(trans.utterances, trans.utterances[1:]):        
-            if '<laughter>' in post.text.lower():
-                das_postL[utt.damsl_act_tag()] += 1
-    return das, das_L, das_preL, das_postL
+        utts = [(u.damsl_act_tag(), u.text.lower()) for u in list(trans.utterances)]
+        for pre, utt, post in zip(['@@@@@']+utts, utts, (utts+['@@@@@'])[1:]):
+            das[utt[0]] += 1
+            if '<laughter>' in utt[1]:
+                das_L[utt[0]] += 1
+            if '<laughter>' in " ".join([pre[1], utt[1], post[1]]):
+                das_assocL[utt[0]] += 1
+    return das, das_assocL, das_preL, das_L, das_postL
 
 def test_data():
     test_file = os.path.join(args.data_dir, f'{args.corpus}_test.json')
@@ -66,13 +65,13 @@ def pred_data(url):
     return flatten([s for s in pred_tt])
 
 def calculate_totals():
-    das, das_L, das_preL, das_postL = corpus_data()
+    das, das_assocL, das_preL, das_L, das_postL = corpus_data()
     # sort DAs by counter 
     das = sorted(das.items(), key=lambda x: x[1], reverse=True)
     totals = []
     for da in das:
         k = da[0]
-        s = [k, da[1], das_L[k], das_preL[k], das_postL[k]]
+        s = [k, da[1], das_assocL[k], das_preL[k], das_L[k], das_postL[k]]
         totals.append(s)
     return totals
 
@@ -86,7 +85,7 @@ def compute_accuracy_for_da(da, test, pred):
     return accuracy(comp)
 
 DialogueActStats = namedtuple('DialogueActStats', 
-                              'nm name total total_ pre_l pre_l_ l l_ post_l post_l_ p1 p2')
+                              'nm name total total_ assoc_l assoc_l_ pre_l pre_l_ l l_ post_l post_l_ p1 p2')
 class DialogueActStats(DialogueActStats):
     def __repr__(self):
         stats = list(self._asdict().items())[2:]
@@ -98,9 +97,10 @@ if __name__ == '__main__':
     names = json.load(open('SWDA_dialogue-acts.json'))
     totals = calculate_totals()
     total_c = sum([t[1] for t in totals])
-    pre_c = sum([t[2] for t in totals])
-    l_c = sum([t[3] for t in totals])
-    post_c = sum([t[4] for t in totals])
+    assoc_c = sum([t[2] for t in totals])
+    pre_c = sum([t[3] for t in totals])
+    l_c = sum([t[4] for t in totals])
+    post_c = sum([t[5] for t in totals])
 
     test = test_data()
     model_dir1 = os.path.join(models_dir, 'SWDA-L_bert_2019-11-20')
@@ -112,18 +112,19 @@ if __name__ == '__main__':
     stats = []
     for t in totals:
         total_ = t[1] / total_c
-        pre_l_ = t[2] / pre_c
-        l_ = t[3] / l_c
-        post_l_ = t[4] / post_c
+        assoc_l_ = t[2] / t[1]
+        pre_l_ = t[3] / t[1]
+        l_ = t[4] / t[1]
+        post_l_ = t[5] / t[1]
         p1acc = compute_accuracy_for_da(t[0], test, pred1)
         p2acc = compute_accuracy_for_da(t[0], test, pred2)
-        stats.append(DialogueActStats(t[0], names[t[0]], t[1], total_, t[2], pre_l_, t[3], l_, t[3], post_l_, p1acc, p2acc))
+        stats.append(DialogueActStats(t[0], names[t[0]], t[1], total_, t[2], assoc_l_,
+                                      t[3], pre_l_, t[4], l_, t[5], post_l_, p1acc, p2acc))
     for s in stats:
         print(s)
 
 ## Local Variables:
-## python-shell-interpreter: "nix-shell"
+## python-shell-interpreter: "../../nix-shell"
 ## python-shell-interpreter-args: "--run python"
 ## End:
     
-

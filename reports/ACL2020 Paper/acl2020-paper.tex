@@ -20,6 +20,7 @@
 \usepackage{booktabs}
 \usepackage{tikz}
 \usepackage{amsmath}
+\usepackage{graphicx}
 
 % This is not strictly necessary, and may be commented out,
 % but it will improve the layout of the manuscript,
@@ -176,9 +177,32 @@ Conceptually, the encoded utterance represents the context-agnostic semantic con
 
 \section{Experiments}
 \subsection{Experiment 1: Impact of laughter}   % Vlad
-% per dialogue act analysis
-% compare impacts of CNN vs BERT
-% for both AMI and SWDA
+In the first experiment we investigated whether laughter, as an example of a dialogue-specific signal, is a helpful feature for DAR.
+Therefore, we train another version of each model: one containing laughters (L) and with laughters left out (NL), and compare their performances in DAR task.
+
+\begin{table}
+  \centering
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+                      & SWDA  & AMI-DA \\ \midrule
+    \texttt{BERT-NL}  & 77.07 & 67.06       \\ 
+    \texttt{BERT-L}   & 76.93 & 67.12       \\ \midrule
+    \texttt{CNN-NL}   & 75.08 & 63.46        \\
+    \texttt{CNN-L}    & 75.40 & 64.30        \\ \bottomrule
+    
+  \end{tabular}
+  \caption{Comparison of models depending on using laughter in training phase.}
+\end{table}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\textwidth]{img/bertLvsNL.pdf}
+  \caption{Change in accuracy for each dialogue act. Positive changes when adding laughter are shown in blue. }
+\end{figure*}
+% TODO per dialogue act analysis
+% DONE compare impacts of CNN vs BERT
+% DONE for both AMI and SWDA
+% ? 
 
 \subsection{Experiment 2: Impact of pre-training} % Bill
 % - compare i) pre-trained BERT with freezing ii) pretrained with no freezing iii) randolmly initialized
