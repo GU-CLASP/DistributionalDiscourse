@@ -63,12 +63,12 @@
 
 % INTRODUCTION
 
-Recently, large-scale language models, trained on massive corpora of text data, have achieved state-of-the-art results on a variety of traditonal NLP tasks.
+Recently, large-scale language models, trained on massive corpora of text data, have achieved state-of-the-art results on a variety of traditional NLP tasks.
 We investigate whether such models might be useful for processing dialogue, and if so, whether they adapt to make use of dialogue-specific features.
 
 Dialogue, especially spoken dialogue, is radically different from the kind of data that neural language models are prestrained on.
 Not only is the internal structure of contributions different---with features such as disfluencies, repair, incomplete sentences, and various vocal sounds---but the sequential structure of the discourse is also very different.
-In dialouge speakers take turns and switch perpsectives.
+In dialogue speakers take turns and switch perspectives.
 More generally, the way that utterances contribute and cohere to the discourse is different from the relationship between sentences in a piece of written text.
 
 One important dialogical feature missing from text data is laughter.
@@ -77,7 +77,7 @@ Laughter also relates to the discourse structure of dialogue.
 % Laughables.
 Also useful for predicting DAs (is that already a result?)
 
-In this work, we investigate whether BERT, a well-know pre-trained language model, is useful for dialogue.
+In this work, we investigate whether BERT \citep{devlinBERTPretrainingDeep2018}, a well-know pre-trained language model, is useful for dialogue.
 We use dialogue act recoginition as a proxy task, since both the interal content of conributions, and their sequential structure have bearing on the task.
 
 \paragraph{Contributions}
@@ -101,7 +101,7 @@ References
   \item \citet{austinHowThingsWords2009} -- speeh acts
   \item \citet{coreCodingDialogsDAMSL1997} -- DAMSL dialogue act tagging scheme. SWDA tags are based on this (I think AMI are too). Concept of multi-layer DA tags; forward/backward function
   \item \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a} -- SWBD-DAMSL coders manual
-  \item \citet{devlinBERTPretrainingDeep2018} -- Original BERT paper
+  % \item \citet{devlinBERTPretrainingDeep2018} -- Original BERT paper 
   \item \citet{sunHowFineTuneBERT2019} -- recommendations for fine-tuninig BERT
   \item \citet{mikolovDistributedRepresentationsWords2013} -- word2vec
   \item \citet{petersTuneNotTune2019} -- when and how to fine-tune pre-trained representations
@@ -110,12 +110,10 @@ References
 \end{itemize}
 
 \section{Data}
-We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA).
+We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA). 
 
 % - DA distribution              % Vlad
-% - Laughter frequencies per DA  % Vlad
 
-% - AMI, SWBD + comparison table % Bill
 \begin{table}[]
 \centering
 \begin{tabular}{@{}ll@{}}
@@ -135,6 +133,24 @@ early '90s                 & 2000s                                   \\ \midrule
   \caption{Comparison between Switchboard and the AMI Meeting Corpus}
   \label{table:corpora}
 \end{table}
+
+The distribution of laughs in different dialogue acts has a rather uniform shape with a few outliers (see box plots). Figures \ref{fig:swda-by-da} (for SWDA) and \ref{fig:ami-by-da} (for AMI-DA) provide a breakdown of dialogue act depending on whether current or adjacent utterances (the preceding utterance and the following one are counted as adjacent) contain a laughter. Note that SWDA has a ``Nonverbal'' dialogue act which is misguiding with respect to laughter, because utterances only containing a single laughter token fall into this category, however they can serve, for example, to acknowledge a statement or to deflect a question  \citep{mazzocconi2019phd}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\the\columnwidth]{img/box-swda.pdf}
+  \caption{Box plot for utterances associated with laughter for SWDA. On the left: proportion of DAs having laughter in one of the adjacent utterances, on the right: proportion of DAs containing laughter. }
+    \label{fig:box-swda}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\the\columnwidth]{img/box-ami.pdf}
+  \caption{Box plot for utterances associated with laughter for AMI-DA. On the left: proportion of DAs having laughter in one of the adjacent utterances, on the right: proportion of DAs containing laughter. }
+    \label{fig:box-ami}
+\end{figure}
+
+For SWDA corpus we also considered grouping the dialogue acts according to DAMSL coders manual \citep{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a}: Forward-Communicative-Function (51.86\% of all DAs), Backwards-Communicative-Function (30.35\%), Other (9.04\%) and Communicative-Status (8.75\%). We observed even distribution of laughs in these groups, except the Communicative-Status group which contains ``Nonverbal'' dialogue acts.
 
 % - Preprocessing: remove disfluencies, acronyms and speaker tokens in AMI, removing laughter % Bill
   
@@ -165,9 +181,9 @@ We use the un-cased model implemented by \citet{wolfHuggingFaceTransformersState
 \subsection{Experiment 1: Impact of laughter} \label{sec:experiment1}   % Vlad
 In the first experiment we investigated whether laughter, as an example of a dialogue-specific signal, is a helpful feature for DAR.
 Therefore, we train another version of each model: one containing laughs (\texttt{L}) and one with laughs left out (\texttt{NL}), and compare their performances in DAR task.
-Table~\ref{table:laughter-total-acc}) compares the results from applying the models with two different different utterance encoders (\texttt{BERT}, \texttt{CNN}). From observing the total accuracy scores, models appear to be almost unaffected by leaving out the laughters. On the other hand, we can observe differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:swda-by-da} for Switchboard and Figure~\ref{fig:ami-by-da} for AMI corpus).
+Table~\ref{table:laughter-total-acc}) compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}). From observing the total accuracy scores, models appear to be almost unaffected by leaving out the laughters. On the other hand, we can observe differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:swda-by-da} for Switchboard and Figure~\ref{fig:ami-by-da} for AMI corpus).
 
-In order to further investigate the differences we have grouped dialogue acts in Switchboard according to DAMSL coders manual \citep{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a}. Different DA groups containing 
+In order to further investigate the differences, we looked at the dialogue act groups.
 \begin{table}
   \centering
   \begin{tabular}{@{}lll@{}}
@@ -197,6 +213,8 @@ In order to further investigate the differences we have grouped dialogue acts in
   \end{tabular}
   \caption{Laughter impact by dialogue act group (SWDA, BERT), mean accuracy}
 \end{table}
+
+
 
 
 \begin{figure*}

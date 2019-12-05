@@ -8,6 +8,7 @@
 
 * DA by laughter impact 
 
+
 ** DA names
 #+NAME: das
 | DA              | DA-name                                   |
@@ -63,135 +64,262 @@
 
 #+RESULTS:
 
-** All
-#+NAME: all
-| DA              | DA-name                                   | Lassoc% |   all | preL |       .preL |    L |           .L | postL |      .postL |  BERT_L |
-|-----------------+-------------------------------------------+---------+-------+------+-------------+------+--------------+-------+-------------+---------|
-| b               | Acknowledge (Backchannel)                 | 0.11162 | 38298 | 1890 | 0.049349836 |  755 |  0.019713823 |  1630 | 0.042560969 | 0.90726 |
-| sv              | Statement-opinion                         | 0.12866 | 26426 | 1012 | 0.038295618 | 1249 |  0.047264058 |  1139 | 0.043101491 | 0.61956 |
-| +               | Agree/Accept                              | 0.14408 | 17824 |  983 | 0.055150359 |  754 |  0.042302513 |   831 | 0.046622531 | 0.72056 |
-| %               | Abandoned or Turn-Exit or Uninterpretable | 0.10637 | 15550 |  654 | 0.042057878 |  364 |  0.023408360 |   636 | 0.040900322 | 0.74293 |
-| aa              | Agree/Accept                              | 0.16860 | 11133 |  915 | 0.082188089 |  426 |  0.038264619 |   536 | 0.048145154 | 0.51110 |
-| ba              | Appreciation                              | 0.21977 |  4764 |  413 | 0.086691856 |  329 |  0.069059614 |   305 | 0.064021830 | 0.71629 |
-| qy              | Yes-No-Question                           | 0.13140 |  4726 |  268 | 0.056707575 |  167 |  0.035336437 |   186 | 0.039356750 | 0.82078 |
-| x               | Non-verbal                                | 0.94656 |  3630 |  648 |  0.17851240 | 2381 |   0.65592287 |   407 |  0.11212121 | 0.99539 |
-| ny              | Yes answers                               | 0.09987 |  3034 |  114 | 0.037574160 |   65 |  0.021423863 |   124 | 0.040870138 | 0.75000 |
-| fc              | Conventional-closing                      | 0.11115 |  2582 |  130 | 0.050348567 |   87 |  0.033694810 |    70 | 0.027110767 | 0.71552 |
-| qw              | Wh-Question                               | 0.13340 |  1979 |  108 | 0.054573017 |   62 |  0.031328954 |    94 | 0.047498737 | 0.82825 |
-| nn              | No answers                                | 0.11329 |  1377 |   55 | 0.039941903 |   36 |  0.026143791 |    65 | 0.047204067 | 0.91765 |
-| bk              | Response Acknowledgement                  | 0.13323 |  1306 |   70 | 0.053598775 |   41 |  0.031393568 |    63 | 0.048238897 | 0.55785 |
-| h               | Hedge                                     | 0.14600 |  1226 |   64 | 0.052202284 |   50 |  0.040783034 |    65 | 0.053017945 | 0.73043 |
-| qy^d            | Declarative Yes-No-Question               | 0.14122 |  1218 |   66 | 0.054187192 |   64 |  0.052545156 |    42 | 0.034482759 | 0.27755 |
-| bh              | Backchannel in question form              | 0.14340 |  1053 |   77 | 0.073124406 |   29 |  0.027540361 |    45 | 0.042735043 | 0.79638 |
-| ^q              | Quotation                                 | 0.23805 |   983 |   52 | 0.052899288 |   78 |  0.079348932 |   104 |  0.10579858 | 0.13592 |
-| bf              | Summarize/reformulate                     | 0.18172 |   952 |   61 | 0.064075630 |   76 |  0.079831933 |    36 | 0.037815126 | 0.04070 |
-| fo_o_fw_"_by_bc | Other                                     | 0.13364 |   883 |   32 | 0.036240091 |   39 |  0.044167610 |    47 | 0.053227633 | 0.55621 |
-| na              | Affirmative non-yes answers               | 0.17828 |   847 |   45 | 0.053128689 |   49 |  0.057851240 |    57 | 0.067296340 | 0.37037 |
-| ad              | Action-directive                          | 0.25201 |   746 |   57 | 0.076407507 |   70 |  0.093833780 |    61 | 0.081769437 | 0.42328 |
-| ^2              | Collaborative Completion                  | 0.15076 |   723 |   33 | 0.045643154 |   44 |  0.060857538 |    32 | 0.044260028 | 0.11765 |
-| b^m             | Repeat-phrase                             | 0.13953 |   688 |   34 | 0.049418605 |   30 |  0.043604651 |    32 | 0.046511628 | 0.13208 |
-| qo              | Open-Question                             | 0.15701 |   656 |   36 | 0.054878049 |   30 |  0.045731707 |    37 | 0.056402439 | 0.74815 |
-| qh              | Rhetorical-Questions                      | 0.21739 |   575 |   29 | 0.050434783 |   52 |  0.090434783 |    44 | 0.076521739 | 0.38931 |
-| ^h              | Hold before answer/agreement              | 0.13489 |   556 |   26 | 0.046762590 |   19 |  0.034172662 |    30 | 0.053956835 | 0.33333 |
-| ar              | Reject                                    | 0.19420 |   345 |   24 | 0.069565217 |   23 |  0.066666667 |    20 | 0.057971014 | 0.02941 |
-| ng              | Negative non-no answers                   | 0.13907 |   302 |    8 | 0.026490066 |   16 |  0.052980132 |    18 | 0.059602649 | 0.28788 |
-| br              | Signal-non-understanding                  | 0.10738 |   298 |   21 | 0.070469799 |    4 |  0.013422819 |     7 | 0.023489933 | 0.54545 |
-| no              | Other answers                             | 0.14035 |   285 |   13 | 0.045614035 |   14 |  0.049122807 |    13 | 0.045614035 | 0.34483 |
-| fp              | Conventional-opening                      | 0.11111 |   225 |    4 | 0.017777778 |   10 |  0.044444444 |    11 | 0.048888889 | 0.76812 |
-| qrr             | Or-Clause                                 | 0.04306 |   209 |    3 | 0.014354067 |    1 | 4.7846890e-3 |     5 | 0.023923445 | 0.67442 |
-| arp_nd          | Dispreferred answers                      | 0.20773 |   207 |   11 | 0.053140097 |   19 |  0.091787440 |    13 | 0.062801932 | 0.00000 |
-| t3              | 3rd-party-talk                            | 0.12821 |   117 |    4 | 0.034188034 |    1 | 8.5470085e-3 |    10 | 0.085470085 | 0.05556 |
-| oo_co_cc        | Offers, Options Commits                   | 0.31818 |   110 |   10 | 0.090909091 |   10 |  0.090909091 |    15 |  0.13636364 | 0.19048 |
-| aap_am          | Maybe/Accept-part                         | 0.20952 |   105 |    9 | 0.085714286 |    6 |  0.057142857 |     7 | 0.066666667 | 0.00000 |
-| bd              | Downplayer                                | 0.43689 |   103 |   19 |  0.18446602 |   17 |   0.16504854 |     9 | 0.087378641 | 0.25806 |
-| t1              | Self-talk                                 | 0.16505 |   103 |    3 | 0.029126214 |    3 |  0.029126214 |    11 |  0.10679612 | 0.14286 |
-| ^g              | Tag-Question                              | 0.19565 |    92 |    2 | 0.021739130 |    6 |  0.065217391 |    10 |  0.10869565 | 0.00000 |
-| qw^d            | Declarative Wh-Question                   | 0.18750 |    80 |    5 |      0.0625 |    4 |         0.05 |     6 |       0.075 | 0.08333 |
-| fa              | Apology                                   | 0.34177 |    79 |    7 | 0.088607595 |   10 |   0.12658228 |    10 |  0.12658228 | 0.66667 |
-| ft              | Thanking                                  | 0.23077 |    78 |    5 | 0.064102564 |    9 |   0.11538462 |     4 | 0.051282051 | 0.15789 |
-|                 |                                           |         |       |      |             |      |              |       |             |         |
-#+TBLFM: $6=$5/$INVALID::$8=$7/$INVALID::
+** SWDA
 
-Mean=0.18734721 TopMean=0.29971357 LowMean=0.13310138
+*** all
+#+NAME: swda
+| tag             | name                                      | group                            | total |    total_ | lassoc |   lassoc_ |   |     |    l |        l_ |   |     |      accL |     accNL |
+|                 |                                           | <7>                              |       |           |        |           |   |     |      |           |   |     |           |           |
+|-----------------+-------------------------------------------+----------------------------------+-------+-----------+--------+-----------+---+-----+------+-----------+---+-----+-----------+-----------|
+| sd              | Statement-non-opinion                     | Forward-Communicative-Function   | 75143 | 0.3390685 |   9032 | 0.1201975 | 0 | 0.0 | 3442 |  0.045806 | 0 | 0.0 | 0.8938315 | 0.8404784 |
+| b               | Acknowledge (Backchannel)                 | Backwards-Communicative-Function | 38298 | 0.1728124 |   3787 | 0.0988824 | 0 | 0.0 |  755 | 0.0197138 | 0 | 0.0 | 0.9289026 | 0.9388202 |
+| sv              | Statement-opinion                         | Forward-Communicative-Function   | 26426 | 0.1192423 |   2960 | 0.1120109 | 0 | 0.0 | 1249 | 0.0472641 | 0 | 0.0 | 0.5619559 |  0.657344 |
+| +               | Segment (multi-utterance)                 | Other                            | 17824 | 0.0804274 |   2195 | 0.1231486 | 0 | 0.0 |  754 | 0.0423025 | 0 | 0.0 | 0.7611189 | 0.8344056 |
+| %               | Abandoned or Turn-Exit or Uninterpretable | Communicative-Status             | 15550 | 0.0701664 |   1506 | 0.0968489 | 0 | 0.0 |  364 | 0.0234084 | 0 | 0.0 | 0.7731362 | 0.8316195 |
+| aa              | Agree/Accept                              | Backwards-Communicative-Function | 11133 | 0.0502355 |   1596 | 0.1433576 | 0 | 0.0 |  426 | 0.0382646 | 0 | 0.0 | 0.4432342 | 0.4139087 |
+| ba              | Appreciation                              | Backwards-Communicative-Function |  4764 | 0.0214966 |    868 | 0.1821998 | 0 | 0.0 |  329 | 0.0690596 | 0 | 0.0 | 0.6634304 | 0.7216828 |
+| qy              | Yes-No-Question                           | Forward-Communicative-Function   |  4726 | 0.0213252 |    539 | 0.1140499 | 0 | 0.0 |  167 | 0.0353364 | 0 | 0.0 | 0.8310502 | 0.8401826 |
+| x               | Non-verbal                                | Communicative-Status             |  3630 | 0.0163797 |   2466 | 0.6793388 | 0 | 0.0 | 2381 | 0.6559229 | 0 | 0.0 | 0.9938556 | 0.9953917 |
+| ny              | Yes answers                               | Backwards-Communicative-Function |  3034 | 0.0136903 |    269 | 0.0886618 | 0 | 0.0 |   65 | 0.0214239 | 0 | 0.0 | 0.7107143 | 0.6964286 |
+| fc              | Conventional-closing                      | Forward-Communicative-Function   |  2582 | 0.0116508 |    247 | 0.0956623 | 0 | 0.0 |   87 | 0.0336948 | 0 | 0.0 | 0.7051724 | 0.6982759 |
+| qw              | Wh-Question                               | Forward-Communicative-Function   |  1979 | 0.0089299 |    241 | 0.1217787 | 0 | 0.0 |   62 |  0.031329 | 0 | 0.0 | 0.8421053 | 0.9362881 |
+| nn              | No answers                                | Backwards-Communicative-Function |  1377 | 0.0062135 |    137 | 0.0994916 | 0 | 0.0 |   36 | 0.0261438 | 0 | 0.0 | 0.8901961 | 0.8666667 |
+| bk              | Response Acknowledgement                  | Backwards-Communicative-Function |  1306 | 0.0058931 |    145 |  0.111026 | 0 | 0.0 |   41 | 0.0313936 | 0 | 0.0 | 0.4256198 | 0.5041322 |
+| h               | Hedge                                     | Other                            |  1226 | 0.0055321 |    157 | 0.1280587 | 0 | 0.0 |   50 |  0.040783 | 0 | 0.0 | 0.7478261 | 0.7434783 |
+| qy^d            | Declarative Yes-No-Question               | Forward-Communicative-Function   |  1218 |  0.005496 |    146 | 0.1198686 | 0 | 0.0 |   64 | 0.0525452 | 0 | 0.0 | 0.0979592 | 0.0897959 |
+| bh              | Backchannel in question form              | Backwards-Communicative-Function |  1053 | 0.0047515 |    130 | 0.1234568 | 0 | 0.0 |   29 | 0.0275404 | 0 | 0.0 | 0.8552036 |  0.678733 |
+| ^q              | Quotation                                 | Other                            |   983 | 0.0044356 |    195 | 0.1983723 | 0 | 0.0 |   78 | 0.0793489 | 0 | 0.0 | 0.1407767 |       0.0 |
+| bf              | Summarize/reformulate                     | Backwards-Communicative-Function |   952 | 0.0042957 |    139 | 0.1460084 | 0 | 0.0 |   76 | 0.0798319 | 0 | 0.0 | 0.0174419 |       0.0 |
+| fo_o_fw_"_by_bc | Other                                     | Backwards-Communicative-Function |   883 | 0.0039844 |    102 | 0.1155153 | 0 | 0.0 |   39 | 0.0441676 | 0 | 0.0 | 0.5384615 | 0.5502959 |
+| na              | Affirmative non-yes answers               | Backwards-Communicative-Function |   847 | 0.0038219 |    125 | 0.1475797 | 0 | 0.0 |   49 | 0.0578512 | 0 | 0.0 | 0.2777778 | 0.2469136 |
+| ad              | Action-directive                          | Forward-Communicative-Function   |   746 | 0.0033662 |    150 | 0.2010724 | 0 | 0.0 |   70 | 0.0938338 | 0 | 0.0 | 0.3492063 | 0.2698413 |
+| ^2              | Collaborative Completion                  | Backwards-Communicative-Function |   723 | 0.0032624 |     95 |  0.131397 | 0 | 0.0 |   44 | 0.0608575 | 0 | 0.0 | 0.1764706 | 0.0514706 |
+| b^m             | Repeat-phrase                             | Backwards-Communicative-Function |   688 | 0.0031045 |     77 | 0.1119186 | 0 | 0.0 |   30 | 0.0436047 | 0 | 0.0 | 0.0503145 | 0.1194969 |
+| qo              | Open-Question                             | Forward-Communicative-Function   |   656 | 0.0029601 |     92 | 0.1402439 | 0 | 0.0 |   30 | 0.0457317 | 0 | 0.0 | 0.7185185 | 0.6222222 |
+| qh              | Rhetorical-Questions                      | Forward-Communicative-Function   |   575 | 0.0025946 |     97 | 0.1686957 | 0 | 0.0 |   52 | 0.0904348 | 0 | 0.0 |  0.259542 | 0.0763359 |
+| ^h              | Hold before answer/agreement              | Backwards-Communicative-Function |   556 | 0.0025088 |     70 | 0.1258993 | 0 | 0.0 |   19 | 0.0341727 | 0 | 0.0 | 0.3194444 | 0.4583333 |
+| ar              | Reject                                    | Backwards-Communicative-Function |   345 | 0.0015567 |     51 | 0.1478261 | 0 | 0.0 |   23 | 0.0666667 | 0 | 0.0 | 0.0441176 |       0.0 |
+| ng              | Negative non-no answers                   | Backwards-Communicative-Function |   302 | 0.0013627 |     34 | 0.1125828 | 0 | 0.0 |   16 | 0.0529801 | 0 | 0.0 | 0.1515151 | 0.1515151 |
+| br              | Signal-non-understanding                  | Backwards-Communicative-Function |   298 | 0.0013447 |     30 | 0.1006711 | 0 | 0.0 |    4 | 0.0134228 | 0 | 0.0 | 0.4772727 | 0.0227273 |
+| no              | Other answers                             | Backwards-Communicative-Function |   285 |  0.001286 |     34 | 0.1192982 | 0 | 0.0 |   14 | 0.0491228 | 0 | 0.0 | 0.3103448 |       0.0 |
+| fp              | Conventional-opening                      | Forward-Communicative-Function   |   225 | 0.0010153 |     22 | 0.0977778 | 0 | 0.0 |   10 | 0.0444444 | 0 | 0.0 | 0.7681159 | 0.4927536 |
+| qrr             | Or-Clause                                 | Forward-Communicative-Function   |   209 | 0.0009431 |      8 | 0.0382775 | 0 | 0.0 |    1 | 0.0047847 | 0 | 0.0 | 0.6046511 | 0.4651163 |
+| arp_nd          | Dispreferred answers                      | Backwards-Communicative-Function |   207 |  0.000934 |     37 |  0.178744 | 0 | 0.0 |   19 | 0.0917874 | 0 | 0.0 |       0.0 |       0.0 |
+| t3              | 3rd-party-talk                            | Communicative-Status             |   117 | 0.0005279 |     15 | 0.1282051 | 0 | 0.0 |    1 |  0.008547 | 0 | 0.0 |       0.0 |       0.0 |
+| oo_co_cc        | Offers, Options Commits                   | Forward-Communicative-Function   |   110 | 0.0004964 |     28 | 0.2545455 | 0 | 0.0 |   10 | 0.0909091 | 0 | 0.0 |       0.0 |       0.0 |
+| aap_am          | Maybe/Accept-part                         | Backwards-Communicative-Function |   105 | 0.0004738 |     19 | 0.1809524 | 0 | 0.0 |    6 | 0.0571429 | 0 | 0.0 |       0.0 |       0.0 |
+| bd              | Downplayer                                | Backwards-Communicative-Function |   103 | 0.0004648 |     39 | 0.3786408 | 0 | 0.0 |   17 | 0.1650485 | 0 | 0.0 |       0.0 |       0.0 |
+| t1              | Self-talk                                 | Communicative-Status             |   103 | 0.0004648 |     16 | 0.1553398 | 0 | 0.0 |    3 | 0.0291262 | 0 | 0.0 |       0.0 |       0.0 |
+| ^g              | Tag-Question                              | Forward-Communicative-Function   |    92 | 0.0004151 |     15 | 0.1630435 | 0 | 0.0 |    6 | 0.0652174 | 0 | 0.0 |    0.0625 |       0.0 |
+| qw^d            | Declarative Wh-Question                   | Forward-Communicative-Function   |    80 |  0.000361 |     14 |     0.175 | 0 | 0.0 |    4 |      0.05 | 0 | 0.0 |       0.0 |       0.0 |
+| fa              | Apology                                   | Forward-Communicative-Function   |    79 | 0.0003565 |     24 | 0.3037975 | 0 | 0.0 |   10 | 0.1265823 | 0 | 0.0 | 0.7499999 |       0.0 |
+| ft              | Thanking                                  | Forward-Communicative-Function   |    78 |  0.000352 |     14 | 0.1794872 | 0 | 0.0 |    9 | 0.1153846 | 0 | 0.0 |  0.368421 |       0.0 |
 
-** Q1 and Q4
+#+begin_src gnuplot :var data=swda :file box-swda.svg
+  reset
+  set style fill solid 0.5 border -1
+  set style boxplot outliers pointtype 7
+  set style data boxplot 
+  set border 2
+  set xtics nomirror
+  set ytics nomirror
+  set xtics ("adj L" 1, "L" 2) scale 0.0
+  plot data using (1.0):7 notitle , '' using (2):11 notitle 
+#+end_src
+
+#+RESULTS:
+[[file:box-swda.svg]]
+
+
+*** groups
+#+BEGIN: aggregate :table "swda" :cols "group sum(total)"
+| group                            | sum(total) |   |   |       |
+|----------------------------------+------------+---+---+-------|
+| Forward-Communicative-Function   |     114924 |   |   | 51.86 |
+| Backwards-Communicative-Function |      67259 |   |   | 30.35 |
+| Other                            |      20033 |   |   |  9.04 |
+| Communicative-Status             |      19400 |   |   |  8.75 |
+#+TBLFM: $5=$2*100/vsum(@2$2..@5$2);f2
+#+END:
+
+
+#+BEGIN: aggregate :table "swda" :cols "group (sum(lassoc)*100/sum(total));f2 (sum(l)*100/sum(total));f2 (vmean(accL)-vmean(accNL))*100;f2"
+| group                            | (sum(lassoc)*100/sum(total));f2 | (sum(l)*100/sum(total));f2 | (vmean(accL)-vmean(accNL))*100;f2 |
+|----------------------------------+---------------------------------+----------------------------+-----------------------------------|
+| Forward-Communicative-Function   |                           11.86 |                       4.59 |                             11.40 |
+| Backwards-Communicative-Function |                           11.57 |                       3.03 |                              4.30 |
+| Other                            |                           12.71 |                       4.40 |                              2.39 |
+| Communicative-Status             |                           20.63 |                      14.17 |                             -1.50 |
+#+END:
+
+#+TBLFM: $5=$2/vsum(@2$2..@5$2)::$6=$3/$2::$7=$4/$2
+
+
+** AMI-DA
+#+name: ami-da
+|           | name                         | total |    total_ | lassoc |   lassoc_ |   |     |    l |        l_ |   |     |           |           |
+|-----------+------------------------------+-------+-----------+--------+-----------+---+-----+------+-----------+---+-----+-----------+-----------|
+| ami_da_4  | Inform                       | 33484 | 0.2839673 |   4651 | 0.1389022 | 0 | 0.0 | 1555 | 0.0464401 | 0 | 0.0 | 0.7612797 | 0.8129614 |
+| ami_da_9  | Assess                       | 21391 | 0.1814103 |   4133 | 0.1932121 | 0 | 0.0 | 1551 | 0.0725071 | 0 | 0.0 | 0.5514119 | 0.6559603 |
+| ami_da_3  | Fragment                     | 16796 | 0.1424416 |   6643 | 0.3955108 | 0 | 0.0 | 5273 | 0.3139438 | 0 | 0.0 | 0.8406608 | 0.8220091 |
+| ami_da_1  | Backchannel                  | 12573 | 0.1066277 |   1674 | 0.1331424 | 0 | 0.0 |  480 |  0.038177 | 0 | 0.0 | 0.8497317 | 0.6597496 |
+| ami_da_6  | Suggest                      |  9391 | 0.0796421 |   1356 | 0.1443936 | 0 | 0.0 |  490 | 0.0521776 | 0 | 0.0 | 0.5483721 | 0.4046512 |
+| ami_da_2  | Stall                        |  8459 | 0.0717381 |   1258 | 0.1487173 | 0 | 0.0 |  315 | 0.0372384 | 0 | 0.0 | 0.5905593 | 0.5797845 |
+| ami_da_5  | Elicit-Inform                |  4240 | 0.0359581 |    652 | 0.1537736 | 0 | 0.0 |  225 |  0.053066 | 0 | 0.0 | 0.5608592 |  0.597852 |
+| ami_da_12 | Comment-About-Understanding  |  2367 | 0.0200738 |    397 | 0.1677229 | 0 | 0.0 |  141 | 0.0595691 | 0 | 0.0 |     0.125 | 0.1328125 |
+| ami_da_11 | Elicit-Assessment            |  2265 | 0.0192088 |    348 | 0.1536424 | 0 | 0.0 |  113 | 0.0498896 | 0 | 0.0 | 0.4509395 | 0.4446764 |
+| ami_da_14 | Be-Positive                  |  2210 | 0.0187423 |   1180 | 0.5339367 | 0 | 0.0 |  669 | 0.3027149 | 0 | 0.0 | 0.6550117 | 0.5804196 |
+| ami_da_16 | Other                        |  2204 | 0.0186914 |    688 | 0.3121597 | 0 | 0.0 |  241 | 0.1093466 | 0 | 0.0 | 0.2765531 | 0.3527054 |
+| ami_da_7  | Offer                        |  1530 | 0.0129754 |    286 | 0.1869281 | 0 | 0.0 |   79 |  0.051634 | 0 | 0.0 | 0.4705882 | 0.5947712 |
+| ami_da_8  | Elicit-Offer-Or-Suggestion   |   686 | 0.0058178 |     98 | 0.1428571 | 0 | 0.0 |   35 | 0.0510204 | 0 | 0.0 | 0.4295302 | 0.2885906 |
+| ami_da_13 | Elicit-Comment-Understanding |   193 | 0.0016368 |     14 | 0.0725389 | 0 | 0.0 |    3 |  0.015544 | 0 | 0.0 |   0.15625 |    0.0625 |
+| ami_da_15 | Be-Negative                  |    98 | 0.0008311 |     51 | 0.5204082 | 0 | 0.0 |   20 | 0.2040816 | 0 | 0.0 |       0.0 |       0.0 |
+| None      | None                         |    28 | 0.0002375 |      7 |      0.25 | 0 | 0.0 |    3 | 0.1071429 | 0 | 0.0 |       0.0 |       0.0 |
+
+#+begin_src gnuplot :var data=ami-da :file box-ami.svg
+  reset
+  set style fill solid 0.5 border -1
+  set style boxplot outliers pointtype 7
+  set style data boxplot 
+  set border 2
+  set xtics nomirror
+  set ytics nomirror
+  set xtics ("adj L" 1, "L" 2) scale 0.0
+  plot data using (1.0):6 notitle , '' using (2):10 notitle 
+#+end_src
+
+#+RESULTS:
+[[file:box-ami.svg]]
+
+** filter
 #+NAME: my-filter
-#+BEGIN_SRC elisp :var tbl=all :colnames yes :hline no
+#+BEGIN_SRC elisp :var tbl=swda :colnames no :hline no
   (cl-loop for row in tbl
            if (not (equal (nth 0 row) "x"))
-            ;if (or (> (nth 2 row) 0.299)
-            ;      (< (nth 2 row) 0.133)) 		
                collect row into newtbl
                finally return newtbl)
 #+END_SRC
 
 #+RESULTS: my-filter
-| DA              | DA-name                                   | Lassoc% |   all | preL |       .preL |    L |           .L | postL |      .postL |  BERT_L |
-|-----------------+-------------------------------------------+---------+-------+------+-------------+------+--------------+-------+-------------+---------|
-| sd              | Statement-non-opinion                     | 0.13759 | 75143 | 2891 | 0.038473311 | 3442 |  0.045805997 |  4006 | 0.053311686 | 0.86581 |
-| b               | Acknowledge (Backchannel)                 | 0.11162 | 38298 | 1890 | 0.049349836 |  755 |  0.019713823 |  1630 | 0.042560969 | 0.90726 |
-| sv              | Statement-opinion                         | 0.12866 | 26426 | 1012 | 0.038295618 | 1249 |  0.047264058 |  1139 | 0.043101491 | 0.61956 |
-| +               | Agree/Accept                              | 0.14408 | 17824 |  983 | 0.055150359 |  754 |  0.042302513 |   831 | 0.046622531 | 0.72056 |
-| %               | Abandoned or Turn-Exit or Uninterpretable | 0.10637 | 15550 |  654 | 0.042057878 |  364 |   0.02340836 |   636 | 0.040900322 | 0.74293 |
-| aa              | Agree/Accept                              |  0.1686 | 11133 |  915 | 0.082188089 |  426 |  0.038264619 |   536 | 0.048145154 |  0.5111 |
-| ba              | Appreciation                              | 0.21977 |  4764 |  413 | 0.086691856 |  329 |  0.069059614 |   305 |  0.06402183 | 0.71629 |
-| qy              | Yes-No-Question                           |  0.1314 |  4726 |  268 | 0.056707575 |  167 |  0.035336437 |   186 |  0.03935675 | 0.82078 |
-| ny              | Yes answers                               | 0.09987 |  3034 |  114 |  0.03757416 |   65 |  0.021423863 |   124 | 0.040870138 |    0.75 |
-| fc              | Conventional-closing                      | 0.11115 |  2582 |  130 | 0.050348567 |   87 |   0.03369481 |    70 | 0.027110767 | 0.71552 |
-| qw              | Wh-Question                               |  0.1334 |  1979 |  108 | 0.054573017 |   62 |  0.031328954 |    94 | 0.047498737 | 0.82825 |
-| nn              | No answers                                | 0.11329 |  1377 |   55 | 0.039941903 |   36 |  0.026143791 |    65 | 0.047204067 | 0.91765 |
-| bk              | Response Acknowledgement                  | 0.13323 |  1306 |   70 | 0.053598775 |   41 |  0.031393568 |    63 | 0.048238897 | 0.55785 |
-| h               | Hedge                                     |   0.146 |  1226 |   64 | 0.052202284 |   50 |  0.040783034 |    65 | 0.053017945 | 0.73043 |
-| qy^d            | Declarative Yes-No-Question               | 0.14122 |  1218 |   66 | 0.054187192 |   64 |  0.052545156 |    42 | 0.034482759 | 0.27755 |
-| bh              | Backchannel in question form              |  0.1434 |  1053 |   77 | 0.073124406 |   29 |  0.027540361 |    45 | 0.042735043 | 0.79638 |
-| ^q              | Quotation                                 | 0.23805 |   983 |   52 | 0.052899288 |   78 |  0.079348932 |   104 |  0.10579858 | 0.13592 |
-| bf              | Summarize/reformulate                     | 0.18172 |   952 |   61 |  0.06407563 |   76 |  0.079831933 |    36 | 0.037815126 |  0.0407 |
-| fo_o_fw_"_by_bc | Other                                     | 0.13364 |   883 |   32 | 0.036240091 |   39 |   0.04416761 |    47 | 0.053227633 | 0.55621 |
-| na              | Affirmative non-yes answers               | 0.17828 |   847 |   45 | 0.053128689 |   49 |   0.05785124 |    57 |  0.06729634 | 0.37037 |
-| ad              | Action-directive                          | 0.25201 |   746 |   57 | 0.076407507 |   70 |   0.09383378 |    61 | 0.081769437 | 0.42328 |
-| ^2              | Collaborative Completion                  | 0.15076 |   723 |   33 | 0.045643154 |   44 |  0.060857538 |    32 | 0.044260028 | 0.11765 |
-| b^m             | Repeat-phrase                             | 0.13953 |   688 |   34 | 0.049418605 |   30 |  0.043604651 |    32 | 0.046511628 | 0.13208 |
-| qo              | Open-Question                             | 0.15701 |   656 |   36 | 0.054878049 |   30 |  0.045731707 |    37 | 0.056402439 | 0.74815 |
-| qh              | Rhetorical-Questions                      | 0.21739 |   575 |   29 | 0.050434783 |   52 |  0.090434783 |    44 | 0.076521739 | 0.38931 |
-| ^h              | Hold before answer/agreement              | 0.13489 |   556 |   26 |  0.04676259 |   19 |  0.034172662 |    30 | 0.053956835 | 0.33333 |
-| ar              | Reject                                    |  0.1942 |   345 |   24 | 0.069565217 |   23 |  0.066666667 |    20 | 0.057971014 | 0.02941 |
-| ng              | Negative non-no answers                   | 0.13907 |   302 |    8 | 0.026490066 |   16 |  0.052980132 |    18 | 0.059602649 | 0.28788 |
-| br              | Signal-non-understanding                  | 0.10738 |   298 |   21 | 0.070469799 |    4 |  0.013422819 |     7 | 0.023489933 | 0.54545 |
-| no              | Other answers                             | 0.14035 |   285 |   13 | 0.045614035 |   14 |  0.049122807 |    13 | 0.045614035 | 0.34483 |
-| fp              | Conventional-opening                      | 0.11111 |   225 |    4 | 0.017777778 |   10 |  0.044444444 |    11 | 0.048888889 | 0.76812 |
-| qrr             | Or-Clause                                 | 0.04306 |   209 |    3 | 0.014354067 |    1 | 4.7846890e-3 |     5 | 0.023923445 | 0.67442 |
-| arp_nd          | Dispreferred answers                      | 0.20773 |   207 |   11 | 0.053140097 |   19 |   0.09178744 |    13 | 0.062801932 |     0.0 |
-| t3              | 3rd-party-talk                            | 0.12821 |   117 |    4 | 0.034188034 |    1 | 8.5470085e-3 |    10 | 0.085470085 | 0.05556 |
-| oo_co_cc        | Offers, Options Commits                   | 0.31818 |   110 |   10 | 0.090909091 |   10 |  0.090909091 |    15 |  0.13636364 | 0.19048 |
-| aap_am          | Maybe/Accept-part                         | 0.20952 |   105 |    9 | 0.085714286 |    6 |  0.057142857 |     7 | 0.066666667 |     0.0 |
-| bd              | Downplayer                                | 0.43689 |   103 |   19 |  0.18446602 |   17 |   0.16504854 |     9 | 0.087378641 | 0.25806 |
-| t1              | Self-talk                                 | 0.16505 |   103 |    3 | 0.029126214 |    3 |  0.029126214 |    11 |  0.10679612 | 0.14286 |
-| ^g              | Tag-Question                              | 0.19565 |    92 |    2 |  0.02173913 |    6 |  0.065217391 |    10 |  0.10869565 |     0.0 |
-| qw^d            | Declarative Wh-Question                   |  0.1875 |    80 |    5 |      0.0625 |    4 |         0.05 |     6 |       0.075 | 0.08333 |
-| fa              | Apology                                   | 0.34177 |    79 |    7 | 0.088607595 |   10 |   0.12658228 |    10 |  0.12658228 | 0.66667 |
-| ft              | Thanking                                  | 0.23077 |    78 |    5 | 0.064102564 |    9 |   0.11538462 |     4 | 0.051282051 | 0.15789 |
-|                 |                                           |         |       |      |             |      |              |       |             |         |
-
-#+begin_src gnuplot :var data=my-filter :file output.svg
+| sd              | Statement-non-opinion                     | 75143 | 0.3390685 | 9032 | 0.1201975 | 0 | 0.0 | 3442 |  0.045806 | 0 | 0.0 | 0.8938315 | 0.8404784 |
+| b               | Acknowledge (Backchannel)                 | 38298 | 0.1728124 | 3787 | 0.0988824 | 0 | 0.0 |  755 | 0.0197138 | 0 | 0.0 | 0.9289026 | 0.9388202 |
+| sv              | Statement-opinion                         | 26426 | 0.1192423 | 2960 | 0.1120109 | 0 | 0.0 | 1249 | 0.0472641 | 0 | 0.0 | 0.5619559 |  0.657344 |
+| +               | Segment (multi-utterance)                 | 17824 | 0.0804274 | 2195 | 0.1231486 | 0 | 0.0 |  754 | 0.0423025 | 0 | 0.0 | 0.7611189 | 0.8344056 |
+| %               | Abandoned or Turn-Exit or Uninterpretable | 15550 | 0.0701664 | 1506 | 0.0968489 | 0 | 0.0 |  364 | 0.0234084 | 0 | 0.0 | 0.7731362 | 0.8316195 |
+| aa              | Agree/Accept                              | 11133 | 0.0502355 | 1596 | 0.1433576 | 0 | 0.0 |  426 | 0.0382646 | 0 | 0.0 | 0.4432342 | 0.4139087 |
+| ba              | Appreciation                              |  4764 | 0.0214966 |  868 | 0.1821998 | 0 | 0.0 |  329 | 0.0690596 | 0 | 0.0 | 0.6634304 | 0.7216828 |
+| qy              | Yes-No-Question                           |  4726 | 0.0213252 |  539 | 0.1140499 | 0 | 0.0 |  167 | 0.0353364 | 0 | 0.0 | 0.8310502 | 0.8401826 |
+| ny              | Yes answers                               |  3034 | 0.0136903 |  269 | 0.0886618 | 0 | 0.0 |   65 | 0.0214239 | 0 | 0.0 | 0.7107143 | 0.6964286 |
+| fc              | Conventional-closing                      |  2582 | 0.0116508 |  247 | 0.0956623 | 0 | 0.0 |   87 | 0.0336948 | 0 | 0.0 | 0.7051724 | 0.6982759 |
+| qw              | Wh-Question                               |  1979 | 0.0089299 |  241 | 0.1217787 | 0 | 0.0 |   62 |  0.031329 | 0 | 0.0 | 0.8421053 | 0.9362881 |
+| nn              | No answers                                |  1377 | 0.0062135 |  137 | 0.0994916 | 0 | 0.0 |   36 | 0.0261438 | 0 | 0.0 | 0.8901961 | 0.8666667 |
+| bk              | Response Acknowledgement                  |  1306 | 0.0058931 |  145 |  0.111026 | 0 | 0.0 |   41 | 0.0313936 | 0 | 0.0 | 0.4256198 | 0.5041322 |
+| h               | Hedge                                     |  1226 | 0.0055321 |  157 | 0.1280587 | 0 | 0.0 |   50 |  0.040783 | 0 | 0.0 | 0.7478261 | 0.7434783 |
+| qy^d            | Declarative Yes-No-Question               |  1218 |  0.005496 |  146 | 0.1198686 | 0 | 0.0 |   64 | 0.0525452 | 0 | 0.0 | 0.0979592 | 0.0897959 |
+| bh              | Backchannel in question form              |  1053 | 0.0047515 |  130 | 0.1234568 | 0 | 0.0 |   29 | 0.0275404 | 0 | 0.0 | 0.8552036 |  0.678733 |
+| ^q              | Quotation                                 |   983 | 0.0044356 |  195 | 0.1983723 | 0 | 0.0 |   78 | 0.0793489 | 0 | 0.0 | 0.1407767 |       0.0 |
+| bf              | Summarize/reformulate                     |   952 | 0.0042957 |  139 | 0.1460084 | 0 | 0.0 |   76 | 0.0798319 | 0 | 0.0 | 0.0174419 |       0.0 |
+| fo_o_fw_"_by_bc | Other                                     |   883 | 0.0039844 |  102 | 0.1155153 | 0 | 0.0 |   39 | 0.0441676 | 0 | 0.0 | 0.5384615 | 0.5502959 |
+| na              | Affirmative non-yes answers               |   847 | 0.0038219 |  125 | 0.1475797 | 0 | 0.0 |   49 | 0.0578512 | 0 | 0.0 | 0.2777778 | 0.2469136 |
+| ad              | Action-directive                          |   746 | 0.0033662 |  150 | 0.2010724 | 0 | 0.0 |   70 | 0.0938338 | 0 | 0.0 | 0.3492063 | 0.2698413 |
+| ^2              | Collaborative Completion                  |   723 | 0.0032624 |   95 |  0.131397 | 0 | 0.0 |   44 | 0.0608575 | 0 | 0.0 | 0.1764706 | 0.0514706 |
+| b^m             | Repeat-phrase                             |   688 | 0.0031045 |   77 | 0.1119186 | 0 | 0.0 |   30 | 0.0436047 | 0 | 0.0 | 0.0503145 | 0.1194969 |
+| qo              | Open-Question                             |   656 | 0.0029601 |   92 | 0.1402439 | 0 | 0.0 |   30 | 0.0457317 | 0 | 0.0 | 0.7185185 | 0.6222222 |
+| qh              | Rhetorical-Questions                      |   575 | 0.0025946 |   97 | 0.1686957 | 0 | 0.0 |   52 | 0.0904348 | 0 | 0.0 |  0.259542 | 0.0763359 |
+| ^h              | Hold before answer/agreement              |   556 | 0.0025088 |   70 | 0.1258993 | 0 | 0.0 |   19 | 0.0341727 | 0 | 0.0 | 0.3194444 | 0.4583333 |
+| ar              | Reject                                    |   345 | 0.0015567 |   51 | 0.1478261 | 0 | 0.0 |   23 | 0.0666667 | 0 | 0.0 | 0.0441176 |       0.0 |
+| ng              | Negative non-no answers                   |   302 | 0.0013627 |   34 | 0.1125828 | 0 | 0.0 |   16 | 0.0529801 | 0 | 0.0 | 0.1515152 | 0.1515152 |
+| br              | Signal-non-understanding                  |   298 | 0.0013447 |   30 | 0.1006711 | 0 | 0.0 |    4 | 0.0134228 | 0 | 0.0 | 0.4772727 | 0.0227273 |
+| no              | Other answers                             |   285 |  0.001286 |   34 | 0.1192982 | 0 | 0.0 |   14 | 0.0491228 | 0 | 0.0 | 0.3103448 |       0.0 |
+| fp              | Conventional-opening                      |   225 | 0.0010153 |   22 | 0.0977778 | 0 | 0.0 |   10 | 0.0444444 | 0 | 0.0 | 0.7681159 | 0.4927536 |
+| qrr             | Or-Clause                                 |   209 | 0.0009431 |    8 | 0.0382775 | 0 | 0.0 |    1 | 0.0047847 | 0 | 0.0 | 0.6046512 | 0.4651163 |
+| arp_nd          | Dispreferred answers                      |   207 |  0.000934 |   37 |  0.178744 | 0 | 0.0 |   19 | 0.0917874 | 0 | 0.0 |       0.0 |       0.0 |
+| t3              | 3rd-party-talk                            |   117 | 0.0005279 |   15 | 0.1282051 | 0 | 0.0 |    1 |  0.008547 | 0 | 0.0 |       0.0 |       0.0 |
+| oo_co_cc        | Offers, Options Commits                   |   110 | 0.0004964 |   28 | 0.2545455 | 0 | 0.0 |   10 | 0.0909091 | 0 | 0.0 |       0.0 |       0.0 |
+| aap_am          | Maybe/Accept-part                         |   105 | 0.0004738 |   19 | 0.1809524 | 0 | 0.0 |    6 | 0.0571429 | 0 | 0.0 |       0.0 |       0.0 |
+| bd              | Downplayer                                |   103 | 0.0004648 |   39 | 0.3786408 | 0 | 0.0 |   17 | 0.1650485 | 0 | 0.0 |       0.0 |       0.0 |
+| t1              | Self-talk                                 |   103 | 0.0004648 |   16 | 0.1553398 | 0 | 0.0 |    3 | 0.0291262 | 0 | 0.0 |       0.0 |       0.0 |
+| ^g              | Tag-Question                              |    92 | 0.0004151 |   15 | 0.1630435 | 0 | 0.0 |    6 | 0.0652174 | 0 | 0.0 |    0.0625 |       0.0 |
+| qw^d            | Declarative Wh-Question                   |    80 |  0.000361 |   14 |     0.175 | 0 | 0.0 |    4 |      0.05 | 0 | 0.0 |       0.0 |       0.0 |
+| fa              | Apology                                   |    79 | 0.0003565 |   24 | 0.3037975 | 0 | 0.0 |   10 | 0.1265823 | 0 | 0.0 |      0.75 |       0.0 |
+| ft              | Thanking                                  |    78 |  0.000352 |   14 | 0.1794872 | 0 | 0.0 |    9 | 0.1153846 | 0 | 0.0 | 0.3684211 |       0.0 |
+|                 |                                           |       |           |      |           |   |     |      |           |   |     |           |           |
+** graph
+#+begin_src gnuplot :var data=swda :file histogram.svg
   reset
 
-  set linetype 22 linewidth 2 lc rgb "white" 
+  set linetype 22 linewidth 1
+  set palette model RGB defined ( 0 'black', 1 'blue' )
   set border 1
-  set yrange [0:1]
-  set ytics 0.5
+  unset colorbox
+  set bars 5.0
   set ytics nomirror scale 0.5
-  set term svg size 1000, 500
-  set boxwidth 0.65 relative
+  set term svg size 800,480 font "Times"
   set style data histogram
-  set style histogram rowstacked 
-  set style fill solid 0.6 noborder
-  set xtics rotate by -45 scale 0
-  plot data using 6:xtic(2) ti 'PRE', '' using 8 ti 'L', '' using 10 ti 'POST', \
-       data using 11 with points
+  set style histogram rowstacked
+  set style fill solid 0.5 noborder
+  set xtics rotate by -45 scale 0 noenhanced
+  plot data using 4:xtic(2) notitle
 #+end_src
 
 #+RESULTS:
-[[file:output.svg]]
+[[file:histogram.svg]]
+
+#+begin_src gnuplot :var data=swda :file swda.svg
+  reset
+
+  set linetype 22 linewidth 1
+  set palette model RGB defined ( 0 'black', 1 'blue' )
+  set border 1
+  set yrange [0:1]
+  set ytics 0.5
+  unset colorbox
+  set bars 5.0
+  set ytics nomirror scale 0.5
+  set term svg size 1000,480 font "Times"
+  set style data histogram
+  set style histogram 
+  set style fill solid 0.5 noborder
+  set xtics rotate by -45 scale 0 noenhanced
+  plot data using 7:xtic(2) title "adjacent utterances contain laughter", '' using 11 title "contains laughter", \
+       data using 0:15:15:14:14:( $14 < $15 ? 0 : 1 ) with financebars notitle  palette lt 22
+#+end_src
+
+#+RESULTS:
+[[file:swda.svg]]
+#+begin_src gnuplot :var data=ami-da :file ami.svg
+  reset
+
+  set linetype 22 linewidth 1
+  set palette model RGB defined ( 0 'black', 1 'blue' )
+  set border 1
+  set yrange [0:1]
+  set ytics 0.5
+  unset colorbox
+  set bars 5.0
+  set ytics nomirror scale 0.5
+  set term svg size 1000,480 font "Times"
+  set style data histogram
+  set style histogram 
+  set style fill solid 0.5 noborder
+  set xtics rotate by -45 scale 0 noenhanced
+  plot data using 6:xtic(2) title "adjacent utterances contain laughter", '' using 10 title "contains laughter", \
+       data using 0:14:14:13:13:( $13 < $14 ? 0 : 1 ) with financebars notitle  palette lt 22
+#+end_src
+
+#+RESULTS:
+[[file:ami.svg]]
+
+
+#+BEGIN_SRC sh
+rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/SWDA-bertLvsNL.pdf" swda.svg
+rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/AMI-DA-bertLvsNL.pdf" ami.svg
+rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/box-swda.pdf" box-swda.svg
+rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/box-ami.pdf" box-ami.svg
+
+#+END_SRC
+
+#+RESULTS:
 
 #+begin_src gnuplot :var data=all :file test.svg
 reset session
