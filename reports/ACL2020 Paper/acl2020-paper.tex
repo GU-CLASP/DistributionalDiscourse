@@ -139,14 +139,14 @@ The distribution of laughs in different dialogue acts has a rather uniform shape
 \begin{figure}
   \centering
   \includegraphics[width=\the\columnwidth]{img/box-swda.pdf}
-  \caption{Box plot for utterances associated with laughter for SWDA. On the left: proportion of DAs having laughter in one of the adjacent utterances, on the right: proportion of DAs containing laughter. }
+  \caption{Box plot for utterances associated with laughter in SWDA. On the left: proportion of DAs having laughter in one of the adjacent utterances, on the right: proportion of DAs containing laughter. }
     \label{fig:box-swda}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=\the\columnwidth]{img/box-ami.pdf}
-  \caption{Box plot for utterances associated with laughter for AMI-DA. On the left: proportion of DAs having laughter in one of the adjacent utterances, on the right: proportion of DAs containing laughter. }
+  \caption{Box plot for utterances associated with laughter in AMI-DA. On the left: proportion of DAs having laughter in one of the adjacent utterances, on the right: proportion of DAs containing laughter. }
     \label{fig:box-ami}
 \end{figure}
 
@@ -182,37 +182,41 @@ We use the un-cased model implemented by \citet{wolfHuggingFaceTransformersState
 In the first experiment we investigated whether laughter, as an example of a dialogue-specific signal, is a helpful feature for DAR.
 Therefore, we train another version of each model: one containing laughs (\texttt{L}) and one with laughs left out (\texttt{NL}), and compare their performances in DAR task.
 Table~\ref{table:laughter-total-acc}) compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}). From observing the total accuracy scores, models appear to be almost unaffected by leaving out the laughters. On the other hand, we can observe differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:swda-by-da} for Switchboard and Figure~\ref{fig:ami-by-da} for AMI corpus).
-
-In order to further investigate the differences, we looked at the dialogue act groups.
 \begin{table}
   \centering
-  \begin{tabular}{@{}lll@{}}
+  \begin{tabular}{@{}lcccc@{}}
     \toprule
-                      & SWDA  & AMI-DA   \\ \midrule
-    \texttt{BERT-NL}  & 77.07 & 67.06       \\ 
-    \texttt{BERT-L}   & 76.93 & 67.12       \\ \midrule
-    \texttt{CNN-NL}   & 75.08 & 63.46        \\
-    \texttt{CNN-L}    & 75.40 & 64.30        \\ \bottomrule
+                      & \multicolumn{2}{c}{SWDA} & \multicolumn{2}{c}{AMI-DA} \\ \midrule
+                      & macro-F1 & acc. & macro-F1 & acc.       \\ 
+    \texttt{BERT-NL}  & 38.10 & 77.07 & 49.09 & 67.06       \\ 
+    \texttt{BERT-L}   & 45.99 & 76.93 & 50.17 & 67.12       \\ \midrule
+    \texttt{CNN-NL}   & 37.23 & 75.08 & 38.37 & 63.46        \\
+    \texttt{CNN-L}    & 27.59 & 75.40 & 37.94 & 64.30        \\ \bottomrule
     
   \end{tabular}
   \caption{Comparison of models depending on using laughter on the training phase. }
   \label{table:laughter-total-acc}
 \end{table}
 
-% \begin{table}
-%   \label{tab:laughter}
-%   \centering
-%   \begin{tabular}{@{}lccc@{}}
-%     \toprule
-%     & \%lassoc & \%L  & $\Delta$ (mean acc.) \\ \midrule
-%     Forward-CF & 11.86 & 4.59 & 11.40\\
-%     Backward-CF & 11.57 & 3.03 & 4.30\\
-%     Other & 12.71 & 4.40 & 2.39\\
-%     CS & 20.63 & 14.17 & -1.50\\\bottomrule
-    
-%   \end{tabular}
-%   \caption{Laughter impact by dialogue act group (SWDA, BERT), mean accuracy}
-% \end{table}
+In order to further investigate the differences, we looked at the dialogue act groups.
+
+\begin{table}
+  \centering
+  \begin{tabular}{@{}llcc@{}}
+    \toprule
+    &                  & Forward-CF  & Backward-CF   \\ \midrule
+    SWDA &\texttt{BERT-NL}  & 92.54 & 91.67       \\ 
+         &\texttt{BERT-L}   & 95.42 & 90.91       \\ 
+         &\texttt{CNN-NL}   & 93.30 & 90.85        \\
+         &\texttt{CNN-L}    & 94.64 & 90.13        \\ \midrule
+    AMI  &\texttt{BERT-NL}  & 87.77 & 80.83       \\ 
+         &\texttt{BERT-L}   & 87.36 & 79.87       \\
+         &\texttt{CNN-NL}   & 91.85 & 71.21        \\
+         &\texttt{CNN-L}    & 91.25 & 71.28        \\    \bottomrule
+  \end{tabular}
+  \caption{Comparison of models depending on using laughter on the training phase. }
+  \label{table:laughter-total-acc}
+\end{table}
 
 
 
