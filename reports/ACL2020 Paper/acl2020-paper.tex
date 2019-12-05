@@ -296,17 +296,6 @@ no fine-tuniing        & 55.61 & 46.59  \\ \bottomrule
 We found no discernable difference between pre-traininig on dialogues from the same corpus and pre-traininig on the combined corpus.
 These results could be explained by the relatively small size of the dialogue corpora.
 
-\begin{itemize}
-  \item Setup
-    \begin{itemize}
-      \item we do additional pre-training for the BERT encoder on in-domain data
-      \item note: this is sometimes referred to as fine-tuning, but we reserve that term for task-specific training of the encoder model
-
-      \item SWDA/AMI (excluding dialogues in the DAR test set)
-      \item 10 epoch AMI / 10 epochs SWBD / 5 epochs of each
-    \end{itemize}
-\end{itemize}
-
 \subsection{Experiment 4: Cross-domain pre-training (if time permits)} \label{sec:experiment4} % Bill
 %  - cross-domain pre-training
 
