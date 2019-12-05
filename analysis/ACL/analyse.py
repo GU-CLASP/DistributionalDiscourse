@@ -95,17 +95,18 @@ def compute_accuracy_for_da(da, test, pred):
     return accuracy(comp)
 
 DialogueActStats = namedtuple('DialogueActStats', 
-                              'nm name total total_ assoc_l assoc_l_ pre_l pre_l_ l l_ post_l post_l_ p1 p2')
+                              'nm name group total total_ assoc_l assoc_l_ pre_l pre_l_ l l_ post_l post_l_ p1 p2')
 class DialogueActStats(DialogueActStats):
     def __repr__(self):
-        stats = list(self._asdict().items())[2:]
+        stats = list(self._asdict().items())[3:]
         vals = "|".join([str(round(v, 7)) for k,v in stats])
-        return f'|{self.nm}|{self.name}|{vals}|'
+        return f'|{self.nm}|{self.name}|{self.group}|{vals}|'
 
 if __name__ == '__main__':
     models_dir = '/scratch/DistributionalDiscourse/models/'
     with open(args.corpus+'_dialogue-acts.json') as f:
         names = json.load(f)
+    groups = json.load(open(f'{args.corpus}_dialogue-acts-groups.json'))
     totals = calculate_totals()
     total_c = sum([t[1] for t in totals])
     assoc_c = sum([t[2] for t in totals])
@@ -133,7 +134,7 @@ if __name__ == '__main__':
         post_l_ = t[5] / t[1]
         p1acc = compute_accuracy_for_da(t[0], test, pred1)
         p2acc = compute_accuracy_for_da(t[0], test, pred2)
-        stats.append(DialogueActStats(t[0], names[key], t[1], total_, t[2], assoc_l_,
+        stats.append(DialogueActStats(t[0], names[key], groups[key], t[1], total_, t[2], assoc_l_,
                                       t[3], pre_l_, t[4], l_, t[5], post_l_, p1acc, p2acc))
     for s in stats:
         print(s)
