@@ -189,8 +189,9 @@ We use the un-cased model implemenetd by \citet{wolfHuggingFaceTransformersState
 \subsection{Experiment 1: Impact of laughter} \label{sec:experiment1}   % Vlad
 In the first experiment we investigated whether laughter, as an example of a dialogue-specific signal, is a helpful feature for DAR.
 Therefore, we train another version of each model: one containing laughters (L) and with laughters left out (NL), and compare their performances in DAR task.
-
+From the results (see Table~\ref{tab:laughter}) we can conclude that .
 \begin{table}
+  \label{tab:laughter}
   \centering
   \begin{tabular}{@{}lll@{}}
     \toprule
@@ -206,8 +207,14 @@ Therefore, we train another version of each model: one containing laughters (L) 
 
 \begin{figure*}
   \centering
-  \includegraphics[width=\textwidth]{img/bertLvsNL.pdf}
-  \caption{Change in accuracy for each dialogue act. Positive changes when adding laughter are shown in blue. }
+  \includegraphics[width=\textwidth]{img/SWDA-bertLvsNL.pdf}
+  \caption{Change in accuracy for each SWDA dialogue act. Positive changes when adding laughter are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter.}
+\end{figure*}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\textwidth]{img/AMI-DA-bertLvsNL.pdf}
+  \caption{Change in accuracy for each AMI dialogue act. Positive changes when adding laughter are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter.}
 \end{figure*}
 % TODO per dialogue act analysis
 % DONE compare impacts of CNN vs BERT
@@ -288,10 +295,6 @@ no fine-tuniing        & 55.61 & 46.59  \\ \bottomrule
 
 We found no discernable difference between pre-traininig on dialogues from the same corpus and pre-traininig on the combined corpus.
 These results could be explained by the relatively small size of the dialogue corpora.
-
-
-
-
 
 \begin{itemize}
   \item Setup
