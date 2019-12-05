@@ -80,11 +80,15 @@ Also useful for predicting DAs (is that already a result?)
 In this work, we investigate whether BERT, a well-know pre-trained language model, is useful for dialogue.
 We use dialogue act recoginition as a proxy task, since both the interal content of conributions, and their sequential structure have bearing on the task.
 
-\paragraph{Fine-tuning and laughter}
-Since the laughter token doesn't appear in the original BERT vocabulary, only fine-tuned models can meaningfully make use of laughter in utterance representations. 
-This gives us another opportunity to assess whether laughter is useful in dialogue act recognition.
-We find that although \%4.6 of utterances in SWDA contain laughter, \%7.3 of utterances misclassified by \texttt{BERT} but correctly classified by \texttt{BERT-FT} contain laughter, suggesting that the fine-tuned model utterance encoder is making use of laughter. 
-For AMI-DA, the effect is less pronounced, but still present§: \%8.5 of utterances contain laughter, and \%9.6 of utterances where fine-tuning makes a difference contain laughter.
+\paragraph{Contributions}
+The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, 
+the impact of laughter on DAR, and the relationship between the two.
+\begin{itemize}
+  \item Laughter is useful for dialogue act recoginition (\S\ref{sec:experiment1}).
+  \item The impact of laughter is different for different dialogue acts. [Bigger for forward/backward?] (\S\ref{sec:experiment1})
+  \item Standard BERT pre-traininig is useful for DAR, but the impact of pre-training is smaller than than of fine-tuning (\S\ref{sec:experiment2})
+  \item 
+\end{itemize}
 
 
 \section{Background} % Vlad
@@ -102,6 +106,7 @@ References
   \item \citet{mikolovDistributedRepresentationsWords2013} -- word2vec
   \item \citet{petersTuneNotTune2019} -- when and how to fine-tune pre-trained representations
   \item \citet{kimConvolutionalNeuralNetworks2014} -- CNN sentence representation
+  \item \citet{stolckeDialogueActModeling2000} -- OG DAR model. Uses an HMM with various lexical and prosodic features
 \end{itemize}
 
 \section{Related work} % add references first
@@ -110,7 +115,6 @@ Dialogue act recoginition
   \item \citet{pragstVectorRepresentationUtterances2018} -- dialogue vector models. Uses vector-manual DA tag correspondance to argue for semantic relevance of their vector models (related to how we use DA tagging to verrify BERT usefulness)
   \item \citet{cerisaraEffectsUsingWord2vec2017} -- standard pre-trained word embeddings do not help for DAR in any of three tested languages (English, French, Czech)
   \item \citet{kalchbrennerRecurrentConvolutionalNeural2013} -- DAR model similar to our architecture. Uses an RNN ``discourse model'' and a CNN similar to our baseline encoder
-  \item \citet{stolckeDialogueActModeling2000} -- OG DAR model. Uses an HMM with various lexical and prosodic features
   \item \citet{khanpourDialogueActClassification2016} -- Deep LSTM utt representation. No notion of context. Finds word vectors are useful.
   \item \citet{tranPreservingDistributionalInformation2017} -- Sequential DA prediction with uncertainty propegation
   \item \citet{chenDialogueActRecognition2017} -- SOTA? SWDA DAR using attention and CRF over utterances
@@ -149,7 +153,7 @@ Native speakers            & Native \& non-native speakers           \\
 early '90s                 & 2000s                                   \\ \midrule
 2200 conversations         & 171 meetings                            \\
   \hspace{1em} 1155 in SWDA               & \hspace{1em} 139 in AMI-DA                           \\
-400 utterances             & 118k utterances                         \\
+400k utterances             & 118k utterances                         \\
 3M tokens                  & 1.2M tokens                             \\ \bottomrule
 \end{tabular}
   \caption{Comparison between Switchboard and the AMI Meeting Corpus}
@@ -160,11 +164,17 @@ early '90s                 & 2000s                                   \\ \midrule
   
 \section{Model} % Bill
 
-Our DAR model has two components: an utterance encoder, and a sequence model that predicts the dialogue act tag (figure \ref{fig:model-architecture}).
+We employ a simple DAR model with two components: an encoder that vectorizes utterances, and a sequence model that predicts dialogue act tags from the vectorized utterances (figure \ref{fig:model-architecture}).
 Since we are primarily interested in comparing different utterance encoders, we use a simple RNN as the sequence model in every configuration. 
 The RNN takes the encoded utterance as input at each time step
 Its hidden state is passed to a simple linear classification layer over dilague act tags.
 Conceptually, the encoded utterance represents the context-agnostic semantic content of the utterance, and the hidden state of the RNN represents the discourse context.
+
+As a baseline utterance encoder, we use a word-level CNN with window sizes of 3, 4, and 5, each with 100 feature maps \citep{kimConvolutionalNeuralNetworks2014}. 
+The model uses 100-dimensional word embeddings, which are initialized with pre-trained gloVe vectors in some configurations \citep{penningtonGloveGlobalVectors2014}.
+
+For the BERT utterance encoder, we use the BERT-BASE model with hidden size of 768 and 12 transformer layers and self-attention heads \citep[][see \S3.1]{devlinBERTPretrainingDeep2018}.
+We use the un-cased model implemenetd by \citet{wolfHuggingFaceTransformersStateoftheart2019}.
 
 \begin{figure*}
   \include{model}
@@ -176,7 +186,7 @@ Conceptually, the encoded utterance represents the context-agnostic semantic con
 %  - baseline encoder
 
 \section{Experiments}
-\subsection{Experiment 1: Impact of laughter}   % Vlad
+\subsection{Experiment 1: Impact of laughter} \label{sec:experiment1}   % Vlad
 In the first experiment we investigated whether laughter, as an example of a dialogue-specific signal, is a helpful feature for DAR.
 Therefore, we train another version of each model: one containing laughters (L) and with laughters left out (NL), and compare their performances in DAR task.
 
@@ -204,14 +214,14 @@ Therefore, we train another version of each model: one containing laughters (L) 
 % DONE for both AMI and SWDA
 % ? 
 
-\subsection{Experiment 2: Impact of pre-training} % Bill
+\subsection{Experiment 2: Impact of pre-training vs. fine-tuning} \label{sec:experiment2} % Bill
 % - compare i) pre-trained BERT with freezing ii) pretrained with no freezing iii) randolmly initialized
 Next, we take a direct look at how pre-training affects BERT's performance as an utterance encoder for our DAR model.
 In particular, we consider the performance of DAR models with three different utterance encoders:
 \begin{itemize}
-  \item \texttt{BERT} -- pre-trained BERT without fine-tuning (frozen during DAR training)
-  \item \texttt{BERT-FT} -- pre-trained BERT with fine-tuninig 
-  \item \texttt{BERT-RI} -- randomly initialized BERT with fine-tuning 
+  \item \texttt{BERT} -- pre-trained BERT without fine-tuning 
+  \item \texttt{BERT-FT} -- pre-trained BERT with DAR fine-tuninig 
+  \item \texttt{BERT-RI} -- randomly initialized BERT with dAR fine-tuning 
 \end{itemize}
 
 \begin{table}[]
@@ -223,7 +233,7 @@ In particular, we consider the performance of DAR models with three different ut
 \texttt{BERT-FT}    & 76.93 & 66.94  \\
 \texttt{BERT-RI}    & 73.80 & 61.53  
 \end{tabular}
-  \caption{Micro-average DAR accuracy}
+  \caption{Micro-average DAR recall}
   \label{table:exp2-avg}
 \end{table}    
 
@@ -235,14 +245,54 @@ First, how does BERT's pre-training help with DAR?
 And second, in what way are the representations learned by pre-trained BERT lacking?
 In other words, what is the contribution of fine-tuning?
 
-To help answer these questions, we compare accuracy results of the above three models by dialogue act tag.
+To help answer these questions, we compare performance of the above three models by dialogue act tag.
 
 % TODO: add per dialogue act accuracy figures
 
-\subsection{Experiment 3: Impact of dialogue pre-training} % Bill
+\paragraph{Fine-tuning and laughter}
+Since the laughter token doesn't appear in the original BERT vocabulary, only fine-tuned models can meaningfully make use of laughter in utterance representations. 
+This gives us another opportunity to assess whether laughter is useful in dialogue act recognition.
+We find that although \%4.6 of utterances in SWDA contain laughter, \%7.3 of utterances misclassified by \texttt{BERT} but correctly classified by \texttt{BERT-FT} contain laughter, suggesting that the fine-tuned encoder makes use of laughter. 
+For AMI-DA, the effect is less pronounced, but still present§: \%8.5 of utterances contain laughter, and \%9.6 of utterances where fine-tuning makes a difference contain laughter.
+
+\subsection{Experiment 3: Impact of in-domain pre-training} \label{sec:experiment3} % Bill
 % - pre-train AMI+SWBD -> train SWDA/AMI-DA -> test SWDA/AMI-DA
 % - pre-traing tasks: 1) next utterance, 2) masked token, 3) both ?
 % - compare frozen with no dialogue pre-training vs pre-trained on dialogue w.r.t. L/NL (same as in Experiment 1)
+
+Next, we assess the effect of in-domain pre-training of BERT's performance as an utterance encoder.\footnote{
+In-domain pre-training is sometimes referred to as fine-tuning, but we reserve that term for task-specific training on labeled data.}
+We construct pre-training corpora from the SWDA portion of the un-labelled Switchboard corpus and from the entire AMI corpus (including meetings with no human-annotated DA tags that are not included in the DAR training set).
+In both cases, we exclude dialogues that are reserved for DAR testing.
+
+We use the same pre-training task described by \citet{devlinBERTPretrainingDeep2018}, which combines masked token prediction and next sentence (utterance) detection. 
+Distractor utterances are drawn at random from another dialogue in the corpus
+and each epoch is generated separately so that different distractor sentences appear each time.
+We then performed DAR fine-tuning and inference with the in-domain pre-trained BERT models just as before.
+
+For AMI, in-domain pre-training offers a modest performance boost, but there is no discernable effect in the case of Switchboard.
+Indeed, when BERT is frozen during fine-tuning, the model that received no additional pre-training performs better by more than 3 percentage points (table \ref{tab:exp3-recall}).
+
+\begin{table}[]
+\begin{tabular}{@{}lll@{}}
+\toprule
+                       & SWDA  & AMI-DA \\ \midrule
+in-domain pre-training & 77.02 & 68.64  \\
+no fine-tuning         & 52.30 & 48.05  \\ \midrule
+standard pre-training  & 76.93 & 66.94  \\
+no fine-tuniing        & 55.61 & 46.59  \\ \bottomrule
+\end{tabular}
+  \caption{Micro-average DAR recall for different pre-training schemas.}
+  \label{tab:exp3-recall}
+\end{table}
+
+We found no discernable difference between pre-traininig on dialogues from the same corpus and pre-traininig on the combined corpus.
+These results could be explained by the relatively small size of the dialogue corpora.
+
+
+
+
+
 \begin{itemize}
   \item Setup
     \begin{itemize}
@@ -254,12 +304,13 @@ To help answer these questions, we compare accuracy results of the above three m
     \end{itemize}
 \end{itemize}
 
-\subsection{Experiment 4: Cross-domain pre-training (if time permits)} % Bill
+\subsection{Experiment 4: Cross-domain pre-training (if time permits)} \label{sec:experiment4} % Bill
 %  - cross-domain pre-training
 
 \section{Discussion} % add items to discuss
 \begin{itemize}
   \item RoBERTa training scheme finds that next sentence prediction is of little importance. Is this true for us too? (suspect not due to discourse importance). see: https://github.com/huggingface/transformers/issues/1622
+  \item Issues related to working with transcribed speech: Different kinds of laughter are all represented by the same token. Does transcription orthography capture prosidy? We know prosidy is useful for DAR (Jurafsky).
 \end{itemize}
 
 \bibliography{acl2020}
