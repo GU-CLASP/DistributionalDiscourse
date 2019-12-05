@@ -1,1 +1,19 @@
-{"sd": "Statement-non-opinion", "b": "Acknowledge (Backchannel)", "sv": "Statement-opinion", "+": "Agree/Accept", "%": "Abandoned or Turn-Exit or Uninterpretable", "aa": "Agree/Accept", "ba": "Appreciation", "qy": "Yes-No-Question", "x": "Non-verbal", "ny": "Yes answers", "fc": "Conventional-closing", "qw": "Wh-Question", "nn": "No answers", "bk": "Response Acknowledgement", "h": "Hedge", "qy^d": "Declarative Yes-No-Question", "bh": "Backchannel in question form", "^q": "Quotation", "bf": "Summarize/reformulate", "fo_o_fw_\"_by_bc": "Other", "na": "Affirmative non-yes answers", "ad": "Action-directive", "^2": "Collaborative Completion", "b^m": "Repeat-phrase", "qo": "Open-Question", "qh": "Rhetorical-Questions", "^h": "Hold before answer/agreement", "ar": "Reject", "ng": "Negative non-no answers", "br": "Signal-non-understanding", "no": "Other answers", "fp": "Conventional-opening", "qrr": "Or-Clause", "arp_nd": "Dispreferred answers", "t3": "3rd-party-talk", "oo_co_cc": "Offers, Options Commits", "aap_am": "Maybe/Accept-part", "bd": "Downplayer", "t1": "Self-talk", "^g": "Tag-Question", "qw^d": "Declarative Wh-Question", "fa": "Apology", "ft": "Thanking"}
+{"sd": "Statement-non-opinion", "b": "Acknowledge (Backchannel)",
+ "sv": "Statement-opinion", "+": "Segment (multi-utterance)", "%":
+ "Abandoned or Turn-Exit or Uninterpretable", "aa": "Agree/Accept",
+ "ba": "Appreciation", "qy": "Yes-No-Question", "x": "Non-verbal",
+ "ny": "Yes answers", "fc": "Conventional-closing", "qw":
+ "Wh-Question", "nn": "No answers", "bk": "Response Acknowledgement",
+ "h": "Hedge", "qy^d": "Declarative Yes-No-Question", "bh":
+ "Backchannel in question form", "^q": "Quotation", "bf":
+ "Summarize/reformulate", "fo_o_fw_\"_by_bc": "Other", "na":
+ "Affirmative non-yes answers", "ad": "Action-directive", "^2":
+ "Collaborative Completion", "b^m": "Repeat-phrase", "qo":
+ "Open-Question", "qh": "Rhetorical-Questions", "^h": "Hold before
+ answer/agreement", "ar": "Reject", "ng": "Negative non-no answers",
+ "br": "Signal-non-understanding", "no": "Other answers", "fp":
+ "Conventional-opening", "qrr": "Or-Clause", "arp_nd": "Dispreferred
+ answers", "t3": "3rd-party-talk", "oo_co_cc": "Offers, Options
+ Commits", "aap_am": "Maybe/Accept-part", "bd": "Downplayer", "t1":
+ "Self-talk", "^g": "Tag-Question", "qw^d": "Declarative Wh-Question",
+ "fa": "Apology", "ft": "Thanking"}
