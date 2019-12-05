@@ -57,7 +57,7 @@
 \maketitle
 \begin{abstract}
   Basically we want to see if language models pre-trained on text data are useful for dialogue.
-  So we look at if BERT is useful for dialouge act recoginiton.
+  So we look at if BERT is useful for dialogue act recognition.
   But we want to know if it's really adapting to the domain, so we look at how it uses laughter, a phenomenon specific to dialogue.
 \end{abstract}
 
@@ -199,20 +199,20 @@ In order to further investigate the differences, we looked at the dialogue act g
   \label{table:laughter-total-acc}
 \end{table}
 
-\begin{table}
-  \label{tab:laughter}
-  \centering
-  \begin{tabular}{@{}lccc@{}}
-    \toprule
-    & \%lassoc & \%L  & $\Delta$ (mean acc.) \\ \midrule
-    Forward-CF & 11.86 & 4.59 & 11.40\\
-    Backward-CF & 11.57 & 3.03 & 4.30\\
-    Other & 12.71 & 4.40 & 2.39\\
-    CS & 20.63 & 14.17 & -1.50\\\bottomrule
+% \begin{table}
+%   \label{tab:laughter}
+%   \centering
+%   \begin{tabular}{@{}lccc@{}}
+%     \toprule
+%     & \%lassoc & \%L  & $\Delta$ (mean acc.) \\ \midrule
+%     Forward-CF & 11.86 & 4.59 & 11.40\\
+%     Backward-CF & 11.57 & 3.03 & 4.30\\
+%     Other & 12.71 & 4.40 & 2.39\\
+%     CS & 20.63 & 14.17 & -1.50\\\bottomrule
     
-  \end{tabular}
-  \caption{Laughter impact by dialogue act group (SWDA, BERT), mean accuracy}
-\end{table}
+%   \end{tabular}
+%   \caption{Laughter impact by dialogue act group (SWDA, BERT), mean accuracy}
+% \end{table}
 
 
 
