@@ -157,25 +157,24 @@
 
 ** AMI-DA
 #+name: ami-da
-|           | name                         | total |    total_ | lassoc |   lassoc_ |   |     |    l |        l_ |   |     |           |           |
-|-----------+------------------------------+-------+-----------+--------+-----------+---+-----+------+-----------+---+-----+-----------+-----------|
-| ami_da_4  | Inform                       | 33484 | 0.2839673 |   4651 | 0.1389022 | 0 | 0.0 | 1555 | 0.0464401 | 0 | 0.0 | 0.7612797 | 0.8129614 |
-| ami_da_9  | Assess                       | 21391 | 0.1814103 |   4133 | 0.1932121 | 0 | 0.0 | 1551 | 0.0725071 | 0 | 0.0 | 0.5514119 | 0.6559603 |
-| ami_da_3  | Fragment                     | 16796 | 0.1424416 |   6643 | 0.3955108 | 0 | 0.0 | 5273 | 0.3139438 | 0 | 0.0 | 0.8406608 | 0.8220091 |
-| ami_da_1  | Backchannel                  | 12573 | 0.1066277 |   1674 | 0.1331424 | 0 | 0.0 |  480 |  0.038177 | 0 | 0.0 | 0.8497317 | 0.6597496 |
-| ami_da_6  | Suggest                      |  9391 | 0.0796421 |   1356 | 0.1443936 | 0 | 0.0 |  490 | 0.0521776 | 0 | 0.0 | 0.5483721 | 0.4046512 |
-| ami_da_2  | Stall                        |  8459 | 0.0717381 |   1258 | 0.1487173 | 0 | 0.0 |  315 | 0.0372384 | 0 | 0.0 | 0.5905593 | 0.5797845 |
-| ami_da_5  | Elicit-Inform                |  4240 | 0.0359581 |    652 | 0.1537736 | 0 | 0.0 |  225 |  0.053066 | 0 | 0.0 | 0.5608592 |  0.597852 |
-| ami_da_12 | Comment-About-Understanding  |  2367 | 0.0200738 |    397 | 0.1677229 | 0 | 0.0 |  141 | 0.0595691 | 0 | 0.0 |     0.125 | 0.1328125 |
-| ami_da_11 | Elicit-Assessment            |  2265 | 0.0192088 |    348 | 0.1536424 | 0 | 0.0 |  113 | 0.0498896 | 0 | 0.0 | 0.4509395 | 0.4446764 |
-| ami_da_14 | Be-Positive                  |  2210 | 0.0187423 |   1180 | 0.5339367 | 0 | 0.0 |  669 | 0.3027149 | 0 | 0.0 | 0.6550117 | 0.5804196 |
-| ami_da_16 | Other                        |  2204 | 0.0186914 |    688 | 0.3121597 | 0 | 0.0 |  241 | 0.1093466 | 0 | 0.0 | 0.2765531 | 0.3527054 |
-| ami_da_7  | Offer                        |  1530 | 0.0129754 |    286 | 0.1869281 | 0 | 0.0 |   79 |  0.051634 | 0 | 0.0 | 0.4705882 | 0.5947712 |
-| ami_da_8  | Elicit-Offer-Or-Suggestion   |   686 | 0.0058178 |     98 | 0.1428571 | 0 | 0.0 |   35 | 0.0510204 | 0 | 0.0 | 0.4295302 | 0.2885906 |
-| ami_da_13 | Elicit-Comment-Understanding |   193 | 0.0016368 |     14 | 0.0725389 | 0 | 0.0 |    3 |  0.015544 | 0 | 0.0 |   0.15625 |    0.0625 |
-| ami_da_15 | Be-Negative                  |    98 | 0.0008311 |     51 | 0.5204082 | 0 | 0.0 |   20 | 0.2040816 | 0 | 0.0 |       0.0 |       0.0 |
-| None      | None                         |    28 | 0.0002375 |      7 |      0.25 | 0 | 0.0 |    3 | 0.1071429 | 0 | 0.0 |       0.0 |       0.0 |
-
+|           | name                         | group                            | total |    total_ | lassoc |   lassoc_ |   |     |    l |        l_ |   |     |           |           |
+|-----------+------------------------------+----------------------------------+-------+-----------+--------+-----------+---+-----+------+-----------+---+-----+-----------+-----------|
+| ami_da_4  | Inform                       | Forward-Communicative-Function   | 33484 | 0.2839673 |   4651 | 0.1389022 | 0 | 0.0 | 1555 | 0.0464401 | 0 | 0.0 | 0.7612797 | 0.8129614 |
+| ami_da_9  | Assess                       | Backwards-Communicative-Function | 21391 | 0.1814103 |   4133 | 0.1932121 | 0 | 0.0 | 1551 | 0.0725071 | 0 | 0.0 | 0.5514119 | 0.6559603 |
+| ami_da_3  | Fragment                     | Other                            | 16796 | 0.1424416 |   6643 | 0.3955108 | 0 | 0.0 | 5273 | 0.3139438 | 0 | 0.0 | 0.8406608 | 0.8220091 |
+| ami_da_1  | Backchannel                  | Backwards-Communicative-Function | 12573 | 0.1066277 |   1674 | 0.1331424 | 0 | 0.0 |  480 |  0.038177 | 0 | 0.0 | 0.8497317 | 0.6597496 |
+| ami_da_6  | Suggest                      | Forward-Communicative-Function   |  9391 | 0.0796421 |   1356 | 0.1443936 | 0 | 0.0 |  490 | 0.0521776 | 0 | 0.0 | 0.5483721 | 0.4046512 |
+| ami_da_2  | Stall                        | Other                            |  8459 | 0.0717381 |   1258 | 0.1487173 | 0 | 0.0 |  315 | 0.0372384 | 0 | 0.0 | 0.5905593 | 0.5797845 |
+| ami_da_5  | Elicit-Inform                | Forward-Communicative-Function   |  4240 | 0.0359581 |    652 | 0.1537736 | 0 | 0.0 |  225 |  0.053066 | 0 | 0.0 | 0.5608592 |  0.597852 |
+| ami_da_12 | Comment-About-Understanding  | Backwards-Communicative-Function |  2367 | 0.0200738 |    397 | 0.1677229 | 0 | 0.0 |  141 | 0.0595691 | 0 | 0.0 |     0.125 | 0.1328125 |
+| ami_da_11 | Elicit-Assessment            | Backwards-Communicative-Function |  2265 | 0.0192088 |    348 | 0.1536424 | 0 | 0.0 |  113 | 0.0498896 | 0 | 0.0 | 0.4509395 | 0.4446764 |
+| ami_da_14 | Be-Positive                  | Forward-Communicative-Function   |  2210 | 0.0187423 |   1180 | 0.5339367 | 0 | 0.0 |  669 | 0.3027149 | 0 | 0.0 | 0.6550117 | 0.5804196 |
+| ami_da_16 | Other                        | Other                            |  2204 | 0.0186914 |    688 | 0.3121597 | 0 | 0.0 |  241 | 0.1093466 | 0 | 0.0 | 0.2765531 | 0.3527054 |
+| ami_da_7  | Offer                        | Forward-Communicative-Function   |  1530 | 0.0129754 |    286 | 0.1869281 | 0 | 0.0 |   79 |  0.051634 | 0 | 0.0 | 0.4705882 | 0.5947712 |
+| ami_da_8  | Elicit-Offer-Or-Suggestion   | Forward-Communicative-Function   |   686 | 0.0058178 |     98 | 0.1428571 | 0 | 0.0 |   35 | 0.0510204 | 0 | 0.0 | 0.4295302 | 0.2885906 |
+| ami_da_13 | Elicit-Comment-Understanding | Backwards-Communicative-Function |   193 | 0.0016368 |     14 | 0.0725389 | 0 | 0.0 |    3 |  0.015544 | 0 | 0.0 |   0.15625 |    0.0625 |
+| ami_da_15 | Be-Negative                  | Forward-Communicative-Function   |    98 | 0.0008311 |     51 | 0.5204082 | 0 | 0.0 |   20 | 0.2040816 | 0 | 0.0 |       0.0 |       0.0 |
+| None      | None                         | Other                            |    28 | 0.0002375 |      7 |      0.25 | 0 | 0.0 |    3 | 0.1071429 | 0 | 0.0 |       0.0 |       0.0 |
 #+begin_src gnuplot :var data=ami-da :file box-ami.svg
   reset
   set style fill solid 0.5 border -1
@@ -185,11 +184,21 @@
   set xtics nomirror
   set ytics nomirror
   set xtics ("adj L" 1, "L" 2) scale 0.0
-  plot data using (1.0):6 notitle , '' using (2):10 notitle 
+  plot data using (1.0):7 notitle , '' using (2):11 notitle 
 #+end_src
 
 #+RESULTS:
 [[file:box-ami.svg]]
+
+*** groups
+#+BEGIN: aggregate :table "ami-da" :cols "group sum(total)"
+| group                            | sum(total) |   |   |       |
+|----------------------------------+------------+---+---+-------|
+| Forward-Communicative-Function   |      51639 |   |   | 43.79 |
+| Backwards-Communicative-Function |      38789 |   |   | 32.90 |
+| Other                            |      27487 |   |   | 23.31 |
+#+TBLFM: $5=$2*100/vsum(@2$2..@4$2);f2
+#+END:
 
 ** filter
 #+NAME: my-filter
@@ -280,7 +289,7 @@
   set style data histogram
   set style histogram 
   set style fill solid 0.5 noborder
-  set xtics rotate by -45 scale 0 noenhanced
+  set xtics rotate by -35 scale 0 noenhanced
   plot data using 7:xtic(2) title "adjacent utterances contain laughter", '' using 11 title "contains laughter", \
        data using 0:15:15:14:14:( $14 < $15 ? 0 : 1 ) with financebars notitle  palette lt 22
 #+end_src
@@ -302,7 +311,7 @@
   set style data histogram
   set style histogram 
   set style fill solid 0.5 noborder
-  set xtics rotate by -45 scale 0 noenhanced
+  set xtics rotate by -35 scale 0 noenhanced
   plot data using 6:xtic(2) title "adjacent utterances contain laughter", '' using 10 title "contains laughter", \
        data using 0:14:14:13:13:( $13 < $14 ? 0 : 1 ) with financebars notitle  palette lt 22
 #+end_src

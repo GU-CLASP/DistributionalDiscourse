@@ -27,6 +27,9 @@
 % and will typically save some space.
 \usepackage{microtype}
 
+\usepackage{tabularx}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
 %\aclfinalcopy % Uncomment this line for the final submission
 %\def\aclpaperid{***} %  Enter the acl Paper ID here
 
@@ -72,10 +75,27 @@ In dialogue speakers take turns and switch perspectives.
 More generally, the way that utterances contribute and cohere to the discourse is different from the relationship between sentences in a piece of written text.
 
 One important dialogical feature missing from text data is laughter.
-In the Switchboard dialogue corpus, laughter appears in approximately \%X of utterances.
+In the Switchboard dialogue corpus, laughter comes about every 200 tokens.
 Laughter also relates to the discourse structure of dialogue. 
 % Laughables.
 Also useful for predicting DAs (is that already a result?)
+
+\begin{table}
+  \centering
+  \begin{tabularx}{\linewidth}{llL}
+    \toprule
+    Speaker & DA & Utterance \\ \midrule
+    A	&sd	& Well, I'm the kind of cook that I don't normally measure things,  \\
+    A	&sd	& I just kind of throw them in \\
+    A	&sd	& and, you know, I don't to the point of, you know, measuring down to the exact amount that they say.  \\
+    B	&sv	& That means you're a real cook. \\
+    A	&bd	& \texttt{<Laughter>} Oh, is that what it means.  \\
+    A	&b	& Uh-huh.  \\
+    A	&x	& \texttt{<Laughter>}.\\
+             \bottomrule
+  \end{tabularx}
+  \caption{Example from the SWDA corpus (sw2827). Dialogue acts: \emph{sd}---Statement-non-opinion, \emph{sv}---Statement-opinion, \emph{bd}---Downplayer, \emph{b}---Backchannel, \emph{x}---Non-verbal. }
+\end{table}
 
 In this work, we investigate whether BERT \citep{devlinBERTPretrainingDeep2018}, a well-know pre-trained language model, is useful for dialogue.
 We use dialogue act recoginition as a proxy task, since both the interal content of conributions, and their sequential structure have bearing on the task.
@@ -181,7 +201,11 @@ We use the un-cased model implemented by \citet{wolfHuggingFaceTransformersState
 \subsection{Experiment 1: Impact of laughter} \label{sec:experiment1}   % Vlad
 In the first experiment we investigated whether laughter, as an example of a dialogue-specific signal, is a helpful feature for DAR.
 Therefore, we train another version of each model: one containing laughs (\texttt{L}) and one with laughs left out (\texttt{NL}), and compare their performances in DAR task.
-Table~\ref{table:laughter-total-acc}) compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}). From observing the total accuracy scores, models appear to be almost unaffected by leaving out the laughters. On the other hand, we can observe differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:swda-by-da} for Switchboard and Figure~\ref{fig:ami-by-da} for AMI corpus).
+Table~\ref{table:laughter-total-acc}) compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}).
+First of all, we can see that \texttt{BERT} utterance encoder outperforms \texttt{CNN} in all the cases.
+From observing the effect of laughters, we can see differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:swda-by-da} for Switchboard and Figure~\ref{fig:ami-by-da} for AMI corpus).
+The strongest evidence for laughter as a helpful feature was found in SWDA for the \texttt{BERT} utterance encoder, where macro-F1 score increases by 7.89 percentage points.
+
 \begin{table}
   \centering
   \begin{tabular}{@{}lcccc@{}}
@@ -199,12 +223,17 @@ Table~\ref{table:laughter-total-acc}) compares the results from applying the mod
 \end{table}
 
 In order to further investigate the differences, we looked at the dialogue act groups.
+Mapping all dialogue acts into four groups allows direct comparison between model performances in SWDA and AMI-DA.
+Table~\ref{table:laughter-group-acc} compares accuracies between the two main groups: Forward-Communicative-Function and Backward-Communicative-Function (82.3\% of all DAs in SWDA and 76.7\% in AMI-DA).
+Our models tend to perform better for Forward-Communicative-Function group irrespective of presence the corpus and the presence of laughs.
+Also, our models perform better for AMI-DA corpus.
+Overall performance in these groups appears to be unaffected by presence of laughs.
 
 \begin{table}
   \centering
   \begin{tabular}{@{}llcc@{}}
     \toprule
-    &                  & Forward-CF  & Backward-CF   \\ \midrule
+    &                  & Forward-CF  & Backwards-CF   \\ \midrule
     SWDA &\texttt{BERT-NL}  & 92.54 & 91.67       \\ 
          &\texttt{BERT-L}   & 95.42 & 90.91       \\ 
          &\texttt{CNN-NL}   & 93.30 & 90.85        \\
@@ -215,12 +244,10 @@ In order to further investigate the differences, we looked at the dialogue act g
          &\texttt{CNN-L}    & 91.25 & 71.28        \\    \bottomrule
   \end{tabular}
   \caption{Comparison of models depending on using laughter on the training phase. }
-  \label{table:laughter-total-acc}
+  \label{table:laughter-group-acc}
 \end{table}
 
-
-
-
+% to appendix?
 \begin{figure*}
   \centering
   \includegraphics[width=\textwidth]{img/SWDA-bertLvsNL.pdf}
@@ -229,11 +256,15 @@ In order to further investigate the differences, we looked at the dialogue act g
 \end{figure*}
 
 \begin{figure*}
-  \label{fig:ami-by-da}
   \centering
   \includegraphics[width=\textwidth]{img/AMI-DA-bertLvsNL.pdf}
   \caption{Change in accuracy for each AMI dialogue act. Positive changes when adding laughter are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter.}
-\end{figure*}
+    \label{fig:ami-by-da}
+  \end{figure*}
+
+  
+
+%
 % TODO per dialogue act analysis
 % DONE compare impacts of CNN vs BERT
 % DONE for both AMI and SWDA
