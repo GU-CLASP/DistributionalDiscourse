@@ -70,6 +70,7 @@ Recently, large-scale language models, trained on massive corpora of text data, 
 We investigate whether such models might be useful for processing dialogue, and if so, whether they adapt to make use of dialogue-specific features.
 
 Dialogue, especially spoken dialogue, is radically different from the kind of data that neural language models are prestrained on.
+On the example, from the Switchboard corpus shown in Table~\ref{table:example} it is evident that the syntactic structure of dialogue is very different from the written text, even if one imagines a script for a movie or a play.
 Not only is the internal structure of contributions different---with features such as disfluencies, repair, incomplete sentences, and various vocal sounds---but the sequential structure of the discourse is also very different.
 In dialogue speakers take turns and switch perspectives.
 More generally, the way that utterances contribute and cohere to the discourse is different from the relationship between sentences in a piece of written text.
@@ -95,39 +96,20 @@ Also useful for predicting DAs (is that already a result?)
              \bottomrule
   \end{tabularx}
   \caption{Example from the SWDA corpus (sw2827). Dialogue acts: \emph{sd}---Statement-non-opinion, \emph{sv}---Statement-opinion, \emph{bd}---Downplayer, \emph{b}---Backchannel, \emph{x}---Non-verbal. }
+  \label{table:example}
 \end{table}
 
 In this work, we investigate whether BERT \citep{devlinBERTPretrainingDeep2018}, a well-know pre-trained language model, is useful for dialogue.
 We use dialogue act recoginition as a proxy task, since both the interal content of conributions, and their sequential structure have bearing on the task.
 
 \paragraph{Contributions}
-The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, 
-the impact of laughter on DAR, and the relationship between the two.
+The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
 \begin{itemize}
-  \item Laughter is useful for dialogue act recoginition (\S\ref{sec:experiment1}).
-  \item The impact of laughter is different for different dialogue acts. [Bigger for forward/backward?] (\S\ref{sec:experiment1})
+  \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment1}).
   \item Standard BERT pre-traininig is useful for DAR, but the impact of pre-training is smaller than than of fine-tuning (\S\ref{sec:experiment2})
   \item 
 \end{itemize}
 
-
-\section{Background} % Vlad
-%  - dialogue acts
-%  - laughter
-%  - BERT 
-
-References
-\begin{itemize}
-  \item \citet{austinHowThingsWords2009} -- speeh acts
-  \item \citet{coreCodingDialogsDAMSL1997} -- DAMSL dialogue act tagging scheme. SWDA tags are based on this (I think AMI are too). Concept of multi-layer DA tags; forward/backward function
-  \item \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a} -- SWBD-DAMSL coders manual
-  % \item \citet{devlinBERTPretrainingDeep2018} -- Original BERT paper 
-  \item \citet{sunHowFineTuneBERT2019} -- recommendations for fine-tuninig BERT
-  \item \citet{mikolovDistributedRepresentationsWords2013} -- word2vec
-  \item \citet{petersTuneNotTune2019} -- when and how to fine-tune pre-trained representations
-  \item \citet{kimConvolutionalNeuralNetworks2014} -- CNN sentence representation
-  \item \citet{stolckeDialogueActModeling2000} -- OG DAR model. Uses an HMM with various lexical and prosodic features
-\end{itemize}
 
 \section{Data}
 We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA). 
@@ -158,14 +140,14 @@ The distribution of laughs in different dialogue acts has a rather uniform shape
 
 \begin{figure}
   \centering
-  \includegraphics[width=\the\columnwidth]{img/box-swda.pdf}
+  \includegraphics[width=0.8\linewidth]{img/box-swda.pdf}
   \caption{Box plot for utterances associated with laughter in SWDA. On the left: proportion of DAs having laughter in one of the adjacent utterances, on the right: proportion of DAs containing laughter. }
     \label{fig:box-swda}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics[width=\the\columnwidth]{img/box-ami.pdf}
+  \includegraphics[width=0.8\linewidth]{img/box-ami.pdf}
   \caption{Box plot for utterances associated with laughter in AMI-DA. On the left: proportion of DAs having laughter in one of the adjacent utterances, on the right: proportion of DAs containing laughter. }
     \label{fig:box-ami}
 \end{figure}
@@ -348,6 +330,22 @@ These results could be explained by the relatively small size of the dialogue co
 %\subsection{Experiment 4: Cross-domain pre-training (if time permits)} \label{sec:experiment4} % Bill
 %  - cross-domain pre-training
 \section{Related work} % add references first
+For the background:
+
+References
+\begin{itemize}
+  \item \citet{austinHowThingsWords2009} -- speeh acts
+  \item \citet{coreCodingDialogsDAMSL1997} -- DAMSL dialogue act tagging scheme. SWDA tags are based on this (I think AMI are too). Concept of multi-layer DA tags; forward/backward function
+  \item \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a} -- SWBD-DAMSL coders manual
+  % \item \citet{devlinBERTPretrainingDeep2018} -- Original BERT paper 
+  \item \citet{sunHowFineTuneBERT2019} -- recommendations for fine-tuninig BERT
+  \item \citet{mikolovDistributedRepresentationsWords2013} -- word2vec
+  \item \citet{petersTuneNotTune2019} -- when and how to fine-tune pre-trained representations
+  \item \citet{kimConvolutionalNeuralNetworks2014} -- CNN sentence representation
+  \item \citet{stolckeDialogueActModeling2000} -- OG DAR model. Uses an HMM with various lexical and prosodic features
+\end{itemize}
+
+
 Dialogue act recoginition
 \begin{itemize}
   \item \citet{pragstVectorRepresentationUtterances2018} -- dialogue vector models. Uses vector-manual DA tag correspondance to argue for semantic relevance of their vector models (related to how we use DA tagging to verrify BERT usefulness)
