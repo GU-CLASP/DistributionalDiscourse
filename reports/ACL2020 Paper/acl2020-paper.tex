@@ -81,11 +81,12 @@ More generally, the way that utterances contribute and cohere to the discourse i
 
 One important dialogical feature missing from text data is laughter.
 In the Switchboard dialogue corpus, laughter comes about every 200 tokens.
-Laughter also relates to the discourse structure of dialogue. 
-% Laughables.
-% Also (known to be?) useful for predicting DAs 
+Laughter also relates to the discourse structure of dialogue and can relate to a laughable, which can be any an event or an entity in the discourse (and external perceived event as well).
+Laughter can precede, follow or overlap the laughable, with the time alignment between the laughter and laughable dependent on who produces the laughable and the form of the laughter \citep{tian2016we}.
+In this work we found out that laughs can also be helpful to disambiguate a dialogue act.
 
 \begin{table}
+      \small
   \centering
   \begin{tabularx}{\linewidth}{llL}
     \toprule
@@ -164,7 +165,7 @@ early '90s                 & 2000s                                   \\ \midrule
   \label{table:corpora}
 \end{table}
 
-The distribution of laughs in different dialogue acts has a rather uniform shape with a few outliers (see box plots). Figures \ref{fig:swda-by-da} (for SWDA) and \ref{fig:ami-by-da} (for AMI-DA) provide a breakdown of dialogue act depending on whether current or adjacent utterances (the preceding utterance and the following one are counted as adjacent) contain a laughter. Note that SWDA has a ``Nonverbal'' dialogue act which is misguiding with respect to laughter, because utterances only containing a single laughter token fall into this category, however they can serve, for example, to acknowledge a statement or to deflect a question  \citep{mazzocconi2019phd}.
+The distribution of laughs in different dialogue acts has a rather uniform shape with a few outliers (see box plots). Figure \ref{fig:by-da} in Appendix~\ref{sec:suppl} provides a breakdown of dialogue act depending on whether current or adjacent utterances (the preceding utterance and the following one are counted as adjacent) contain laughter.\footnote{Note that SWDA has a ``Nonverbal'' dialogue act which is misguiding with respect to laughter, because utterances only containing a single laughter token fall into this category, however they can serve, for example, to acknowledge a statement or to deflect a question  \citep{mazzocconi2019phd}.}
 
 \begin{figure}
   \centering
@@ -210,7 +211,7 @@ In the first experiment we investigated whether laughter, as an example of a dia
 Therefore, we train another version of each model: one containing laughs (\texttt{L}) and one with laughs left out (\texttt{NL}), and compare their performances in DAR task.
 Table~\ref{table:laughter-total-acc} compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}).
 First of all, we can see that \texttt{BERT} utterance encoder outperforms \texttt{CNN} in all the cases.
-From observing the effect of laughters, we can see differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:swda-by-da} for Switchboard and Figure~\ref{fig:ami-by-da} for AMI corpus).
+From observing the effect of laughters, we can see differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:by-da} in Appendix~\ref{sec:suppl}).
 The strongest evidence for laughter as a helpful feature was found in SWDA for the \texttt{BERT} utterance encoder, where macro-F1 score increases by 7.89 percentage points.
 
 \begin{table}
@@ -229,23 +230,36 @@ The strongest evidence for laughter as a helpful feature was found in SWDA for t
   \label{table:laughter-total-acc}
 \end{table}
 
-% \begin{table}
-%   \label{tab:laughter}
-%   \centering
-%   \begin{tabular}{@{}lccc@{}}
-%     \toprule
-%     & \%lassoc & \%L  & $\Delta$ (mean acc.) \\ \midrule
-%     Forward-CF & 11.86 & 4.59 & 11.40\\
-%     Backward-CF & 11.57 & 3.03 & 4.30\\
-%     Other & 12.71 & 4.40 & 2.39\\
-%     CS & 20.63 & 14.17 & -1.50\\\bottomrule
+Confusion matrices (Figure \ref{fig:swda-cm}) provide some food for thought.
+One of the most obvious things that can be observed is rhetorical questions: supposedly laughter, can be used as a device to cancel seriousness of the question.
+Therefore it can help to disambiguate such questions like the one we show in example in Table~\ref{table:example-qh}.
+\begin{table}
+      \small
+  \centering
+  \begin{tabularx}{\linewidth}{llL}
+    \toprule
+    Speaker & DA & Utterance \\ \midrule
+        \multicolumn{3}{c}{\emph{(Talking about hobbies)}}\\
+    B   & sd	&  Um, as far as spare time, they talked about, \\
+    B	& \% & I don't, + I think, \\
+    B	& qh & who has any spare time \texttt{<laughter>}? \\
+    A	& x & \texttt{<laughter>}.\\
+             \bottomrule
+  \end{tabularx}
+  \caption{Example from the SWDA corpus (sw3735). B's contribution \emph{qh}---Rhetorical question is misinterpreted as \emph{qw}---Wh-question by the BERT model without laughs in training data. }
+  \label{table:example-qh}
+\end{table}
 
-%   \end{tabular}
-%   \caption{Laughter impact by dialogue act group (SWDA, BERT), mean accuracy}
-% \end{table}
 
 
-In order to further investigate the differences, we looked at the dialogue act groups.
+  \begin{figure}
+  \centering
+  \includegraphics[width=0.9\linewidth]{img/swda-cm.pdf}
+  \caption{Confusion matrices for \texttt{BERT-NL} (top) vs \texttt{BERT-L} (bottom); SWDA corpus.}
+    \label{fig:swda-cm}
+  \end{figure}
+
+In order to further investigate the differences between the models and datasets, we looked at the dialogue act groups.
 Mapping all dialogue acts into four groups allows direct comparison between model performances in SWDA and AMI-DA.
 Table~\ref{table:laughter-group-acc} compares accuracies between the two main groups: Forward-Communicative-Function and Backward-Communicative-Function (82.3\% of all DAs in SWDA and 76.7\% in AMI-DA).
 Our models tend to perform better for Forward-Communicative-Function group irrespective of presence the corpus and the presence of laughs.
@@ -256,7 +270,7 @@ Overall performance in these groups appears to be unaffected by presence of laug
   \centering
   \begin{tabular}{@{}llcc@{}}
     \toprule
-    &                  & Forward-CF  & Backwards-CF   \\ \midrule
+    &                  & Forw.-CF  & Backw.-CF   \\ \midrule
     SWDA &\texttt{BERT-NL}  & 92.54 & 91.67       \\ 
          &\texttt{BERT-L}   & 95.42 & 90.91       \\ 
          &\texttt{CNN-NL}   & 93.30 & 90.85        \\
@@ -270,20 +284,7 @@ Overall performance in these groups appears to be unaffected by presence of laug
   \label{table:laughter-group-acc}
 \end{table}
 
-% to appendix?
-\begin{figure*}
-  \centering
-  \includegraphics[width=\textwidth]{img/SWDA-bertLvsNL.pdf}
-  \caption{Change in accuracy for each SWDA dialogue act. Positive changes when adding laughter are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter.}
-    \label{fig:swda-by-da}
-\end{figure*}
 
-\begin{figure*}
-  \centering
-  \includegraphics[width=\textwidth]{img/AMI-DA-bertLvsNL.pdf}
-  \caption{Change in accuracy for each AMI dialogue act. Positive changes when adding laughter are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter.}
-    \label{fig:ami-by-da}
-  \end{figure*}
 
   
 
@@ -441,5 +442,18 @@ Pre-training/transfer learning for dialogue
 
 \bibliography{acl2020}
 \bibliographystyle{acl_natbib}
+\clearpage
+\appendix
+% to appendix?
+\begin{figure*}[h!]
+  \section{Supplementary materials}\label{sec:suppl}
+  \centering
+  \includegraphics[width=\linewidth]{img/SWDA-bertLvsNL.pdf}
+  \includegraphics[width=\linewidth]{img/AMI-DA-bertLvsNL.pdf}
+  \caption{Change in accuracy for each dialogue act. Positive changes when adding laughter are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter. Top chart: SWDA, Bottom chart: AMI-DA. }
+    \label{fig:by-da}
+  \end{figure*}
+
+
 
 \end{document}

@@ -120,6 +120,7 @@
   set style fill solid 0.5 border -1
   set style boxplot outliers pointtype 7
   set style data boxplot 
+  set yrange [0:0.7]
   set border 2
   set xtics nomirror
   set ytics nomirror
@@ -179,6 +180,7 @@
   reset
   set style fill solid 0.5 border -1
   set style boxplot outliers pointtype 7
+  set yrange [0:0.7]
   set style data boxplot 
   set border 2
   set xtics nomirror
@@ -325,7 +327,7 @@ rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/SWDA-bertLvsNL.pdf" swda
 rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/AMI-DA-bertLvsNL.pdf" ami.svg
 rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/box-swda.pdf" box-swda.svg
 rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/box-ami.pdf" box-ami.svg
-
+rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/swda-cm.pdf" swda-cm.svg
 #+END_SRC
 
 #+RESULTS:
@@ -338,3 +340,23 @@ set output
 
 #+RESULTS:
 [[file:test.svg]]
+** SWDA: confusion matrix
+#+begin_src gnuplot :file swda-cm.svg
+  reset
+  cd 'dat'
+  set term svg size 500,1000 
+  set datafile separator comma
+  set xtics border in mirror rotate noenhanced scale 0.3
+  set ytics in mirror noenhanced scale 0.3
+  set grid front linetype 4 dt 3
+  unset colorbox
+  set palette rgbformula 34,35,36 negative
+  set multiplot layout 2,1
+  plot 'GOLDvNL.dat' matrix rowheaders columnheaders using 1:2:3 with image pixels notitle
+  plot 'GOLDvL.dat' matrix rowheaders columnheaders using 1:2:3 with image pixels notitle
+  set datafile separator
+  unset multiplot
+#+end_src
+
+#+RESULTS:
+[[file:swda-cm.svg]]
