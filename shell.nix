@@ -39,7 +39,7 @@ let
          notebook
          matplotlib
          pandas
-         # scikitlearn
+         scikitlearn
          # notebook
          # etc
         ];
