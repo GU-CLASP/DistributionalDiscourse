@@ -42,7 +42,7 @@
 
 \newcommand\BibTeX{B\textsc{ib}\TeX}
 
-\title{Instructions for ACL 2020 Proceedings}
+\title{Pre-trained encoders for dialogue: The case of laughter}
 
 \author{First Author \\
   Affiliation / Address line 1 \\
@@ -60,27 +60,30 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-  Basically we want to see if language models pre-trained on text data are useful for dialogue.
-  So we look at if BERT is useful for dialogue act recognition.
-  But we want to know if it's really adapting to the domain, so we look at how it uses laughter, a phenomenon specific to dialogue.
+  The degree to which language models pre-trained on text data are useful for dialogue is an open question.
+  In this paper, we investigate the usefulness of BERT for dialogue act recognition.
+  We are interested in both how useful the pre-training proceedure is and 
+  how well the model adapts to the dialogue domain.
+  To confirm that the fine-tuned model learns to represent dialogical features, 
+  we look at how it uses laughter, a phenomenon specific to dialogue.
 \end{abstract}
 
 % INTRODUCTION
 
 Recently, large-scale language models, trained on massive corpora of text data, have achieved state-of-the-art results on a variety of traditional NLP tasks.
-We investigate whether such models might be useful for processing dialogue, and if so, whether they adapt to make use of dialogue-specific features.
+It is still uncertain whether these models might be useful for processing dialogue, and if so, whether they can adapt to make use of dialogue-specific features.
 
-Dialogue, especially spoken dialogue, is radically different from the kind of data that neural language models are prestrained on.
-On the example, from the Switchboard corpus shown in Table~\ref{table:example} it is evident that the syntactic structure of dialogue is very different from the written text, even if one imagines a script for a movie or a play.
+Dialogue, especially spoken dialogue, is radically different from the kind of data that neural language models are pre-trained on.
+In the example from the Switchboard corpus, shown in table~\ref{table:example}, it is evident that the syntactic structure of dialogue is very different from  written text, even if one imagines a script for a movie or a play.
 Not only is the internal structure of contributions different---with features such as disfluencies, repair, incomplete sentences, and various vocal sounds---but the sequential structure of the discourse is also very different.
-In dialogue speakers take turns and switch perspectives.
+In dialogue, speakers take turns and switch perspectives.
 More generally, the way that utterances contribute and cohere to the discourse is different from the relationship between sentences in a piece of written text.
 
 One important dialogical feature missing from text data is laughter.
 In the Switchboard dialogue corpus, laughter comes about every 200 tokens.
 Laughter also relates to the discourse structure of dialogue. 
 % Laughables.
-Also useful for predicting DAs (is that already a result?)
+% Also (known to be?) useful for predicting DAs 
 
 \begin{table}
   \centering
@@ -101,19 +104,43 @@ Also useful for predicting DAs (is that already a result?)
 \end{table}
 
 In this work, we investigate whether BERT \citep{devlinBERTPretrainingDeep2018}, a well-know pre-trained language model, is useful for dialogue.
-We use dialogue act recoginition as a proxy task, since both the interal content of conributions, and their sequential structure have bearing on the task.
+We use dialogue act recognition  as a proxy task, since both the internal content of contributions, and their sequential structure have bearing on the task.
+
+\paragraph{Dialogue Act Recognition (DAR)}
+The concept of a dialogue act is based on that of speech acts \citep{austinHowThingsWords2009}.
+Breaking with classical semantic theory, speech act theory considers not only the propositional content of an utterance but also the actions, such as \emph{promising} or \emph{apologizing}, it carries out.
+Dialogue acts extend the concept of the speech act, with a focus on the interactional nature of most speech.
+DAMSL \citep{coreCodingDialogsDAMSL1997}, for example, is an influential dialogue act tagging scheme where dialogue acts are defined in part by whether they have a \emph{forward-looking} function (are expecting a response) or \emph{backward-looking} function (are in response to a previous utterance).
+
+DAR is the the task of labeling utterances with the dialogue act they perform 
+from a given set of dialogue act tags.
+As with other sequence labeling tasks in NLP, some notion of context is helpful in DAR.
+One of the first performant machine learning models for DAR was a Hidden Markov Model that used various lexical and prosodic features as input \citep{stolckeDialogueActModeling2000}.
+Most successful neural approaches also model some notion of context, 
+for example with a recurrent model \citep[e.g.,][]{botheContextbasedApproachDialogue2018} or conditional random field \citep[e.g.,][]{chenDialogueActRecognition2017}.
+
+\paragraph{Transfer learning for NLP}
+\begin{itemize}
+  \item \citet{mikolovDistributedRepresentationsWords2013} -- word2vec
+  % \item \citet{devlinBERTPretrainingDeep2018} -- Original BERT paper 
+  \item \citet{sunHowFineTuneBERT2019} -- recommendations for fine-tuning BERT
+  \item \citet{petersTuneNotTune2019} -- when and how to fine-tune pre-trained representations
+\end{itemize}
+
 
 \paragraph{Contributions}
 The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
 \begin{itemize}
   \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment1}).
-  \item Standard BERT pre-traininig is useful for DAR, but the impact of pre-training is smaller than than of fine-tuning (\S\ref{sec:experiment2})
-  \item 
+  \item Standard BERT pre-training is useful for DAR, but the impact of pre-training is smaller than than of fine-tuning (\S\ref{sec:experiment2})
+  \item Performing additional in-domain pre-training shows promise for dialogue (\S\ref{sec:experiment3}), but further investigation with larger dialogue corpora is required.
 \end{itemize}
 
 
 \section{Data}
 We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA). 
+SWDA is tagged with a set of 220 dialogue act tags which, following  \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a} we cluster into a smaller set of 42 tags.
+AMI uses a smaller tagset of 16 dialogue acts \citep{GuidelinesDialogueAct2005}.
 
 % - DA distribution              % Vlad
 
@@ -159,11 +186,11 @@ For SWDA corpus we also considered grouping the dialogue acts according to DAMSL
   
 \section{Model} % Bill
 
-We employ a simple DAR model with two components: an encoder that vectorizes utterances, and a sequence model that predicts dialogue act tags from the vectorized utterances (figure \ref{fig:model-architecture}).
-Since we are primarily interested in comparing different utterance encoders, we use a simple RNN as the sequence model in every configuration. 
-The RNN takes the encoded utterance as input at each time step
-Its hidden state is passed to a simple linear classification layer over dialogue act tags.
-Conceptually, the encoded utterance represents the context-agnostic semantic content of the utterance, and the hidden state of the RNN represents the discourse context.
+To test the effectiveness of BERT for DAR, we employ a simple neural architecture with two components: an encoder that vectorizes utterances, and a sequence model that predicts dialogue act tags from the vectorized utterances (figure \ref{fig:model-architecture}).
+Since we are primarily interested in comparing different utterance encoders, we use a basic RNN as the sequence model in every configuration. 
+The RNN takes the encoded utterance as input at each time step,
+and its hidden state is passed to a simple linear classification layer over dialogue act tags.
+Conceptually, the encoded utterance represents the context-agnostic semantic content of the utterance, and the hidden state of the RNN represents the full discourse context.
 
 \begin{figure*}
   \include{model}
@@ -172,16 +199,16 @@ Conceptually, the encoded utterance represents the context-agnostic semantic con
 \end{figure*}
 
 As a baseline utterance encoder, we use a word-level CNN with window sizes of 3, 4, and 5, each with 100 feature maps \citep{kimConvolutionalNeuralNetworks2014}. 
-The model uses 100-dimensional word embeddings, which are initialized with pre-trained gloVe vectors in some configurations \citep{penningtonGloveGlobalVectors2014}.
+The model uses 100-dimensional word embeddings, which are initialized with pre-trained gloVe vectors \citep{penningtonGloveGlobalVectors2014}.
 
-For the BERT utterance encoder, we use the BERT-BASE model with hidden size of 768 and 12 transformer layers and self-attention heads \citep[][see \S3.1]{devlinBERTPretrainingDeep2018}.
-We use the un-cased model implemented by \citet{wolfHuggingFaceTransformersStateoftheart2019}.
+For the BERT utterance encoder, we use the BERT\textsubscript{BASE} model with hidden size of 768 and 12 transformer layers and self-attention heads \citep[][\S3.1]{devlinBERTPretrainingDeep2018}.
+In our implementation, we use the un-cased model provided by \citet{wolfHuggingFaceTransformersStateoftheart2019}.
 
 \section{Experiments}
 \subsection{Experiment 1: Impact of laughter} \label{sec:experiment1}   % Vlad
 In the first experiment we investigated whether laughter, as an example of a dialogue-specific signal, is a helpful feature for DAR.
 Therefore, we train another version of each model: one containing laughs (\texttt{L}) and one with laughs left out (\texttt{NL}), and compare their performances in DAR task.
-Table~\ref{table:laughter-total-acc}) compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}).
+Table~\ref{table:laughter-total-acc} compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}).
 First of all, we can see that \texttt{BERT} utterance encoder outperforms \texttt{CNN} in all the cases.
 From observing the effect of laughters, we can see differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:swda-by-da} for Switchboard and Figure~\ref{fig:ami-by-da} for AMI corpus).
 The strongest evidence for laughter as a helpful feature was found in SWDA for the \texttt{BERT} utterance encoder, where macro-F1 score increases by 7.89 percentage points.
@@ -222,7 +249,7 @@ In order to further investigate the differences, we looked at the dialogue act g
 Mapping all dialogue acts into four groups allows direct comparison between model performances in SWDA and AMI-DA.
 Table~\ref{table:laughter-group-acc} compares accuracies between the two main groups: Forward-Communicative-Function and Backward-Communicative-Function (82.3\% of all DAs in SWDA and 76.7\% in AMI-DA).
 Our models tend to perform better for Forward-Communicative-Function group irrespective of presence the corpus and the presence of laughs.
-Also, our models perform better for AMI-DA corpus.
+Also, our models perform better on the AMI-DA corpus.
 Overall performance in these groups appears to be unaffected by presence of laughs.
 
 \begin{table}
@@ -295,15 +322,15 @@ suggesting that BERT's extensive pre-training does provide some useful informati
 This performance boost is much more pronounced in the macro-averaged F1 score,
 which is explained by the fact that at the tag level, pre-training has a larger impact on less frequent tags. 
 
-A key asperation of transfer learning is to expose the model to phenomena that are too infrequent to learn from labeled training data alone.
-One explanation for pre-trained BERT's superrior performance on some infrequent dialogue acts is that it has learned to represent relevant features
+A key aspiration of transfer learning is to expose the model to phenomena that are too infrequent to learn from labeled training data alone.
+One explanation for pre-trained BERT's superior performance on some infrequent dialogue acts is that it has learned to represent relevant features
 that the randomly initialized model was unable to learn due to their sparsity in the labeled training set.
-Indeed, a simple lexical probe supports this explanation: in utterances where the pre-trained model is correct and the randomly initalized model is not,
-the rarest word is 1.9 times rarer than is typcial of corpus as a whole.
+Indeed, a simple lexical probe supports this explanation: in utterances where the pre-trained model is correct and the randomly initialized model is not,
+the rarest word is 1.9 times rarer than is typical of corpus as a whole.
 
 Comparing the performance of the fine-tuned encoder to that of the frozen model, we note that pre-training alone is not enough.
 The frozen model is heavily biased towards the most frequent tags, which explains its especially poor macro-average score (table \ref{table:exp2}).
-In SWDA, the model with the frozen encoder predicts one of the two most common tags (Statement-non-opinion or Acknowledge) \%86 of the time, whereas those two
+In SWDA, for example, the model with a frozen encoder predicts one of the two most common tags (Statement-non-opinion or Acknowledge) \%86 of the time, whereas those two
 tags account for only \%51 of the ground truth tags.
 The fine-tuned model is much less biased; it predicts the two most common tags only \%59 of the time.
 
@@ -330,7 +357,7 @@ compared to \%9.6 of utterances where fine-tuning makes a difference.
 
 Next, we assess the effect of additional in-domain pre-training on BERT's performance as an utterance encoder.\footnote{
 In-domain pre-training is sometimes referred to as \textit{fine-tuning}, but we reserve that term for task-specific training on labeled data.}
-We construct pre-training corpora from the SWDA portion of the un-labelled Switchboard corpus and from the entire AMI corpus (including the 32 dialogues with no human-annotated DA tags that are not included in the DAR training set).
+We construct pre-training corpora from the SWDA portion of the un-labeled Switchboard corpus and from the entire AMI corpus (including the 32 dialogues with no human-annotated DA tags that are not included in the DAR training set).
 In both cases, we exclude dialogues that are reserved for DAR testing.
 
 We use the same pre-training task described by \citet{devlinBERTPretrainingDeep2018}, which combines masked token prediction and next sentence (utterance) detection. 
@@ -338,7 +365,7 @@ Distractor utterances are drawn at random from another dialogue in the corpus
 and each epoch is generated separately so that different distractor sentences appear each time.
 We pre-trained three BERT models: with Switchboard (10 epochs), AMI (10 epochs), and the combined corpus (5 epochs).
 
-For each dialogue act corpus, we trained DAR models with BERT encoders pre-trained on the in-domain corpus (\texttt{ID}) and the comined corpus (\texttt{CC}).
+For each dialogue act corpus, we trained DAR models with BERT encoders pre-trained on the in-domain corpus (\texttt{ID}) and the combined corpus (\texttt{CC}).
 As before, we experimented with both the fine-tuning and frozen conditions.
 
 The results are mixed.
@@ -381,24 +408,10 @@ To fully assess the potential impact of in-domain pre-training, a larger dialogu
 \section{Related work} % add references first
 For the background:
 
-References
-\begin{itemize}
-  \item \citet{austinHowThingsWords2009} -- speeh acts
-  \item \citet{coreCodingDialogsDAMSL1997} -- DAMSL dialogue act tagging scheme. SWDA tags are based on this (I think AMI are too). Concept of multi-layer DA tags; forward/backward function
-  \item \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a} -- SWBD-DAMSL coders manual
-  % \item \citet{devlinBERTPretrainingDeep2018} -- Original BERT paper 
-  \item \citet{sunHowFineTuneBERT2019} -- recommendations for fine-tuninig BERT
-  \item \citet{mikolovDistributedRepresentationsWords2013} -- word2vec
-  \item \citet{petersTuneNotTune2019} -- when and how to fine-tune pre-trained representations
-  \item \citet{kimConvolutionalNeuralNetworks2014} -- CNN sentence representation
-  \item \citet{stolckeDialogueActModeling2000} -- OG DAR model. Uses an HMM with various lexical and prosodic features
-\end{itemize}
-
-
 Dialogue act recoginition
 \begin{itemize}
   \item \citet{botheContextbasedApproachDialogue2018} -- uses an RNN for context (recently SOTA on SWDA)
-  \item \citet{pragstVectorRepresentationUtterances2018} -- dialogue vector models. Uses vector-manual DA tag correspondance to argue for semantic relevance of their vector models (related to how we use DA tagging to verrify BERT usefulness)
+  \item \citet{pragstVectorRepresentationUtterances2018} -- dialogue vector models. Uses vector-manual DA tag correspondance to argue for semantic relevance of their vector models (related to how we use DA tagging to verify BERT usefulness)
   \item \citet{cerisaraEffectsUsingWord2vec2017} -- standard pre-trained word embeddings do not help for DAR in any of three tested languages (English, French, Czech)
   \item \citet{kalchbrennerRecurrentConvolutionalNeural2013} -- DAR model similar to our architecture. Uses an RNN ``discourse model'' and a CNN similar to our baseline encoder
   \item \citet{khanpourDialogueActClassification2016} -- Deep LSTM utt representation. No notion of context. Finds word vectors are useful.
@@ -413,7 +426,7 @@ Pre-training/transfer learning for dialogue
 \begin{itemize}
   \item \citet{mehriStructuredFusionNetworks2019} -- ``Structured fusion networks''. Traditional dialogue system design with neural models.
   \item \citet{chenSemanticallyConditionedDialog2019a} -- uses BERT for response generation
-  \item \citet{baoPLATOPretrainedDialogue2019} -- pre-traininig for dialogue generation
+  \item \citet{baoPLATOPretrainedDialogue2019} -- pre-training for dialogue generation
   \item \citet{mehriPretrainingMethodsDialog2019} -- looks at various dialogue tasks using pre-training, including DAR and using BERT
   \item \citet{vigComparisonTransferLearningApproaches} -- Transfer learning for response selection
 \end{itemize}
@@ -422,7 +435,8 @@ Pre-training/transfer learning for dialogue
 \section{Discussion} % add items to discuss
 \begin{itemize}
   \item RoBERTa training scheme finds that next sentence prediction is of little importance. Is this true for us too? (suspect not due to discourse importance). see: https://github.com/huggingface/transformers/issues/1622
-  \item Issues related to working with transcribed speech: Different kinds of laughter are all represented by the same token. Does transcription orthography capture prosidy? We know prosidy is useful for DAR (Jurafsky).
+  \item Issues related to working with transcribed speech: Different kinds of laughter are all represented by the same token. Does transcription orthography capture prosody? We know prosidy is useful for DAR (Jurafsky).
+  \item future work: pre-training on very large un-labeled dialogue corpora. How does text chat transfer to the spoken/transcribed setting?
 \end{itemize}
 
 \bibliography{acl2020}
