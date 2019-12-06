@@ -5,7 +5,27 @@ import json
 import pandas as pd
 from collections import defaultdict
 import os
+from sklearn import metrics
 
+
+def report_metrics(frames, conditions):
+    metric_funcs = [
+        lambda x,y: metrics.precision_score(x,y,average='macro'), 
+        lambda x,y: metrics.recall_score(x,y,average='macro'), 
+        lambda x,y: metrics.f1_score(x,y,average='macro'),
+        lambda x,y: metrics.precision_score(x,y,average='micro')]
+    metric_names = [
+        'macro precision',
+        'macro recall',
+        'macro f1',
+        'micro accuracy']
+    table = [[
+        metric(df['da_tag'], df[cond])
+            for df in frames]
+            for cond in conditions for metric in metric_funcs]
+    multiindex = [[c for c in conditions for m in metric_names],
+        [m for c in conditions for m in metric_names]]
+    return pd.DataFrame(table, columns=['SWBD', 'AMI'], index=multiindex)
 
 def gen_model_preds_df(corpus, models, model_dirs):
     """
