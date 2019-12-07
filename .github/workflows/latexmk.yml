@@ -9,6 +9,5 @@ jobs:
       - name: Compile LaTeX document
         uses: dante-ev/latex-action@master
         with:
-	  root_file: acl2020-paper.tex
+          root_file: acl2020-paper.tex
           working_directory: "reports/ACL2020 Paper/"
-	  
