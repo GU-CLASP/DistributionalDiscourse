@@ -119,12 +119,13 @@
   reset
   set style fill solid 0.5 border -1
   set style boxplot outliers pointtype 7
-  set style data boxplot 
+  set style data boxplot
   set yrange [0:0.7]
   set border 2
+  set tics font "Times, 20"
   set xtics nomirror
   set ytics nomirror
-  set xtics ("adj L" 1, "L" 2) scale 0.0
+  set xtics ("" 1, "" 2) scale 0 notitle
   plot data using (1.0):7 notitle , '' using (2):11 notitle 
 #+end_src
 
@@ -183,9 +184,10 @@
   set yrange [0:0.7]
   set style data boxplot 
   set border 2
+  set tics font "Times, 20"
   set xtics nomirror
   set ytics nomirror
-  set xtics ("adj L" 1, "L" 2) scale 0.0
+  set xtics ("" 1, "" 2) scale 0.0
   plot data using (1.0):7 notitle , '' using (2):11 notitle 
 #+end_src
 
@@ -322,13 +324,6 @@
 [[file:ami.svg]]
 
 
-#+BEGIN_SRC sh
-rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/SWDA-bertLvsNL.pdf" swda.svg
-rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/AMI-DA-bertLvsNL.pdf" ami.svg
-rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/box-swda.pdf" box-swda.svg
-rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/box-ami.pdf" box-ami.svg
-rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/swda-cm.pdf" swda-cm.svg
-#+END_SRC
 
 #+RESULTS:
 
@@ -360,3 +355,13 @@ set output
 
 #+RESULTS:
 [[file:swda-cm.svg]]
+* Export all
+#+BEGIN_SRC sh
+rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/SWDA-bertLvsNL.pdf" swda.svg
+rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/AMI-DA-bertLvsNL.pdf" ami.svg
+rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/box-swda.pdf" box-swda.svg
+rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/box-ami.pdf" box-ami.svg
+rsvg-convert -f pdf -o "../../reports/ACL2020 Paper/img/swda-cm.pdf" swda-cm.svg
+#+END_SRC
+
+#+RESULTS:
