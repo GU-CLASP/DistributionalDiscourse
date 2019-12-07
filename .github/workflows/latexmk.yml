@@ -11,3 +11,4 @@ jobs:
         with:
           root_file: acl2020-paper.tex
           working_directory: "reports/ACL2020 Paper/"
+          args: "-pdf -file-line-error -interaction=nonstopmode -shell-escape"
