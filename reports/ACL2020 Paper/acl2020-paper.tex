@@ -121,20 +121,44 @@ Most successful neural approaches also model some notion of context,
 for example with a recurrent model \citep[e.g.,][]{botheContextbasedApproachDialogue2018} or conditional random field \citep[e.g.,][]{chenDialogueActRecognition2017}.
 
 \paragraph{Transfer learning for NLP}
-\begin{itemize}
-  \item \citet{mikolovDistributedRepresentationsWords2013} -- word2vec
-  % \item \citet{devlinBERTPretrainingDeep2018} -- Original BERT paper 
-  \item \citet{sunHowFineTuneBERT2019} -- recommendations for fine-tuning BERT
-  \item \citet{petersTuneNotTune2019} -- when and how to fine-tune pre-trained representations
-\end{itemize}
+Transfer learning is are techniques that allow a model trained on one task---often unsupervised---to be applied to another. 
+Since annotating natural language data is expensive, there is a lot of interest in transfer learning for natural language processing. 
+The use of pre-trained word vectors \citep[e.g.,][]{mikolovDistributedRepresentationsWords2013;penningtonGloveGlobalVectors2014} is a ubiquitous example of transfer learning in NLP.
+Recently, large neural models trained on various unsupervised tasks have found success in producing sentence-level and contextual word representations. 
+
+BERT \citep{devlinBERTPretrainingDeep2018} is one such model. 
+It is a large multi-layer transformer, pre-trained on two unsupervised tasks: \emph{masked token prediction} and \emph{next sentence prediction}.
+In masked token prediction, some percentage of words are randomly replaced with a \texttt{[MASK]} token, and the model is trained to predict the identity of these tokes based on the context sentence.
+In next sentence prediction, the model is give two sentences and trained to predict whether the second sentence follows the first in the original text, or if it was randomly chosen from elsewhere in the corpus.
+After pre-training, BERT can be applied to a supervised task by adding additional un-trained layers that take the hidden state of one or more of BERT's layers as input. 
+
+Transfer learning schemes for pre-trained language models such as BERT draw on one or more of the following three adaptation strategies \citet{sunHowFineTuneBERT2019}:
+\emph{further pre-training}, in which the model is trained in an un-supervised way, similar to its initial training scheme, but on data that is in-domain for the target task; 
+\emph{single-task fine-tuning}, in which the model's encoder layers are optimized during training for the target task;
+and \emph{multi-task fine-tuning}, in which models with shared encoder layers are jointly trained on several related tasks.
+In this paper, we investigate the first two methods and their combination, as applied to DAR.
+
+Regardless of whether an encoder model has undergone further in-domain pre-training, the choice of whether to fine-tune during task training remains.
+Freezing the encoder model during task training is more efficient, since the gradient of the loss function need only be computed for the task-specific layers.
+However, fine-tuning can lead to better performance since the encoding itself is adapted to the target task and domain.
+
+\citet{petersTuneNotTune2019} investigate when and whether to fine-tune BERT for sentence classification tasks.
+They find that when the target task is very similar to the pre-training task, fine-tuning provides less of a performance boost.
+There is some conceptual relationship between DAR and next sentence prediction, since the a dialogue act constrains (or at least is predictive of) the dialogue act that follows it.
+
+\citet{petersTuneNotTune2019} also consider whether the similarity of the pre-training and target domains may have similar consequences, but don't find an effect of domain similarly for the natural language inference tasks they tested on.
+As discussed in \S\ref{sec:data}, however, there are dramatic differences between written text and transcribed dialogue which may mean that fine-tuning is necessary in this case.
+
+
 
 
 \paragraph{Contributions}
 The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
 \begin{itemize}
-  \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment1}).
-  \item Standard BERT pre-training is useful for DAR, but the impact of pre-training is smaller than than of fine-tuning (\S\ref{sec:experiment2})
-  \item Performing additional in-domain pre-training shows promise for dialogue (\S\ref{sec:experiment3}), but further investigation with larger dialogue corpora is required.
+  \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment2}).
+  \item During fine-tuning, BERT learns to represent laughter, a dialogical feature not seen in pre-training (\S\ref{sec:experiment2} and \S\ref{sec:experiment3}).
+  \item Standard BERT pre-training is useful for DAR, but the model performs poorly without fine-tuning (\S\ref{sec:experiment2})
+  \item Further pre-training with in-domain data shows promise for dialogue (\S\ref{sec:experiment3}), but further investigation with larger dialogue corpora is required.
 \end{itemize}
 
 
@@ -303,7 +327,7 @@ Overall performance in these groups appears to be unaffected by presence of laug
 Next, we analyze how pre-training affects BERT's performance as an utterance encoder.
 To do so, we consider the performance of DAR models with three different utterance encoders:
 \begin{itemize}
-  \item \texttt{BERT-FT} -- pre-trained BERT with DAR fine-tuninig 
+  \item \texttt{BERT-FT} -- pre-trained BERT with DAR fine-tuning 
   \item \texttt{BERT-RI} -- randomly initialized BERT (with DAR fine-tuning)
   \item \texttt{BERT-FZ} -- pre-trained BERT without fine-tuning (frozen during DAR training)
 \end{itemize}
@@ -361,7 +385,7 @@ compared to \%9.6 of utterances where fine-tuning makes a difference.
 
 \subsection{Experiment 3: Impact of dialogue pre-training} \label{sec:experiment3} % Bill
 
-Next, we assess the effect of additional in-domain pre-training on BERT's performance as an utterance encoder.\footnote{
+Next, we assess the effect of further in-domain pre-training on BERT's performance as an utterance encoder.\footnote{
 In-domain pre-training is sometimes referred to as \textit{fine-tuning}, but we reserve that term for task-specific training on labeled data.}
 We construct pre-training corpora from the SWDA portion of the un-labeled Switchboard corpus and from the entire AMI corpus (including the 32 dialogues with no human-annotated DA tags that are not included in the DAR training set).
 In both cases, we exclude dialogues that are reserved for DAR testing.
@@ -377,8 +401,8 @@ As before, we experimented with both the fine-tuning and frozen conditions.
 The results are mixed.
 In-domain pre-training offers a modest boost in overall accuracy,
 but the macro-average scores are almost uniformly worse (table \ref{table:exp3}).
-%Indeed, when BERT is frozen during fine-tuning, the model that received no additional pre-training performs better by more than 3 percentage points (table \ref{tab:exp3-recall}).
-To fully assess the potential impact of in-domain pre-training, a larger dialogue corpus is required.
+%Indeed, when BERT is frozen during fine-tuning, the model that received no further pre-training performs better by more than 3 percentage points (table \ref{tab:exp3-recall}).
+To fully assess the potential impact of further in-domain pre-training, a larger dialogue corpus is required.
 
 \begin{table}
 \begin{tabular}{llrr}
@@ -402,7 +426,7 @@ To fully assess the potential impact of in-domain pre-training, a larger dialogu
                
 \bottomrule
 \end{tabular}
-  \caption{Comparing DAR performance of  with additional in-domain (\texttt{ID}) and cross-domain (\texttt{CC}) dialogue pre-training,
+  \caption{Comparing DAR performance of  with further in-domain (\texttt{ID}) and cross-domain (\texttt{CC}) dialogue pre-training,
     for both the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
   \label{table:exp3}
 \end{table}
