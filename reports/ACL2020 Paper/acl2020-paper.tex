@@ -83,7 +83,6 @@ One important dialogical feature missing from text data is laughter, which is ub
 We observe that in the Switchboard dialogue corpus laughter comes about every 200 tokens.
 Laughter also relates to the discourse structure of dialogue and can relate to a laughable, which can be any an event or an entity in the discourse (and external perceived event as well).
 Laughter can precede, follow or overlap the laughable, with the time alignment between the laughter and laughable dependent on who produces the laughable and the form of the laughter \citep{tian2016we}.
-In this work we found out that laughs can also be helpful to disambiguate a dialogue act.
 
 \begin{table}
       \small
@@ -106,6 +105,8 @@ In this work we found out that laughs can also be helpful to disambiguate a dial
 
 In this work, we investigate whether BERT \citep{devlinBERTPretrainingDeep2018}, a well-know pre-trained language model, is useful for dialogue.
 We use dialogue act recognition  as a proxy task, since both the internal content of contributions, and their sequential structure have bearing on the task.
+In this work we also show that laughs can be helpful to disambiguate a dialogue act.
+
 
 \paragraph{Dialogue Act Recognition (DAR)}
 The concept of a dialogue act is based on that of speech acts \citep{austinHowThingsWords2009}.
@@ -190,7 +191,7 @@ early '90s                 & 2000s                                   \\ \midrule
 \end{table}
 
 \paragraph{Laughs in the data}
-The distribution of laughs in different dialogue acts has a rather uniform shape with a few outliers (see box plots). Figure \ref{fig:by-da} in Appendix~\ref{sec:suppl} provides a breakdown of dialogue act depending on whether current or adjacent utterances (the preceding utterance and the following one are counted as adjacent) contain laughter.\footnote{Note that SWDA has a ``Nonverbal'' dialogue act which is misguiding with respect to laughter, because utterances only containing a single laughter token fall into this category, however they can serve, for example, to acknowledge a statement or to deflect a question  \citep{mazzocconi2019phd}.}
+The distribution of laughs in different dialogue acts has a rather uniform shape with a few outliers (see box plots). Figure \ref{fig:by-da} in Appendix~\ref{sec:suppl} provides a breakdown of dialogue act depending on whether current or adjacent utterances (the preceding utterance and the following one are counted as adjacent) contain laughter.\footnote{Note that SWDA has a ``Nonverbal'' dialogue act which is misleading with respect to laughter, because utterances only containing a single laughter token fall into this category, however they can serve, for example, to acknowledge a statement or to deflect a question  \citep{mazzocconi2019phd}.}
 
 \begin{figure}
   \centering
@@ -209,8 +210,7 @@ The distribution of laughs in different dialogue acts has a rather uniform shape
 \paragraph{Dialogue act grouping}
 For our corpora we also considered grouping the dialogue acts according to DAMSL coders manual \citep{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a}: Forward-Communicative-Function (51.86\% of all DAs), Backwards-Communicative-Function (30.35\%), Other (9.04\%) and Communicative-Status (8.75\%).
 This allows the direct comparison between SWDA and AMI-DA.
-With respect to laughs, we observed even distribution of them in the groups, except the Communicative-Status group in the case of SWDA, because it contains ``Nonverbal'' dialogue acts.
-
+With respect to laughs, we observed an even distribution of them in the groups, except for the Communicative-Status group in the case of SWDA, because of the ``Nonverbal'' dialogue acts (see footnote~1).
 % - Preprocessing: remove disfluencies, acronyms and speaker tokens in AMI, removing laughter % Bill
   
 \section{Model} % Bill
@@ -360,9 +360,9 @@ the rarest word is 1.9 times rarer than is typical of corpus as a whole.
 
 Comparing the performance of the fine-tuned encoder to that of the frozen model, we note that pre-training alone is not enough.
 The frozen model is heavily biased towards the most frequent tags, which explains its especially poor macro-average score (table \ref{table:exp2}).
-In SWDA, for example, the model with a frozen encoder predicts one of the two most common tags (Statement-non-opinion or Acknowledge) \%86 of the time, whereas those two
-tags account for only \%51 of the ground truth tags.
-The fine-tuned model is much less biased; it predicts the two most common tags only \%59 of the time.
+In SWDA, for example, the model with a frozen encoder predicts one of the two most common tags (Statement-non-opinion or Acknowledge) 86\% of the time, whereas those two
+tags account for only 51\% of the ground truth tags.
+The fine-tuned model is much less biased; it predicts the two most common tags only 59\% of the time.
 
 %These observations raise two questions.
 %First, how does BERT's pre-training help with DAR? 
@@ -376,12 +376,12 @@ The fine-tuned model is much less biased; it predicts the two most common tags o
 \paragraph{Fine-tuning and laughter}
 Since the laughter token doesn't appear in the original BERT vocabulary, only fine-tuned models can meaningfully make use of laughter in utterance representations. 
 This gives us another opportunity to assess whether laughter is useful in dialogue act recognition.
-We find that although \%4.6 of utterances in SWDA contain laughter, 
-\%7.3 of utterances misclassified by the frozen model but correctly classified by the fine-tuned model contain laughter, 
+We find that although 4.6\% of utterances in SWDA contain laughter, 
+7.3\% of utterances misclassified by the frozen model but correctly classified by the fine-tuned model contain laughter, 
 suggesting that the fine-tuned encoder makes use of laughter. 
 For AMI-DA, the effect is less pronounced, but still present: 
-overall, \%8.5 of utterances contain laughter, 
-compared to \%9.6 of utterances where fine-tuning makes a difference. 
+overall, 8.5\% of utterances contain laughter, 
+compared to 9.6\% of utterances where fine-tuning makes a difference. 
 
 \subsection{Experiment 3: Impact of dialogue pre-training} \label{sec:experiment3} % Bill
 
@@ -480,7 +480,7 @@ Pre-training/transfer learning for dialogue
   \centering
   \includegraphics[width=\linewidth]{img/SWDA-bertLvsNL.pdf}
   \includegraphics[width=\linewidth]{img/AMI-DA-bertLvsNL.pdf}
-  \caption{Change in accuracy for each dialogue act. Positive changes when adding laughter are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter. Top chart: SWDA, Bottom chart: AMI-DA. }
+  \caption{Change in accuracy for each dialogue act (\texttt{BERT-NL} vs \texttt{BERT-L}). Positive changes when adding laughter (\texttt{BERT-L}) are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter. Top chart: SWDA, Bottom chart: AMI-DA. }
     \label{fig:by-da}
   \end{figure*}
 
