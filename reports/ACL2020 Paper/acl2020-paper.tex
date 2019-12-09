@@ -174,7 +174,7 @@ As discussed in \S\ref{sec:data}, however, there are dramatic differences betwee
 
 \section{Data}\label{sec:data}
 We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA). 
-SWDA is tagged with a set of 220 dialogue act tags which, following  \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a} we cluster into a smaller set of 42 tags.
+SWDA is tagged with a set of 220 dialogue act tags which, following  \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a}, we cluster into a smaller set of 42 tags.
 AMI uses a smaller tagset of 16 dialogue acts \citep{GuidelinesDialogueAct2005}.
 
 % - DA distribution              % Vlad
@@ -199,6 +199,18 @@ early '90s                 & 2000s                                   \\ \midrule
   \label{table:corpora}
 \end{table}
 
+\paragraph{Preprocesing}
+% - Preprocessing: remove disfluencies, acronyms and speaker tokens in AMI, removing laughter % Bill
+
+We make an effort to normalize transcription conventions across SWDA and AMI.
+We remove disfluency annotations and slashes from the end of utterances in SWDA.
+In both corpora, acronyms are tokenized as individual letters. 
+All utterances are lower-cased.
+
+Utterances are tokenized using BERT's word piece tokenizer with a vocabulary of 30,000.
+We add a special laughter token to the vocabulary and map all transcribed laughter to that token.
+We also add five speaker tokens and prepend each utterance with a speaker token that uniquely identifies the corresponding speaker within that dialogue.
+
 \paragraph{Laughs in the data}
 The distribution of laughs in different dialogue acts has a rather uniform shape with a few outliers (see box plots). Figure \ref{fig:by-da} in Appendix~\ref{sec:suppl} provides a breakdown of dialogue act depending on whether current or adjacent utterances (the preceding utterance and the following one are counted as adjacent) contain laughter.\footnote{Note that SWDA has a ``Nonverbal'' dialogue act which is misleading with respect to laughter, because utterances only containing a single laughter token fall into this category, however they can serve, for example, to acknowledge a statement or to deflect a question  \citep{mazzocconi2019phd}.}
 
@@ -220,7 +232,6 @@ The distribution of laughs in different dialogue acts has a rather uniform shape
 For our corpora we also considered grouping the dialogue acts according to DAMSL coders manual \citep{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a}: Forward-Communicative-Function (51.86\% of all DAs), Backwards-Communicative-Function (30.35\%), Other (9.04\%) and Communicative-Status (8.75\%).
 This allows the direct comparison between SWDA and AMI-DA.
 With respect to laughs, we observed an even distribution of them in the groups, except for the Communicative-Status group in the case of SWDA, because of the ``Nonverbal'' dialogue acts (see footnote~1).
-% - Preprocessing: remove disfluencies, acronyms and speaker tokens in AMI, removing laughter % Bill
   
 \section{Model} % Bill
 
@@ -263,7 +274,7 @@ The strongest evidence for laughter as a helpful feature was found in SWDA for t
     \texttt{CNN-L}    & 27.59 & 75.40 & 37.94 & 64.30        \\ \bottomrule
     
   \end{tabular}
-  \caption{Comparison of macro-average F1 and micro-average accuracy depending on using laughter on the training phase. }
+  \caption{Comparison of macro-average F1 and accuracy depending on using laughter on the training phase. }
   \label{table:laughter-total-acc}
 \end{table}
 
@@ -342,7 +353,7 @@ To do so, we consider the performance of DAR models with three different utteran
 \texttt{BERT-FZ} & 7.75            & 55.61                    & 14.44                  & 46.59 \\
   \bottomrule
 \end{tabular}
-  \caption{Macro-average F1 and micro-average accuracy of BERT with standard pre-training and DAR fine-tuning (\texttt{BERT-FT}) vs.~the same model without pre-training (\texttt{BERT-RI}) and without fine-tuning (\texttt{BERT-FZ}).}
+  \caption{Macro-average F1 and accuracy of BERT with standard pre-training and DAR fine-tuning (\texttt{BERT-FT}) vs.~the same model without pre-training (\texttt{BERT-RI}) and without fine-tuning (\texttt{BERT-FZ}).}
   \label{table:exp2}
 \end{table}
 
@@ -417,7 +428,7 @@ To fully assess the potential impact of further in-domain pre-training, a larger
 \texttt{BERT+ID-FZ} & 6.46                   & 52.30                    & 14.43                  & 48.07                    \\
 \texttt{BERT+CC-FZ} & 5.76                   & 51.14                    & 12.56                  & 42.42                    \\ \bottomrule
 \end{tabular}
-  \caption{Comparison of macro-average F1 and micro-average accuracy  with further in-domain (\texttt{ID}) and cross-domain (\texttt{CC}) dialogue pre-training,
+  \caption{Comparison of macro-average F1 and accuracy  with further in-domain (\texttt{ID}) and cross-domain (\texttt{CC}) dialogue pre-training,
     for both the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
   \label{table:exp3}
 \end{table}
