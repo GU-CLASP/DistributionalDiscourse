@@ -60,7 +60,6 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-  The degree to which language models pre-trained on text data are useful for dialogue is an open question.
   In this paper, we investigate the usefulness of BERT for dialogue act recognition.
   We are interested in both how useful the pre-training procedure is and 
   how well the model adapts to the dialogue domain.
@@ -103,9 +102,9 @@ Laughter can precede, follow or overlap the laughable, with the time alignment b
   \label{table:example}
 \end{table}
 
-In this work, we investigate whether BERT \citep{devlinBERTPretrainingDeep2018}, a well-know pre-trained language model, is useful for dialogue.
+We investigate whether BERT \citep{devlinBERTPretrainingDeep2018}, a well-know pre-trained language model, is useful for dialogue.
 We use dialogue act recognition  as a proxy task, since both the internal content of contributions, and their sequential structure have bearing on the task.
-In this work we also show that laughs can be helpful to disambiguate a dialogue act.
+We also show that laughs can be helpful to disambiguate a dialogue act.
 
 \paragraph{Contributions}
 The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
@@ -187,6 +186,16 @@ As discussed in \S\ref{sec:data}, however, there are dramatic differences betwee
   \item \citet{vigComparisonTransferLearningApproaches} -- Transfer learning for response selection
 \end{itemize}
 
+
+
+\paragraph{Contributions}
+The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
+\begin{itemize}
+  \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment1}).
+  \item During fine-tuning, BERT learns to represent laughter, a dialogical feature not seen in pre-training (\S\ref{sec:experiment2} and \S\ref{sec:experiment3}).
+  \item Standard BERT pre-training is useful for DAR, but the model performs poorly without fine-tuning (\S\ref{sec:experiment2})
+  \item Further pre-training with in-domain data shows promise for dialogue (\S\ref{sec:experiment3}), but further investigation with larger dialogue corpora is required.
+\end{itemize}
 
 
 \section{Data}
@@ -284,10 +293,9 @@ The strongest evidence for laughter as a helpful feature was found in SWDA for t
   \label{table:laughter-total-acc}
 \end{table}
 
-Confusion matrices (figure \ref{fig:swda-cm}) provide some food for thought.
-% TODO: explain why most of misclassifications are sd (majority class)
-One of the most obvious things that can be observed is rhetorical questions: supposedly, laughter can be used as a device to cancel seriousness \citep{ginzburg2015understanding} of the question.
-Therefore it can help to disambiguate such questions like the one we show in example in table~\ref{table:example-qh}.
+Confusion matrices (figure \ref{fig:swda-cm}) provide some food for thought. Most of the misclassifications fall into the majority classes, such as \emph{sd} (Statement-non-opinion), in the left edge of the matrix. However there are some important exceptions, such as \emph{rhetorical questions}, that are misclassified as other forms of questions due to their surface question-like form.
+Importantly, laughter helpes to classify rhetorical questions correctly, this is because in a conversation it can be used as a device to cancel seriousness \citep{ginzburg2015understanding}, in this case, of a question.
+Therefore questions, like the one we show in the example in table~\ref{table:example-qh}, are easier to disambiguate with the help of laughter.
 \begin{table}
       \small
   \centering
@@ -309,7 +317,7 @@ Therefore it can help to disambiguate such questions like the one we show in exa
 
   \begin{figure}
   \centering
-  \includegraphics[width=0.9\linewidth]{img/swda-cm.pdf}
+  \includegraphics[width=1.0\linewidth]{img/swda-cm.pdf}
   \caption{Confusion matrices for \texttt{BERT-NL} (top) vs \texttt{BERT-L} (bottom); SWDA corpus. Solid line shows the improvement in classification of rhetorical questions.}
     \label{fig:swda-cm}
   \end{figure}
