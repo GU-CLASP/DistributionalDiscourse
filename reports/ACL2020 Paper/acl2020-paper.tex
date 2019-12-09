@@ -454,6 +454,10 @@ This observation may support the hypothesis that in SWDA due to the nature of in
 This also can explain why all our best models perform better on SWDA: much more information that interlocutors and dialogue act annotators can rely on is present in the transcription of SWDA, whereas AMI-DA annotators receive clear instructions to pay attention to the videos \citep{GuidelinesDialogueAct2005}.
 This finding is consistent with that of \citet{bavelas2008gesturing} who demonstrated that in face-to-face dialogue visual components, such as gestures, can convey information that is independent from one conveyed with speech.
 
+There is abundant room for further progress in determining how other speech-related information, such as prosody and disfluencies, can be incorporated into the DAR model.
+\citet{stolckeDialogueActModeling2000} showed that dialogue acts can have specific prosodic manifestations that can be used to improve dialogue act classification.
+Furthermore, function of laughter and its position in relation to laughable can be reflected in the acoustic form of laughter \citep{tian2016we,mazzocconi2019phd}. 
+
 Although our experiments with further pre-training were inconclusive, \citet{baoPLATOPretrainedDialogue2019} finds that further pre-training BERT on a large-scale Reddit and Twitter corpus is helpful for response selection.
 Further pre-training may be helpful for DAR too, if the in-domain or cross-domain corpus is large enough.
 
@@ -472,11 +476,11 @@ The same may not be true of dialogue, however.
 
 \bibliography{acl2020}
 \bibliographystyle{acl_natbib}
-\clearpage
 \appendix
+\onecolumn
+\section{Supplementary materials}\label{sec:suppl}
 
 \begin{figure*}[h!]
-\section{Supplementary materials}\label{sec:suppl}
   \centering
   \includegraphics[width=\linewidth]{img/SWDA-bertLvsNL.pdf}
   \includegraphics[width=\linewidth]{img/AMI-DA-bertLvsNL.pdf}
