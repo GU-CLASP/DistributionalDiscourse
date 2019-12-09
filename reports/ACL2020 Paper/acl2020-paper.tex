@@ -171,6 +171,7 @@ There is some conceptual relationship between DAR and next sentence prediction, 
 \citet{petersTuneNotTune2019} also consider whether the similarity of the pre-training and target domains may have similar consequences, but don't find an effect of domain similarly for the natural language inference tasks they tested on.
 As discussed in \S\ref{sec:data}, however, there are dramatic differences between written text and transcribed dialogue which may mean that fine-tuning is necessary in this case.
 
+\paragraph{} In the next section, we will present the datasets that we will use in our experiments along with their distinctive features.
 
 \section{Data}\label{sec:data}
 We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA). 
@@ -232,6 +233,9 @@ The distribution of laughs in different dialogue acts has a rather uniform shape
 For our corpora we also considered grouping the dialogue acts according to DAMSL coders manual \citep{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a}: Forward-Communicative-Function (51.86\% of all DAs), Backwards-Communicative-Function (30.35\%), Other (9.04\%) and Communicative-Status (8.75\%).
 This allows the direct comparison between SWDA and AMI-DA.
 With respect to laughs, we observed an even distribution of them in the groups, except for the Communicative-Status group in the case of SWDA, because of the ``Nonverbal'' dialogue acts (see footnote~1).
+
+\paragraph{}
+Let us turn now to describing the neural network architectures that we used.
   
 \section{Model} % Bill
 
@@ -252,6 +256,9 @@ The model uses 100-dimensional word embeddings, which are initialized with pre-t
 
 For the BERT utterance encoder, we use the BERT\textsubscript{BASE} model with hidden size of 768 and 12 transformer layers and self-attention heads \citep[][\S3.1]{devlinBERTPretrainingDeep2018}.
 In our implementation, we use the un-cased model provided by \citet{wolfHuggingFaceTransformersStateoftheart2019}.
+
+The next section will introduce the experiments that we have carried out and will discuss the results that we obtained from them.
+
 
 \section{Experiments}
 \subsection{Experiment 1: Impact of laughter} \label{sec:experiment1}   % Vlad
@@ -279,7 +286,7 @@ The strongest evidence for laughter as a helpful feature was found in SWDA for t
 \end{table}
 
 Confusion matrices (Figure~\ref{fig:swda-cm}) provide some food for thought. Most of the misclassifications fall into the majority classes, such as \emph{sd} (Statement-non-opinion), in the left edge of the matrix. However there are some important exceptions, such as \emph{rhetorical questions}, that are misclassified as other forms of questions due to their surface question-like form.
-Importantly, laughter helpes to classify rhetorical questions correctly, this is because in a conversation it can be used as a device to cancel seriousness \citep{ginzburg2015understanding}, in this case, of a question.
+Importantly, laughter helpes to classify rhetorical questions correctly, this is because in a conversation it can be used as a device to cancel seriousness or sincerity \citep{ginzburg2015understanding,tepperman2006yeah}, in this case, of a question.
 Therefore questions, like the one we show in the example in Table~\ref{table:example-qh}, are easier to disambiguate with the help of laughter.
 \begin{table}
       \small
@@ -436,6 +443,8 @@ To fully assess the potential impact of further in-domain pre-training, a larger
 
 %\subsection{Experiment 4: Cross-domain pre-training (if time permits)} \label{sec:experiment4} % Bill
 %  - cross-domain pre-training
+\paragraph{}
+Having discussed the experimental results, the final section of the paper provides broader explanations of our findings.
 
 \section{Discussion} % add items to discuss
 On the question of laughter impact, this study found out that laughter is more helpful in SWDA corpus than in AMI-DA.
