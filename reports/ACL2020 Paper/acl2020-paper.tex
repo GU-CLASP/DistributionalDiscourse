@@ -119,7 +119,7 @@ The main results of this paper have to do with to the usefulness of language mod
 
 \section{Background}
 
-\paragraph{Dialogue Act Recognition (DAR)}
+\subsection{Dialogue Act Recognition}
 The concept of a dialogue act is based on that of speech acts \citep{austinHowThingsWords2009}.
 Breaking with classical semantic theory, speech act theory considers not only the propositional content of an utterance but also the actions, such as \emph{promising} or \emph{apologizing}, it carries out.
 Dialogue acts extend the concept of the speech act, with a focus on the interactional nature of most speech.
@@ -129,38 +129,42 @@ DAR is the the task of labeling utterances with the dialogue act they perform
 from a given set of dialogue act tags.
 As with other sequence labeling tasks in NLP, some notion of context is helpful in DAR.
 One of the first performant machine learning models for DAR was a Hidden Markov Model that used various lexical and prosodic features as input \citep{stolckeDialogueActModeling2000}.
-Most successful neural approaches also model some notion of context, 
-for example with a recurrent model \citep[e.g.,][]{botheContextbasedApproachDialogue2018} or conditional random field \citep[e.g.,][]{chenDialogueActRecognition2017}.
 
-\begin{itemize}
-  % related because of the DAR sequence model
-  \item \citet{kalchbrennerRecurrentConvolutionalNeural2013} -- DAR model similar to our architecture. Uses an RNN ``discourse model'' and a CNN similar to our baseline encoder
-  \item \citet{botheContextbasedApproachDialogue2018} -- uses an RNN for context (recently SOTA on SWDA)
-  \item \citet{tranHierarchicalNeuralModel2017} -- RNNs at both the utteranec and dialogue level. Also attention. Very similar to our architecture.
-  \item \citet{tranPreservingDistributionalInformation2017} -- Sequential DA prediction with uncertainty propegation
-  % cf.
-  \item \citet{ortegaNeuralbasedContextRepresentation2017} -- SWDA DAR with attention-based context representations and CNN utterance representations
-  % related because of the utt encoder model
-  \item \citet{khanpourDialogueActClassification2016} -- Deep LSTM utt representation. No notion of context. Finds word vectors are useful.
-  \item \citet{shenNeuralAttentionModels2016} -- Uses attention for utt encoding in DAR. No notion of context, I think.
+Most successful neural approaches also model some notion of context.
+We follow previous work that models dialogue act sequences with an RNN over utterances \citep{kalchbrennerRecurrentConvolutionalNeural2013,tranHierarchicalNeuralModel2017,botheContextbasedApproachDialogue2018}.
+Our model predicts the most likely tag given the hidden state of the RNN at each position, though other work has shown that DAR benefits from more sophistacted approaches, such as conditional random field \citep{chenDialogueActRecognition2017} or uncertainty propegation \citep{tranPreservingDistributionalInformation2017}. 
+
+%\begin{itemize}
+  %\item \citet{kalchbrennerRecurrentConvolutionalNeural2013} -- DAR model similar to our architecture. Uses an RNN ``discourse model'' and a CNN similar to our baseline encoder
+  %\item \citet{botheContextbasedApproachDialogue2018} -- uses an RNN for context (recently SOTA on SWDA)
+  %\item \citet{tranHierarchicalNeuralModel2017} -- RNNs at both the utteranec and dialogue level. Also attention. Very similar to our architecture.
+  %\item \citet{tranPreservingDistributionalInformation2017} -- Sequential DA prediction with uncertainty propegation
+  %\item \citet{ortegaNeuralbasedContextRepresentation2017} -- SWDA DAR with attention-based context representations and CNN utterance representations
+  %\item \citet{shenNeuralAttentionModels2016} -- Uses attention for utt encoding in DAR. No notion of context, I think.
   % related because of methodology
-  \item \citet{pragstVectorRepresentationUtterances2018} -- dialogue vector models. Uses vector-manual DA tag correspondance to argue for semantic relevance of their vector models (related to how we use DA tagging to verify BERT usefulness)
-  % ???
-  \item \citet{chenDialogueActRecognition2017} -- SOTA? SWDA DAR using attention and CRF over utterances
-\end{itemize}
+  %\item \citet{pragstVectorRepresentationUtterances2018} -- dialogue vector models. Uses vector-manual DA tag correspondance to argue for semantic relevance of their vector models (related to how we use DA tagging to verify BERT usefulness)
+  %\item \citet{chenDialogueActRecognition2017} -- SOTA? SWDA DAR using attention and CRF over utterances
+%\end{itemize}
 
 \paragraph{Transfer learning for NLP}
-Transfer learning is are techniques that allow a model trained on one task---often unsupervised---to be applied to another. 
+Transfer learning techniques allow a model trained on one task---often unsupervised---to be applied to another. 
 Since annotating natural language data is expensive, there is a lot of interest in transfer learning for natural language processing. 
-The use of pre-trained word vectors \citep[e.g.,][]{mikolovDistributedRepresentationsWords2013;penningtonGloveGlobalVectors2014} is a ubiquitous example of transfer learning in NLP.
-Recently, large neural models trained on various unsupervised tasks have found success in producing sentence-level and contextual word representations. 
+Word vectors \citep[e.g.,][]{mikolovDistributedRepresentationsWords2013,penningtonGloveGlobalVectors2014} are a ubiquitous example of transfer learning in NLP.
+We note, however, that pre-trained word vectors are not always useful when applied to dialogue domains \citet{cerisaraEffectsUsingWord2vec2017}. 
 
-BERT \citep{devlinBERTPretrainingDeep2018} is one such model. 
-It is a large multi-layer transformer, pre-trained on two unsupervised tasks: \emph{masked token prediction} and \emph{next sentence prediction}.
+Recently, neural models trained on large datasets with various unsupervised tasks have found success creating sentence-level and contextual word representations. 
+BERT, a multi-layer tranformer, is one such model \citep{devlinBERTPretrainingDeep2018} . 
+BERT is pre-trained on two unsupervised tasks: \emph{masked token prediction} and \emph{next sentence prediction}.
 In masked token prediction, some percentage of words are randomly replaced with a \texttt{[MASK]} token, and the model is trained to predict the identity of these tokes based on the context sentence.
 In next sentence prediction, the model is give two sentences and trained to predict whether the second sentence follows the first in the original text, or if it was randomly chosen from elsewhere in the corpus.
 After pre-training, BERT can be applied to a supervised task by adding additional un-trained layers that take the hidden state of one or more of BERT's layers as input. 
 
+There is some preivous work applying BERT to dialogue.
+\citet{baoPLATOPretrainedDialogue2019,chenSemanticallyConditionedDialog2019a} and both use BERT for dialogue generation tasks.
+Similarly \citet{vigComparisonTransferLearningApproaches2019} finds BERT useful for selecting a response from a list of candidate responses in a dialogue.
+Finally, \citet{mehriPretrainingMethodsDialog2019} evaluates BERT in various dialogue tasks including DAR, and find that a model incorporating BERT outperforms a baseline model.
+
+\paragraph{Fine-tuning vs.~further in-domain pre-training}
 Transfer learning schemes for pre-trained language models such as BERT draw on one or more of the following three adaptation strategies \citet{sunHowFineTuneBERT2019}:
 \emph{further pre-training}, in which the model is trained in an un-supervised way, similar to its initial training scheme, but on data that is in-domain for the target task; 
 \emph{single-task fine-tuning}, in which the model's encoder layers are optimized during training for the target task;
@@ -178,18 +182,19 @@ There is some conceptual relationship between DAR and next sentence prediction, 
 \citet{petersTuneNotTune2019} also consider whether the similarity of the pre-training and target domains may have similar consequences, but don't find an effect of domain similarly for the natural language inference tasks they tested on.
 As discussed in \S\ref{sec:data}, however, there are dramatic differences between written text and transcribed dialogue which may mean that fine-tuning is necessary in this case.
 
-\begin{itemize}
-  \item \citet{cerisaraEffectsUsingWord2vec2017} -- standard pre-trained word embeddings do not help for DAR in any of three tested languages (English, French, Czech)
-    % BERT for dialogue (not nesc. DAR)
-  \item \citet{chenSemanticallyConditionedDialog2019a} -- uses BERT for response generation
-  \item \citet{mehriPretrainingMethodsDialog2019} -- looks at various dialogue tasks using pre-training, including DAR and using BERT
-  \item \citet{baoPLATOPretrainedDialogue2019} -- pre-training for dialogue generation
-  \item \citet{vigComparisonTransferLearningApproaches} -- Transfer learning for response selection
-\end{itemize}
+%\begin{itemize}
+  %\item \citet{cerisaraEffectsUsingWord2vec2017} -- standard pre-trained word embeddings do not help for DAR in any of three tested languages (English, French, Czech)
+  %\item \citet{khanpourDialogueActClassification2016} -- Deep LSTM utt representation. No notion of context. Finds word vectors are useful.
+     %BERT for dialogue (not nesc. DAR)
+  %\item \citet{chenSemanticallyConditionedDialog2019a} -- uses BERT for response generation
+  %\item \citet{mehriPretrainingMethodsDialog2019} -- looks at various dialogue tasks using pre-training, including DAR and using BERT
+  %\item \citet{baoPLATOPretrainedDialogue2019} -- pre-training for dialogue generation
+  %\item \citet{vigComparisonTransferLearningApproaches} -- Transfer learning for response selection
+%\end{itemize}
 
 
 
-\section{Data}
+\section{Data}\label{sec:data}
 We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA). 
 SWDA is tagged with a set of 220 dialogue act tags which, following  \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a} we cluster into a smaller set of 42 tags.
 AMI uses a smaller tagset of 16 dialogue acts \citep{GuidelinesDialogueAct2005}.
