@@ -73,7 +73,7 @@ Recently, large-scale language models, trained on massive corpora of text data, 
 It is still uncertain whether these models might be useful for processing dialogue, and if so, whether they can adapt to make use of dialogue-specific features.
 
 Dialogue, especially spoken dialogue, is radically different from the kind of data that neural language models are pre-trained on.
-In the example from the Switchboard corpus, shown in table~\ref{table:example}, it is evident that the syntactic structure of dialogue is very different from  written text, even if one imagines a script for a movie or a play.
+In the example from the Switchboard corpus, shown in Table~\ref{table:example}, it is evident that the syntactic structure of dialogue is very different from  written text, even if one imagines a script for a movie or a play.
 Not only is the internal structure of contributions different---with features such as disfluencies, repair, incomplete sentences, and various vocal sounds---but the sequential structure of the discourse is also very different.
 In dialogue, speakers take turns and switch perspectives.
 More generally, the way that utterances contribute to and cohere with the discourse is different from the relationship between sentences in a piece of written text.
@@ -134,7 +134,7 @@ Most successful neural approaches also model some notion of context.
 We follow previous work that models dialogue act sequences with an RNN over utterances \citep{kalchbrennerRecurrentConvolutionalNeural2013,tranHierarchicalNeuralModel2017,botheContextbasedApproachDialogue2018}.
 Our model predicts the most likely tag given the hidden state of the RNN at each position, though other work has shown that DAR benefits from more sophistacted approaches, such as conditional random field \citep{chenDialogueActRecognition2017} or uncertainty propegation \citep{tranPreservingDistributionalInformation2017}. 
 
-\paragraph{Transfer learning for NLP}
+\subsection{Transfer learning for NLP}
 Transfer learning techniques allow a model trained on one task---often unsupervised---to be applied to another. 
 Since annotating natural language data is expensive, there is a lot of interest in transfer learning for natural language processing. 
 Word vectors \citep[e.g.,][]{mikolovDistributedRepresentationsWords2013,penningtonGloveGlobalVectors2014} are a ubiquitous example of transfer learning in NLP.
@@ -223,7 +223,7 @@ With respect to laughs, we observed an even distribution of them in the groups, 
   
 \section{Model} % Bill
 
-To test the effectiveness of BERT for DAR, we employ a simple neural architecture with two components: an encoder that vectorizes utterances, and a sequence model that predicts dialogue act tags from the vectorized utterances (figure \ref{fig:model-architecture}).
+To test the effectiveness of BERT for DAR, we employ a simple neural architecture with two components: an encoder that vectorizes utterances, and a sequence model that predicts dialogue act tags from the vectorized utterances (Figure~\ref{fig:model-architecture}).
 Since we are primarily interested in comparing different utterance encoders, we use a basic RNN as the sequence model in every configuration. 
 The RNN takes the encoded utterance as input at each time step,
 and its hidden state is passed to a simple linear classification layer over dialogue act tags.
@@ -247,7 +247,7 @@ In the first experiment we investigated whether laughter, as an example of a dia
 Therefore, we train another version of each model: one containing laughs (\texttt{L}) and one with laughs left out (\texttt{NL}), and compare their performances in DAR task.
 Table~\ref{table:laughter-total-acc} compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}).
 First of all, we can see that \texttt{BERT} utterance encoder outperforms \texttt{CNN} in all the cases.
-From observing the effect of laughters, we can see differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see figure~\ref{fig:by-da} in Appendix~\ref{sec:suppl}).
+From observing the effect of laughters, we can see differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:by-da} in Appendix~\ref{sec:suppl}).
 The strongest evidence for laughter as a helpful feature was found in SWDA for the \texttt{BERT} utterance encoder, where macro-F1 score increases by 7.89 percentage points.
 
 \begin{table}
@@ -266,9 +266,9 @@ The strongest evidence for laughter as a helpful feature was found in SWDA for t
   \label{table:laughter-total-acc}
 \end{table}
 
-Confusion matrices (figure \ref{fig:swda-cm}) provide some food for thought. Most of the misclassifications fall into the majority classes, such as \emph{sd} (Statement-non-opinion), in the left edge of the matrix. However there are some important exceptions, such as \emph{rhetorical questions}, that are misclassified as other forms of questions due to their surface question-like form.
+Confusion matrices (Figure~\ref{fig:swda-cm}) provide some food for thought. Most of the misclassifications fall into the majority classes, such as \emph{sd} (Statement-non-opinion), in the left edge of the matrix. However there are some important exceptions, such as \emph{rhetorical questions}, that are misclassified as other forms of questions due to their surface question-like form.
 Importantly, laughter helpes to classify rhetorical questions correctly, this is because in a conversation it can be used as a device to cancel seriousness \citep{ginzburg2015understanding}, in this case, of a question.
-Therefore questions, like the one we show in the example in table~\ref{table:example-qh}, are easier to disambiguate with the help of laughter.
+Therefore questions, like the one we show in the example in Table~\ref{table:example-qh}, are easier to disambiguate with the help of laughter.
 \begin{table}
       \small
   \centering
@@ -346,7 +346,7 @@ To do so, we consider the performance of DAR models with three different utteran
 \end{table}
 
 The pre-trained model is more accurate than the randomly initialized model by several percentage points on both DA corpora,
-suggesting that BERT's extensive pre-training does provide some useful information for recoginizing different dialogue acts (table \ref{table:exp2}).
+suggesting that BERT's extensive pre-training does provide some useful information for recoginizing different dialogue acts (Table~\ref{table:exp2}).
 This performance boost is much more pronounced in the macro-averaged F1 score,
 which is explained by the fact that at the tag level, pre-training has a larger impact on less frequent tags. 
 
@@ -357,7 +357,7 @@ Indeed, a simple lexical probe supports this explanation: in utterances where th
 the rarest word is 1.9 times rarer than is typical of corpus as a whole.
 
 Comparing the performance of the fine-tuned encoder to that of the frozen model, we note that pre-training alone is not enough.
-The frozen model is heavily biased towards the most frequent tags, which explains its especially poor macro-average score (table \ref{table:exp2}).
+The frozen model is heavily biased towards the most frequent tags, which explains its especially poor macro-average score (Table~\ref{table:exp2}).
 In SWDA, for example, the model with a frozen encoder predicts one of the two most common tags (Statement-non-opinion or Acknowledge) 86\% of the time, whereas those two
 tags account for only 51\% of the ground truth tags.
 The fine-tuned model is much less biased; it predicts the two most common tags only 59\% of the time.
@@ -398,8 +398,8 @@ As before, we experimented with both the fine-tuning and frozen conditions.
 
 The results are mixed.
 In-domain pre-training offers a modest boost in overall accuracy,
-but the macro-average scores are almost uniformly worse (table \ref{table:exp3}).
-%Indeed, when BERT is frozen during fine-tuning, the model that received no further pre-training performs better by more than 3 percentage points (table \ref{tab:exp3-recall}).
+but the macro-average scores are almost uniformly worse (Table~\ref{table:exp3}).
+%Indeed, when BERT is frozen during fine-tuning, the model that received no further pre-training performs better by more than 3 percentage points (Table~\ref{tab:exp3-recall}).
 To fully assess the potential impact of further in-domain pre-training, a larger dialogue corpus is required.
 
 \begin{table}
