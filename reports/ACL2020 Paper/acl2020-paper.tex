@@ -337,15 +337,6 @@ Overall performance in these groups appears to be unaffected by presence of laug
 \end{table}
 
 
-
-  
-
-%
-% TODO per dialogue act analysis
-% DONE compare impacts of CNN vs BERT
-% DONE for both AMI and SWDA
-% ? 
-
 \subsection{Experiment 2: Impact of pre-training vs. fine-tuning} \label{sec:experiment2} % Bill
 Next, we analyze how pre-training affects BERT's performance as an utterance encoder.
 To do so, we consider the performance of DAR models with three different utterance encoders:
@@ -459,11 +450,18 @@ To fully assess the potential impact of further in-domain pre-training, a larger
 %  - cross-domain pre-training
 
 \section{Discussion} % add items to discuss
+On the question of laughter impact, this study found out that laughter is more helpful in SWDA corpus than in AMI-DA.
+This observation may support the hypothesis that in SWDA due to the nature of interactions over the phone, dialogue participants can not rely on visual signals, such as gestures and facial expressions, therefore vocalisations, such as laughter, are more pronounced and therefore more helpful to disambiguate the utterances.
+
+This also can explain why all our best models perform better on SWDA: much more information that interlocutors and dialogue act annotators can rely on is present in the transcription of SWDA, whereas AMI-DA annotators receive clear instructions to pay attention to the videos \citep{GuidelinesDialogueAct2005}.
+This finding is consistent with that of \citet{bavelas2008gesturing} who demonstrated that in face-to-face dialogue visual components, such as gestures, can convey information that is independent from one conveyed with speech.
+
+
 \begin{itemize}
   \item RoBERTa training scheme finds that next sentence prediction is of little importance. Is this true for us too? (suspect not due to discourse importance). see: https://github.com/huggingface/transformers/issues/1622
   \item Issues related to working with transcribed speech: Different kinds of laughter are all represented by the same token. Does transcription orthography capture prosody? We know prosidy is useful for DAR (Jurafsky).
   \item future work: pre-training on very large un-labeled dialogue corpora. How does text chat transfer to the spoken/transcribed setting?
-  \item Laughter is more helpful in SWDA than in AMI-DA. This observation may support the hypothesis that in SWDA due to the nature of interactions over the phone, dialogue participants can't rely on visual signals, such as gestures and facial expressions, therefore vocalisations, such as laughter, are more pronounced and therefore more helpful to disambiguate the utterances.
+  \item Laughter is more helpful in SWDA than in AMI-DA. 
   \item The point above can also explain why our models better on SWDA: just a larger proportion of stuff that interlocutors rely on is in the transcription.
 \end{itemize}
 
