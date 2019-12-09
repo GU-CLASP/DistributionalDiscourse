@@ -102,18 +102,20 @@ Laughter can precede, follow or overlap the laughable, with the time alignment b
   \label{table:example}
 \end{table}
 
-We investigate whether BERT \citep{devlinBERTPretrainingDeep2018}, a well-know pre-trained language model, is useful for dialogue.
-We use dialogue act recognition  as a proxy task, since both the internal content of contributions, and their sequential structure have bearing on the task.
-We also show that laughs can be helpful to disambiguate a dialogue act.
+We use dialogue act recognition (DAR) as a proxy task, since both the internal content of contributions, and their sequential structure have bearing on this task. DAR is the task of assigning a dialogue act to every utterance in the dialogue, according to dialogue act that they perform.
+This is the way to investigate whether transfer learning techniques based on pre-trained language models, such as BERT \citep{devlinBERTPretrainingDeep2018}, are useful for dialogue.
+We looked at laughter that is certainly missing in pre-trained model, and discovered that it can be useful to disambiguate a dialogue act.
 
 \paragraph{Contributions}
 The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
 \begin{itemize}
-  \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment2}).
-  \item During fine-tuning, BERT learns to represent laughter, a dialogical feature not seen in pre-training (\S\ref{sec:experiment2} and \S\ref{sec:experiment3}).
+  \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment1}).
+  \item During fine-tuning, BERT learns to represent laughter, a dialogical feature not seen in pre-training (\S\ref{sec:experiment1} and \S\ref{sec:experiment2}).
   \item Standard BERT pre-training is useful for DAR, but the model performs poorly without fine-tuning (\S\ref{sec:experiment2})
   \item Further pre-training with in-domain data shows promise for dialogue (\S\ref{sec:experiment3}), but further investigation with larger dialogue corpora is required.
-\end{itemize}
+  \end{itemize}
+
+In the following section we provide more details about the dialogue act recognition task and transfer learning techniques. 
 
 
 \section{Background}
@@ -124,8 +126,7 @@ Breaking with classical semantic theory, speech act theory considers not only th
 Dialogue acts extend the concept of the speech act, with a focus on the interactional nature of most speech.
 DAMSL \citep{coreCodingDialogsDAMSL1997}, for example, is an influential dialogue act tagging scheme where dialogue acts are defined in part by whether they have a \emph{forward-looking} function (are expecting a response) or \emph{backward-looking} function (are in response to a previous utterance).
 
-DAR is the the task of labeling utterances with the dialogue act they perform 
-from a given set of dialogue act tags.
+DAR is the task of labeling utterances with the dialogue act they perform from a given set of dialogue act tags.
 As with other sequence labeling tasks in NLP, some notion of context is helpful in DAR.
 One of the first performant machine learning models for DAR was a Hidden Markov Model that used various lexical and prosodic features as input \citep{stolckeDialogueActModeling2000}.
 Most successful neural approaches also model some notion of context, 
@@ -185,18 +186,6 @@ As discussed in \S\ref{sec:data}, however, there are dramatic differences betwee
   \item \citet{baoPLATOPretrainedDialogue2019} -- pre-training for dialogue generation
   \item \citet{vigComparisonTransferLearningApproaches} -- Transfer learning for response selection
 \end{itemize}
-
-
-
-\paragraph{Contributions}
-The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
-\begin{itemize}
-  \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment1}).
-  \item During fine-tuning, BERT learns to represent laughter, a dialogical feature not seen in pre-training (\S\ref{sec:experiment2} and \S\ref{sec:experiment3}).
-  \item Standard BERT pre-training is useful for DAR, but the model performs poorly without fine-tuning (\S\ref{sec:experiment2})
-  \item Further pre-training with in-domain data shows promise for dialogue (\S\ref{sec:experiment3}), but further investigation with larger dialogue corpora is required.
-\end{itemize}
-
 
 \section{Data}
 We perform experiments on the Switchboard Dialogue Act Corpus (SWDA), which is a subset of the larger Switchboard corpus, and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA). 
