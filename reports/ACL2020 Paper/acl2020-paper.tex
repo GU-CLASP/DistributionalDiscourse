@@ -42,7 +42,7 @@
 
 \newcommand\BibTeX{B\textsc{ib}\TeX}
 
-\title{Pre-trained encoders for dialogue: The case of laughter}
+\title{Tickle me BERT: Using laughter to probe pre-trained encoders for dialogue act recoginiton}
 
 \author{First Author \\
   Affiliation / Address line 1 \\
@@ -435,7 +435,7 @@ To fully assess the potential impact of further in-domain pre-training, a larger
 \texttt{BERT+ID-FZ} & 6.46                   & 52.30                    & 14.43                  & 48.07                    \\
 \texttt{BERT+CC-FZ} & 5.76                   & 51.14                    & 12.56                  & 42.42                    \\ \bottomrule
 \end{tabular}
-  \caption{Comparison of macro-average F1 and accuracy  with further in-domain (\texttt{ID}) and cross-domain (\texttt{CC}) dialogue pre-training,
+  \caption{Comparison of macro-average F1 and accuracy  with further in-domain (\texttt{ID}) and combined corpus (\texttt{CC}) dialogue pre-training,
     for both the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
   \label{table:exp3}
 \end{table}
@@ -453,14 +453,21 @@ This observation may support the hypothesis that in SWDA due to the nature of in
 This also can explain why all our best models perform better on SWDA: much more information that interlocutors and dialogue act annotators can rely on is present in the transcription of SWDA, whereas AMI-DA annotators receive clear instructions to pay attention to the videos \citep{GuidelinesDialogueAct2005}.
 This finding is consistent with that of \citet{bavelas2008gesturing} who demonstrated that in face-to-face dialogue visual components, such as gestures, can convey information that is independent from one conveyed with speech.
 
+Although our experiments with further pre-training were inconclusive, \citet{baoPLATOPretrainedDialogue2019} finds that further pre-training BERT on a large-scale Reddit and Twitter corpus is helpful for response selection.
+Further pre-training may be helpful for DAR too, if the in-domain or cross-domain corpus is large enough.
 
-\begin{itemize}
-  \item RoBERTa training scheme finds that next sentence prediction is of little importance. Is this true for us too? (suspect not due to discourse importance). see: https://github.com/huggingface/transformers/issues/1622
-  \item Issues related to working with transcribed speech: Different kinds of laughter are all represented by the same token. Does transcription orthography capture prosody? We know prosidy is useful for DAR (Jurafsky).
-  \item future work: pre-training on very large un-labeled dialogue corpora. How does text chat transfer to the spoken/transcribed setting?
-  \item Laughter is more helpful in SWDA than in AMI-DA. 
-  \item The point above can also explain why our models better on SWDA: just a larger proportion of stuff that interlocutors rely on is in the transcription.
-\end{itemize}
+It remains an open question how well the text chat domain transfers to transcribed dialogue and what pre-training schemes are best for the dialogue domain.
+The training scheme for RoBERTa \citep{liuRoBERTaRobustlyOptimized2019}, for example, leaves out next sentence prediction as a pre-training task because they do not find that it improves performance on question answering and natural language inference tasks.
+The same may not be true of dialogue, however.
+
+%\begin{itemize}
+  %\item RoBERTa training scheme finds that next sentence prediction is of little importance. Is this true for us too? (suspect not due to discourse importance). see: https://github.com/huggingface/transformers/issues/1622
+  %\item Issues related to working with transcribed speech: Different kinds of laughter are all represented by the same token. Does transcription orthography capture prosody? We know prosidy is useful for DAR (Jurafsky).
+  %\item future work: pre-training on very large un-labeled dialogue corpora. How does text chat transfer to the spoken/transcribed setting?
+  %\item Laughter is more helpful in SWDA than in AMI-DA. 
+  %\item The point above can also explain why our models better on SWDA: just a larger proportion of stuff that interlocutors rely on is in the transcription.
+%\end{itemize}
+
 
 \bibliography{acl2020}
 \bibliographystyle{acl_natbib}
