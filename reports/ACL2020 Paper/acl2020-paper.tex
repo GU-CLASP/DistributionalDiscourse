@@ -255,14 +255,14 @@ The strongest evidence for laughter as a helpful feature was found in SWDA for t
   \begin{tabular}{@{}lcccc@{}}
     \toprule
                       & \multicolumn{2}{c}{SWDA} & \multicolumn{2}{c}{AMI-DA} \\ \midrule
-                      & macro-F1 & acc. & macro-F1 & acc.       \\ 
+                      & F1    & acc.  & F1    & acc.       \\ 
     \texttt{BERT-NL}  & 38.10 & 77.07 & 49.09 & 67.06       \\ 
     \texttt{BERT-L}   & 45.99 & 76.93 & 50.17 & 67.12       \\ \midrule
     \texttt{CNN-NL}   & 37.23 & 75.08 & 38.37 & 63.46        \\
     \texttt{CNN-L}    & 27.59 & 75.40 & 37.94 & 64.30        \\ \bottomrule
     
   \end{tabular}
-  \caption{Comparison of models depending on using laughter on the training phase. }
+  \caption{Comparison of macro-average F1 and micro-average accuracy depending on using laughter on the training phase. }
   \label{table:laughter-total-acc}
 \end{table}
 
@@ -307,14 +307,14 @@ Overall performance in these groups appears to be unaffected by presence of laug
   \begin{tabular}{@{}llcc@{}}
     \toprule
     &                  & Forw.-CF  & Backw.-CF   \\ \midrule
-    SWDA &\texttt{BERT-NL}  & 92.54 & 91.67       \\ 
-         &\texttt{BERT-L}   & 95.42 & 90.91       \\ 
-         &\texttt{CNN-NL}   & 93.30 & 90.85        \\
-         &\texttt{CNN-L}    & 94.64 & 90.13        \\ \midrule
-    AMI  &\texttt{BERT-NL}  & 87.77 & 80.83       \\ 
-         &\texttt{BERT-L}   & 87.36 & 79.87       \\
-         &\texttt{CNN-NL}   & 91.85 & 71.21        \\
-         &\texttt{CNN-L}    & 91.25 & 71.28        \\    \bottomrule
+    \multirow{4}{*}{SWDA}    &\texttt{BERT-NL}  & 92.54 & 91.67       \\ 
+                             &\texttt{BERT-L}   & 95.42 & 90.91       \\ 
+                             &\texttt{CNN-NL}   & 93.30 & 90.85        \\
+                             &\texttt{CNN-L}    & 94.64 & 90.13        \\ \midrule
+    \multirow{4}{*}{AMI-DA}  &\texttt{BERT-NL}  & 87.77 & 80.83       \\ 
+                             &\texttt{BERT-L}   & 87.36 & 79.87       \\
+                             &\texttt{CNN-NL}   & 91.85 & 71.21        \\
+                             &\texttt{CNN-L}    & 91.25 & 71.28        \\    \bottomrule
   \end{tabular}
   \caption{Comparison of models depending on using laughter on the training phase. }
   \label{table:laughter-group-acc}
@@ -331,17 +331,17 @@ To do so, we consider the performance of DAR models with three different utteran
 \end{itemize}
 
 \begin{table}[]
-\begin{tabular}{@{}clll@{}}
+\centering
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-                                                                                  &             & SWDA  & AMI-DA \\ \midrule
-\multirow{3}{*}{\begin{tabular}[c]{@{}c@{}}Micro-average\\ accuracy\end{tabular}} & \texttt{BERT-FT}     & 76.93 & 66.94  \\
-                                                                                  & \texttt{BERT-RI}     & 73.80 & 61.53  \\ 
-                                                                                  & \texttt{BERT-FZ}     & 55.61 & 46.59  \\ \midrule
-  \multirow{3}{*}{\begin{tabular}[c]{@{}c@{}}Macro-average\\ F1\end{tabular}}     & \texttt{BERT-FT}     & 45.99 & 50.03  \\
-                                                                                  & \texttt{BERT-RI}     & 32.18 & 33.45  \\ 
-                                                                                  & \texttt{BERT-FZ}     & 07.75 & 14.44  \\ \bottomrule
+                           & \multicolumn{2}{c}{SWDA}                          & \multicolumn{2}{c}{AMI-DA}                        \\ \midrule
+                           & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} \\
+\texttt{BERT-FT} & 45.99           & 76.93                    & 50.03                  & 66.94                    \\
+\texttt{BERT-RI} & 32.18           & 73.80                    & 33.45                  & 61.53                    \\
+\texttt{BERT-FZ} & 7.75            & 55.61                    & 14.44                  & 46.59 \\
+  \bottomrule
 \end{tabular}
-  \caption{DAR performance comparison of BERT with standard pre-training and DAR fine-tuning (\texttt{BERT-FT}) vs. the same model without pre-training (\texttt{BERT-RI}) and without fine-tuning (\texttt{BERT-FZ}).}
+  \caption{Macro-average F1 and micro-average accuracy of BERT with standard pre-training and DAR fine-tuning (\texttt{BERT-FT}) vs.~the same model without pre-training (\texttt{BERT-RI}) and without fine-tuning (\texttt{BERT-FZ}).}
   \label{table:exp2}
 \end{table}
 
@@ -393,7 +393,7 @@ Distractor utterances are drawn at random from another dialogue in the corpus
 and each epoch is generated separately so that different distractor sentences appear each time.
 We pre-trained three BERT models: with Switchboard (10 epochs), AMI (10 epochs), and the combined corpus (5 epochs).
 
-For each dialogue act corpus, we trained DAR models with BERT encoders pre-trained on the in-domain corpus (\texttt{ID}) and the combined corpus (\texttt{CC}).
+For each dialogue act corpus, we trained DAR models with BERT encoders pre-trained on the in-domain corpus (\texttt{BERT+ID}) and the combined corpus (\texttt{BERT+CC}).
 As before, we experimented with both the fine-tuning and frozen conditions.
 
 The results are mixed.
@@ -402,29 +402,21 @@ but the macro-average scores are almost uniformly worse (Table~\ref{table:exp3})
 %Indeed, when BERT is frozen during fine-tuning, the model that received no further pre-training performs better by more than 3 percentage points (Table~\ref{tab:exp3-recall}).
 To fully assess the potential impact of further in-domain pre-training, a larger dialogue corpus is required.
 
-\begin{table}
-\begin{tabular}{llrr}
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-               &         &  SWBD &   AMI \\
-\midrule
-\multirow{6}{*}{\begin{tabular}[c]{@{}c@{}}Micro-average\\ accuracy\end{tabular}} 
-               & \texttt{FT} & 76.93 & 66.95 \\
-               & \texttt{+ID-FT} & 77.02 & 68.66 \\
-               & \texttt{+CC-FT} & 77.35 & 68.58 \\ \cline{2-4}
-               & \texttt{FZ} & 55.61 & 46.60 \\
-               & \texttt{+ID-FZ} & 52.30 & 48.07 \\
-               & \texttt{+CC-FZ} & 51.14 & 42.42 \\ \hline
-\multirow{6}{*}{\begin{tabular}[c]{@{}c@{}}Macro-average\\ F1 score\end{tabular}} 
-               & \texttt{FT} & 45.99 & 50.03 \\
-               & \texttt{+ID-FT} & 45.48 & 46.56 \\
-               & \texttt{+CC-FT} & 47.78 & 48.72 \\ \cline{2-4}
-               & \texttt{FZ} &  7.75 & 14.44 \\
-               & \texttt{+ID-FZ} &  6.46 & 14.43 \\
-               & \texttt{+CC-FZ} &  5.76 & 12.56 \\
-               
-\bottomrule
+           & \multicolumn{2}{c}{SWDA}                          & \multicolumn{2}{c}{AMI-DA}                        \\ \midrule
+           & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} \\
+\texttt{BERT-FT}    & 45.99                  & 76.93                    & 50.03                  & 66.95                    \\
+\texttt{BERT+ID-FT} & 45.48                  & 77.02                    & 46.56                  & 68.66                    \\
+\texttt{BERT+CC-FT} & 47.78                  & 77.35                    & 48.72                  & 66.58                    \\ \midrule
+\texttt{BERT-FZ}    & 7.75                   & 55.61                    & 14.44                  & 46.60                    \\
+\texttt{BERT+ID-FZ} & 6.46                   & 52.30                    & 14.43                  & 48.07                    \\
+\texttt{BERT+CC-FZ} & 5.76                   & 51.14                    & 12.56                  & 42.42                    \\ \bottomrule
 \end{tabular}
-  \caption{Comparing DAR performance of  with further in-domain (\texttt{ID}) and cross-domain (\texttt{CC}) dialogue pre-training,
+  \caption{Comparison of macro-average F1 and micro-average accuracy  with further in-domain (\texttt{ID}) and cross-domain (\texttt{CC}) dialogue pre-training,
     for both the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
   \label{table:exp3}
 \end{table}
