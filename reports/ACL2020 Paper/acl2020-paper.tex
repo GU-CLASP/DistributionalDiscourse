@@ -367,7 +367,8 @@ To do so, we consider the performance of DAR models with three different utteran
 The pre-trained model is more accurate than the randomly initialized model by several percentage points on both DA corpora,
 suggesting that BERT's extensive pre-training does provide some useful information for recoginizing different dialogue acts (Table~\ref{table:exp2}).
 This performance boost is much more pronounced in the macro-averaged F1 score,
-which is explained by the fact that at the tag level, pre-training has a larger impact on less frequent tags. 
+which is explained by the fact that at the tag level, pre-training has a larger impact on less frequent tags.
+For a disaggregeated view, see Figure \ref{fig:f1-by-da} in Appendix~\ref{sec:suppl} p
 
 A key aspiration of transfer learning is to expose the model to phenomena that are too infrequent to learn from labeled training data alone.
 One explanation for pre-trained BERT's superior performance on some infrequent dialogue acts is that it has learned to represent relevant features
@@ -473,14 +474,24 @@ The same may not be true of dialogue, however.
 \bibliographystyle{acl_natbib}
 \clearpage
 \appendix
+
 \begin{figure*}[h!]
-  \section{Supplementary materials}\label{sec:suppl}
+\section{Supplementary materials}\label{sec:suppl}
   \centering
   \includegraphics[width=\linewidth]{img/SWDA-bertLvsNL.pdf}
   \includegraphics[width=\linewidth]{img/AMI-DA-bertLvsNL.pdf}
   \caption{Change in accuracy for each dialogue act (\texttt{BERT-NL} vs \texttt{BERT-L}). Positive changes when adding laughter (\texttt{BERT-L}) are shown in blue. Vertical bars indicate how often dialogue act is associated with laughter. Top chart: SWDA, Bottom chart: AMI-DA. }
     \label{fig:by-da}
   \end{figure*}
+
+\begin{figure*}[h!]
+  \centering
+  \includegraphics[width=\linewidth]{img/swda-brf.pdf}
+  \includegraphics[width=\linewidth]{img/ami-brf.pdf}
+  \caption{F1 scores by dialogue act for BERT with standard pre-training and DAR fine-tuning (\texttt{BERT-FT}) vs.~the same model without pre-training (\texttt{BERT-RI}) and without fine-tuning (\texttt{BERT-FZ}). Dialogue acts are ordered with the most common on the left.
+    \label{fig:f1-by-da}
+  \end{figure*}
+
 
 
 
