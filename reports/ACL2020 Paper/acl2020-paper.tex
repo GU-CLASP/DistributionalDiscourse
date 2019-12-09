@@ -133,7 +133,7 @@ One of the first performant machine learning models for DAR was a Hidden Markov 
 
 Most successful neural approaches also model some notion of context.
 We follow previous work that models dialogue act sequences with an RNN over utterances \citep{kalchbrennerRecurrentConvolutionalNeural2013,tranHierarchicalNeuralModel2017,botheContextbasedApproachDialogue2018}.
-Our model predicts the most likely tag given the hidden state of the RNN at each position, though other work has shown that DAR benefits from more sophistacted approaches, such as conditional random field \citep{chenDialogueActRecognition2017} or uncertainty propegation \citep{tranPreservingDistributionalInformation2017}. 
+Our model predicts the most likely tag given the hidden state of the RNN at each position, though other work has shown that DAR benefits from more sophisticated approaches, such as conditional random field \citep{chenDialogueActRecognition2017} or uncertainty propagation \citep{tranPreservingDistributionalInformation2017}. 
 
 \subsection{Transfer learning for NLP}
 Transfer learning techniques allow a model trained on one task---often unsupervised---to be applied to another. 
@@ -142,13 +142,13 @@ Word vectors \citep[e.g.,][]{mikolovDistributedRepresentationsWords2013,penningt
 We note, however, that pre-trained word vectors are not always useful when applied to dialogue domains \citet{cerisaraEffectsUsingWord2vec2017}. 
 
 Recently, neural models trained on large datasets with various unsupervised tasks have found success creating sentence-level and contextual word representations. 
-BERT, a multi-layer tranformer, is one such model \citep{devlinBERTPretrainingDeep2018} . 
+BERT, a multi-layer transformer, is one such model \citep{devlinBERTPretrainingDeep2018} . 
 BERT is pre-trained on two unsupervised tasks: \emph{masked token prediction} and \emph{next sentence prediction}.
 In masked token prediction, some percentage of words are randomly replaced with a \texttt{[MASK]} token, and the model is trained to predict the identity of these tokes based on the context sentence.
 In next sentence prediction, the model is give two sentences and trained to predict whether the second sentence follows the first in the original text, or if it was randomly chosen from elsewhere in the corpus.
 After pre-training, BERT can be applied to a supervised task by adding additional un-trained layers that take the hidden state of one or more of BERT's layers as input. 
 
-There is some preivous work applying BERT to dialogue.
+There is some previous work applying BERT to dialogue.
 \citet{baoPLATOPretrainedDialogue2019,chenSemanticallyConditionedDialog2019a} and both use BERT for dialogue generation tasks.
 Similarly \citet{vigComparisonTransferLearningApproaches2019} finds BERT useful for selecting a response from a list of candidate responses in a dialogue.
 Finally, \citet{mehriPretrainingMethodsDialog2019} evaluates BERT in various dialogue tasks including DAR, and find that a model incorporating BERT outperforms a baseline model.
@@ -200,7 +200,7 @@ early '90s                 & 2000s                                   \\ \midrule
   \label{table:corpora}
 \end{table}
 
-\paragraph{Preprocesing}
+\paragraph{Preprocessing}
 % - Preprocessing: remove disfluencies, acronyms and speaker tokens in AMI, removing laughter % Bill
 
 We make an effort to normalize transcription conventions across SWDA and AMI.
@@ -368,7 +368,7 @@ The pre-trained model is more accurate than the randomly initialized model by se
 suggesting that BERT's extensive pre-training does provide some useful information for recoginizing different dialogue acts (Table~\ref{table:exp2}).
 This performance boost is much more pronounced in the macro-averaged F1 score,
 which is explained by the fact that at the tag level, pre-training has a larger impact on less frequent tags.
-For a disaggregeated view, see Figure \ref{fig:f1-by-da} in Appendix~\ref{sec:suppl}.
+For a disaggregated view, see Figure \ref{fig:f1-by-da} in Appendix~\ref{sec:suppl}.
 
 A key aspiration of transfer learning is to expose the model to phenomena that are too infrequent to learn from labeled training data alone.
 One explanation for pre-trained BERT's superior performance on some infrequent dialogue acts is that it has learned to represent relevant features
