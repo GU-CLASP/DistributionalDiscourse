@@ -107,6 +107,16 @@ In this work, we investigate whether BERT \citep{devlinBERTPretrainingDeep2018},
 We use dialogue act recognition  as a proxy task, since both the internal content of contributions, and their sequential structure have bearing on the task.
 In this work we also show that laughs can be helpful to disambiguate a dialogue act.
 
+\paragraph{Contributions}
+The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
+\begin{itemize}
+  \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment2}).
+  \item During fine-tuning, BERT learns to represent laughter, a dialogical feature not seen in pre-training (\S\ref{sec:experiment2} and \S\ref{sec:experiment3}).
+  \item Standard BERT pre-training is useful for DAR, but the model performs poorly without fine-tuning (\S\ref{sec:experiment2})
+  \item Further pre-training with in-domain data shows promise for dialogue (\S\ref{sec:experiment3}), but further investigation with larger dialogue corpora is required.
+\end{itemize}
+
+
 \section{Background}
 
 \paragraph{Dialogue Act Recognition (DAR)}
@@ -177,16 +187,6 @@ As discussed in \S\ref{sec:data}, however, there are dramatic differences betwee
   \item \citet{vigComparisonTransferLearningApproaches} -- Transfer learning for response selection
 \end{itemize}
 
-
-
-\paragraph{Contributions}
-The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
-\begin{itemize}
-  \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment2}).
-  \item During fine-tuning, BERT learns to represent laughter, a dialogical feature not seen in pre-training (\S\ref{sec:experiment2} and \S\ref{sec:experiment3}).
-  \item Standard BERT pre-training is useful for DAR, but the model performs poorly without fine-tuning (\S\ref{sec:experiment2})
-  \item Further pre-training with in-domain data shows promise for dialogue (\S\ref{sec:experiment3}), but further investigation with larger dialogue corpora is required.
-\end{itemize}
 
 
 \section{Data}
