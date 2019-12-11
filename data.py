@@ -110,6 +110,15 @@ def load_data_pretraining(corpus_file, tokenizer):
         data.append(utts)
     return data
 
+
+def write_pretraining_corpus(corpus_file, corpus):
+    with open(os.path.join(corpus_file), 'w') as f:
+        for d in corpus:
+            for utt in d:
+                f.write(' '.join(utt) + '\n')
+            f.write('\n')
+
+
 Dialogue = namedtuple('Dialogue', ['id', 'speakers', 'utts', 'da_tags'])
 
 
@@ -361,19 +370,11 @@ if __name__ == '__main__':
 
         tokenizer = load_tokenizer('bert-base-uncased')
 
-        ami = (load_data_pretraining(os.path.join(args.data_dir, 'AMI-DA_train.json'), tokenizer) +
-               load_data_pretraining(os.path.join(args.data_dir, 'AMI-noDA.json'), tokenizer))
-        with open(os.path.join(args.data_dir, 'AMI_pretraining.txt'), 'w') as f:
-            for d in ami:
-                for utt in d:
-                    f.write(' '.join(utt) + '\n')
-                f.write('\n')
+        ami = load_data_pretraining(os.path.join(args.data_dir, 'AMI-DA_train.json'), tokenizer)
+        ami_da = load_data_pretraining(os.path.join(args.data_dir, 'AMI-noDA.json'), tokenizer)
+        swda = load_data_pretraining(os.path.join(args.data_dir, 'SWDA_train.json'), tokenizer)
 
-        swbd = load_data_pretraining(os.path.join(args.data_dir, 'SWDA_train.json'), tokenizer)
-        with open(os.path.join(args.data_dir, 'SWBD_pretraining.txt'), 'w') as f:
-            for d in swbd:
-                for utt in d:
-                    f.write(' '.join(utt) + '\n')
-                f.write('\n')
-
+        write_pretraining_corpus(os.path.join(args.data_dir, 'AMI_pretraining.txt'), ami + ami_da)
+        write_pretraining_corpus(os.path.join(args.data_dir, 'SWBD_pretraining.txt'), swda)
+        write_pretraining_corpus(os.path.join(args.data_dir, 'AMI+SWBD_pretraining.txt'), ami + ami_da + swda)
 

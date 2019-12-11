@@ -177,6 +177,10 @@ def main():
                         type=int,
                         default=42,
                         help="random seed for initialization")
+    parser.add_argument('--gpu_id', 
+                        type=int, default
+                        =0,
+                        help='Select with GPU to use')
     args = parser.parse_args()
 
     assert args.pregenerated_data.is_dir(), \
@@ -200,7 +204,7 @@ def main():
         num_data_epochs = args.epochs
 
     if args.local_rank == -1 or args.no_cuda:
-        device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
+        device = torch.device(f"cuda:{args.gpu_id}" if torch.cuda.is_available() and not args.no_cuda else "cpu")
         # n_gpu = torch.cuda.device_count()
         n_gpu = 1
     else:
