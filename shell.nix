@@ -1,14 +1,15 @@
 { bootstrap ? import <nixpkgs> {} }:
 
 let
-    # pkgs_source = fetchTarball "https://github.com/NixOS/nixpkgs/archive/dfd8f84aef129f1978e446b5d45ef05cd4421821.tar.gz";
-    # pkgs_source = ~/repo/nixpkgs;
-    pkgs_source = bootstrap.fetchFromGitHub { # for safety of checking the hash
-        owner = "stites";
-        repo = "nixpkgs";
-        rev = "pytorch_11";
-        sha256 = "1w1bdqnpjcgdmql3jfcmyz0g0wix4xg17417a7ask5bsphbhpia2";
-      };
+     #pkgs_source = fetchTarball "https://github.com/NixOS/nixpkgs/archive/dfd8f84aef129f1978e446b5d45ef05cd4421821.tar.gz";
+     #pkgs_source = ~/repo/nixpkgs;
+    #pkgs_source = bootstrap.fetchFromGitHub { # for safety of checking the hash
+        #owner = "stites";
+        #repo = "nixpkgs";
+        #rev = "pytorch_11";
+        #sha256 = "1w1bdqnpjcgdmql3jfcmyz0g0wix4xg17417a7ask5bsphbhpia2";
+      #};
+    pkgs_source = fetchTarball "https://github.com/NixOS/nixpkgs/archive/20.03-beta.tar.gz";
     overlays = [
       (self: super:  # define our local packages
          {
@@ -47,7 +48,7 @@ let
 in
   pkgs.stdenv.mkDerivation {
     name = "sh-env";
-    buildInputs = [pyEnv];
+    buildInputs = [pyEnv pkgs.ranger pkgs.htop];
     shellHook = ''
       export LANG=en_US.UTF-8
       export PYTHONIOENCODING=UTF-8
