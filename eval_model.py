@@ -121,7 +121,7 @@ if __name__ == '__main__':
         raise ValueError("Unknown encoder model: {}".format(args.encoder_model))
 
     # always use the same dar_model  
-    dar_model = model.DARRNN(args.utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0)
+    dar_model = model.DARRNN(args.utt_dims, n_tags, args.dar_hidden, args.dar_layers, dropout=0, use_lstm=args.lstm)
 
     log.debug("Load the model state dicts.")
     encoder_model.load_state_dict(torch.load(encoder_model_file))

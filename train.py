@@ -9,17 +9,17 @@ import torch.optim as optim
 import transformers
 
 import itertools
-import json 
+import json
 import argparse
 import os
 import logging
 import random
-import math 
+import math
 import contextlib
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument("encoder_model", choices=['wordvec-avg', 'cnn', 'bert'], 
+parser.add_argument("encoder_model", choices=['wordvec-avg', 'cnn', 'bert'],
         help="Which encoder_model model to use")
 parser.add_argument('corpus', choices=['SWDA', 'AMI-DA'],
         help='Which dialouge act corpus to train on.')
@@ -58,9 +58,9 @@ parser.add_argument('-d','--data-dir', default='data',
         help='Data storage directory.')
 parser.add_argument('-m','--model-dir', default='models',
         help='Trained model storage directory.')
-parser.add_argument('--save-suffix', type=str, default='', 
+parser.add_argument('--save-suffix', type=str, default='',
         help='A suffix to add to the name of the save directory.')
-parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
+parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO,
         help="Increase output verbosity")
 parser.add_argument('--cuda', action='store_true',
         help='use CUDA')
@@ -94,12 +94,20 @@ def train_epoch(encoder_model, dar_model, data, n_tags, batch_size, bptt, min_ut
     for i, batch in enumerate(tqdm(batches), 1):
         batch_loss = 0
         batch_size_ = len(batch)
-        hidden = dar_model.init_hidden(batch_size_).to(device)
+        hidden = dar_model.init_hidden(batch_size_)
+        if dar_model.use_lstm:
+            hidden[0].to(device)
+            hidden[1].to(device)
+        else:
+            hidden.to(device)
         for x, y in gen_bptt(batch, bptt, batch_size_, min_utt_len, max_utt_len):
             # detach history from the previous batch
-            hidden = hidden.detach() 
+            if dar_model.use_lstm:
+                hidden = (hidden[0].detach(), hidden[1].detach())
+            else:
+                hidden = hidden.detach()
             # zero out the gradients 
-            dar_model.zero_grad() 
+            dar_model.zero_grad()
             encoder_model.zero_grad()
             # create tensors
             y = torch.LongTensor(y).to(device)
@@ -233,7 +241,7 @@ if __name__ == '__main__':
     for epoch in range(1, args.epochs+1):
         log.info(f"Starting epoch {epoch}")
         train_loss = train_epoch(encoder_model, dar_model, train_data, n_tags,
-                args.batch_size, args.bptt, min_utt_len, args.max_utt_len, 
+                args.batch_size, args.bptt, min_utt_len, args.max_utt_len,
                 criterion, optimizer, device)
         log.info(f"Epoch {epoch} training loss:   {train_loss:.6f}")
         log.info(f"Saving epoch {epoch} models.")
