@@ -9,7 +9,8 @@ let
         #rev = "pytorch_11";
         #sha256 = "1w1bdqnpjcgdmql3jfcmyz0g0wix4xg17417a7ask5bsphbhpia2";
       #};
-    pkgs_source = fetchTarball "https://github.com/NixOS/nixpkgs/archive/20.03-beta.tar.gz";
+    #pkgs_source = fetchTarball "https://github.com/NixOS/nixpkgs/archive/20.03-beta.tar.gz";
+    pkgs_source = fetchTarball "https://github.com/NixOS/nixpkgs/archive/dfa8e8b9bc4a18bab8f2c55897b6054d31e2c71b.tar.gz";
     overlays = [
       (self: super:  # define our local packages
          {
