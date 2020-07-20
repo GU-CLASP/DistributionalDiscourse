@@ -153,7 +153,8 @@ After pre-training, BERT can be applied to a supervised task by adding additiona
 There is some previous work applying BERT to dialogue.
 \citet{baoPLATOPretrainedDialogue2019} and \citet{chenSemanticallyConditionedDialog2019a} both use BERT for dialogue generation tasks.
 Similarly \citet{vigComparisonTransferLearningApproaches2019} find BERT useful for selecting a response from a list of candidate responses in a dialogue.
-Finally, \citet{mehriPretrainingMethodsDialog2019} evaluate BERT in various dialogue tasks including DAR, and find that a model incorporating BERT outperforms a baseline model.
+\citet{mehriPretrainingMethodsDialog2019} evaluate BERT in various dialogue tasks including DAR, and find that a model incorporating BERT outperforms a baseline model.
+Finally, \citet{chakravarty2019dialog} uses BERT for dialogue act classification for a proprietary domain and achieves promising results, and \citet{ribeiro2019deep} surpass the previous state-of-the-art on generic dialog act recognition for Switchboard and MRDA corpora. In our work we are not attempting to beat the current state-of-the-art due to the different aims of the study.
 
 % TODO: \citep{chakravarty2019dialog,ribeiro2019deep,yu2019midas}
 % some motivation, maybe restate that we are not looking at the performance per say?
@@ -280,7 +281,7 @@ Let us turn now to describing the neural network architectures that we used.
 \section{Model} % Bill
 
 To test the effectiveness of BERT for DAR, we employ a simple neural architecture with two components: an encoder that vectorizes utterances, and a sequence model that predicts dialogue act tags from the vectorized utterances (Figure~\ref{fig:model-architecture}).
-Since we are primarily interested in comparing different utterance encoders, we use a basic RNN as the sequence model in every configuration. 
+Since we are primarily interested in comparing different utterance encoders, we use a basic RNN as the sequence model in every configuration.\footnote{We have experimented with LSTM as a the sequence model, but the accuracy was not significantly different compared to RNN. It can be explained by the absence of longer distance dependencies on this level of our model.} 
 The RNN takes the encoded utterance as input at each time step,
 and its hidden state is passed to a simple linear classification layer over dialogue act tags.
 Conceptually, the encoded utterance represents the context-agnostic features of the utterance, and the hidden state of the RNN represents the full discourse context.
