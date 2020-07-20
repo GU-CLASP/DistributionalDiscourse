@@ -133,9 +133,8 @@ As with other sequence labeling tasks in NLP, some notion of context is helpful 
 One of the first performant machine learning models for DAR was a Hidden Markov Model that used various lexical and prosodic features as input \citep{stolckeDialogueActModeling2000}.
 
 Most successful neural approaches also model some notion of context.
-We follow previous work that models dialogue act sequences with an RNN over utterances \citep{kalchbrennerRecurrentConvolutionalNeural2013,tranHierarchicalNeuralModel2017,botheContextbasedApproachDialogue2018}.
+We follow previous work that models dialogue act sequences with an RNN over utterances \citep{kalchbrennerRecurrentConvolutionalNeural2013,tranHierarchicalNeuralModel2017,botheContextbasedApproachDialogue2018,bothe2018conversational,zhao2018unified}.
 Our model predicts the most likely tag given the hidden state of the RNN at each position, though other work has shown that DAR benefits from more sophisticated approaches, such as conditional random field \citep{chenDialogueActRecognition2017} or uncertainty propagation \citep{tranPreservingDistributionalInformation2017}.
-% TODO: RNN with attention: \citep{bothe2018conversational,zhao2018unified}
 
 
 \subsection{Transfer learning for NLP}
