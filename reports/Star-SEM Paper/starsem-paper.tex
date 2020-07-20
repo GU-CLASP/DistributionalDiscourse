@@ -89,9 +89,9 @@ More generally, the way that utterances contribute to and cohere with the discou
 
 One important dialogical feature missing from text data is laughter, which is ubiquitous in our everyday interactions.
 We observe that in the Switchboard dialogue corpus laughter comes about every 200 tokens.
-Laughter also relates to the discourse structure of dialogue and can relate to a laughable, which can be any an event or an entity in the discourse (and external perceived event as well).
+Laughter also relates to the discourse structure of dialogue and can relate to a laughable, which can be an event or an entity in the discourse (and external perceived event as well).
 Laughter can precede, follow or overlap the laughable, with the time alignment between the laughter and laughable dependent on who produces the laughable and the form of the laughter \citep{tian2016we}.
-Laughter can act as a contextual feature for determining the sincerity of an utterance, e.g. to when detecting sarcasm \citep{tepperman2006yeah}.
+Laughter can act as a contextual feature for determining the sincerity of an utterance, e.g. when detecting sarcasm \citep{tepperman2006yeah}.
 
 \begin{table}
       \small
@@ -144,9 +144,7 @@ One of the first performant machine learning models for DAR was a Hidden Markov 
 Most successful neural approaches also model some notion of context.
 We follow previous work that models dialogue act sequences with an RNN over utterances \citep{kalchbrennerRecurrentConvolutionalNeural2013,tranHierarchicalNeuralModel2017,botheContextbasedApproachDialogue2018}.
 Our model predicts the most likely tag given the hidden state of the RNN at each position, though other work has shown that DAR benefits from more sophisticated approaches, such as conditional random field \citep{chenDialogueActRecognition2017} or uncertainty propagation \citep{tranPreservingDistributionalInformation2017}.
-% TODO: RNN with attention:
-% - Conversational Analysis using Utterance-level Attention-based Bidirectional Recurrent Neural Networks (Bothe et al., Interspeech 2018)
-% - A Unified Neural Architecture for Joint Dialog Act Segmentation and Recognition in Spoken Dialog System (Zhao and Kawahara, SIGdial 2018)
+% TODO: RNN with attention: \citep{bothe2018conversational,zhao2018unified}
 
 
 \subsection{Transfer learning for NLP}
@@ -167,11 +165,8 @@ There is some previous work applying BERT to dialogue.
 Similarly \citet{vigComparisonTransferLearningApproaches2019} find BERT useful for selecting a response from a list of candidate responses in a dialogue.
 Finally, \citet{mehriPretrainingMethodsDialog2019} evaluate BERT in various dialogue tasks including DAR, and find that a model incorporating BERT outperforms a baseline model.
 
-
-% TODO: more refs
-% Chakravarty et al., "Dialog Acts Classification for Question-Answer Corpora," ASAIL 2019.
-% - Ribeiro et al., "Deep Dialog Act Recognition using Multiple Token, Segment, and Context Information Representations," Journal of Artificial Intelligence Research, 2019
-% - Yu et al., "MIDAS, A Dialog Act Annotation Scheme for Open-Domain Human-Machine Spoken Conversations," arxiv 2019.
+% TODO: \citep{chakravarty2019dialog,ribeiro2019deep,yu2019midas}
+% some motivation, maybe restate that we are not looking at the performance per say?
 
 
 
