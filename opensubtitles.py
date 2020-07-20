@@ -39,7 +39,7 @@ class StreamArray(list):
 
 
 def normalize_laughs(sentence):
-    laugh_stems = ["laugh", "chuckl", "giggl", "titter",
+    laugh_stems = ["laugh", "chuckl", "giggl", "titter", "scoff"
                    "tee-hee", "snigger", "snicker", "chortl", "guffaw", "roar"]
     regexstr = '(\[|\()\s(\w+\s)*(' + \
         "\w*|".join(laugh_stems) + "\w*)(\s\w+\s)*\s(\]|\))"
@@ -47,6 +47,8 @@ def normalize_laughs(sentence):
                             sentence, flags=re.IGNORECASE)
     global laughs
     laughs += lau
+    if lau:
+        print(new_sent)
     return new_sent
 
 
@@ -82,9 +84,6 @@ if __name__ == '__main__':
         for chunk in json.JSONEncoder().iterencode(stream_array):
             f.write(chunk)
     print(f'total laughs: {laughs}')
-
-
-# note! weird speakers in AMI-noDA
 
 # Local Variables:
 # python-shell-interpreter: "nix-shell"
