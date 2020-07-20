@@ -44,6 +44,7 @@
 \newcommand\BibTeX{B\textsc{ib}\TeX}
 
 \title{Tickle me BERT: Using laughter to probe pre-trained encoders for dialogue act recognition}
+% TODO rename
 
 \author{First Author \\
   Affiliation / Address line 1 \\
@@ -134,7 +135,12 @@ One of the first performant machine learning models for DAR was a Hidden Markov 
 
 Most successful neural approaches also model some notion of context.
 We follow previous work that models dialogue act sequences with an RNN over utterances \citep{kalchbrennerRecurrentConvolutionalNeural2013,tranHierarchicalNeuralModel2017,botheContextbasedApproachDialogue2018}.
-Our model predicts the most likely tag given the hidden state of the RNN at each position, though other work has shown that DAR benefits from more sophisticated approaches, such as conditional random field \citep{chenDialogueActRecognition2017} or uncertainty propagation \citep{tranPreservingDistributionalInformation2017}. 
+Our model predicts the most likely tag given the hidden state of the RNN at each position, though other work has shown that DAR benefits from more sophisticated approaches, such as conditional random field \citep{chenDialogueActRecognition2017} or uncertainty propagation \citep{tranPreservingDistributionalInformation2017}.
+% TODO: RNN with attention:
+% - Conversational Analysis using Utterance-level Attention-based Bidirectional Recurrent Neural Networks (Bothe et al., Interspeech 2018)
+% - A Unified Neural Architecture for Joint Dialog Act Segmentation and Recognition in Spoken Dialog System (Zhao and Kawahara, SIGdial 2018)
+
+% TODO DAR not for 
 
 \subsection{Transfer learning for NLP}
 Transfer learning techniques allow a model trained on one task---often unsupervised---to be applied to another. 
@@ -154,6 +160,14 @@ There is some previous work applying BERT to dialogue.
 Similarly \citet{vigComparisonTransferLearningApproaches2019} find BERT useful for selecting a response from a list of candidate responses in a dialogue.
 Finally, \citet{mehriPretrainingMethodsDialog2019} evaluate BERT in various dialogue tasks including DAR, and find that a model incorporating BERT outperforms a baseline model.
 
+
+% TODO: more refs
+% Chakravarty et al., "Dialog Acts Classification for Question-Answer Corpora," ASAIL 2019.
+% - Ribeiro et al., "Deep Dialog Act Recognition using Multiple Token, Segment, and Context Information Representations," Journal of Artificial Intelligence Research, 2019
+% - Yu et al., "MIDAS, A Dialog Act Annotation Scheme for Open-Domain Human-Machine Spoken Conversations," arxiv 2019.
+
+
+
 \paragraph{Fine-tuning vs.~further in-domain pre-training}
 Transfer learning schemes for pre-trained language models such as BERT draw on one or more of the following three adaptation strategies \citep{sunHowFineTuneBERT2019}:
 \emph{further pre-training}, in which the model is trained in an un-supervised way, similar to its initial training scheme, but on data that is in-domain for the target task; 
@@ -167,7 +181,7 @@ However, fine-tuning can lead to better performance since the encoding itself is
 
 \citet{petersTuneNotTune2019} investigate when it is best to fine-tune BERT for sentence classification tasks.
 They find that when the target task is very similar to the pre-training task, fine-tuning provides less of a performance boost.
-We note that there is some conceptual relationship between DAR and next sentence prediction, since the a dialogue act constrains (or at least is predictive of) the dialogue act that follows it.
+We note that there is some conceptual relationship between DAR and next sentence prediction, since the dialogue act constrains (or at least is predictive of) the dialogue act that follows it.
 
 \citet{petersTuneNotTune2019} also consider whether the similarity of the pre-training and target domains may have similar consequences, but don't find an effect of domain similarly for the natural language inference tasks they tested on.
 As discussed in \S\ref{sec:data}, however, there are dramatic differences between written text and transcribed dialogue which may make fine-tuning necessary for DAR.
@@ -471,7 +485,7 @@ Incorporating such information is crucial if models pre-trained on large-scale t
 
 Although our experiments with further pre-training were inconclusive, \citet{baoPLATOPretrainedDialogue2019} finds that further pre-training BERT on a large-scale Reddit and Twitter corpus is helpful for response selection.
 Further pre-training may be helpful for DAR too, if the in-domain or cross-domain corpus is large enough.
-It remains an open question, however, how well the text chat and social media domains transfer to transcribed dialogue 
+It remains an open question, however, how well the text chat and social media domains transfer to transcribed dialogue.
 
 Another avenue for future research is what pre-training schemes are best for the dialogue domain.
 The training scheme for RoBERTa \citep{liuRoBERTaRobustlyOptimized2019}, for example, leaves out next sentence prediction as a pre-training task because they do not find that it improves performance on question answering and natural language inference tasks.
