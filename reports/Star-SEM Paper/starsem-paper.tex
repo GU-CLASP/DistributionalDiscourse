@@ -445,12 +445,14 @@ To fully assess the potential impact of further in-domain pre-training, a larger
 \toprule
            & \multicolumn{2}{c}{SWDA}                          & \multicolumn{2}{c}{AMI-DA}                        \\ \midrule
            & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} \\
-\texttt{BERT-FT}    & 45.99                  & 76.93                    & 50.03                  & 66.95                    \\
-\texttt{BERT+ID-FT} & 45.48                  & 77.02                    & 46.56                  & 68.66                    \\
-\texttt{BERT+CC-FT} & 47.78                  & 77.35                    & 48.72                  & 66.58                    \\ \midrule
-\texttt{BERT-FZ}    & 7.75                   & 55.61                    & 14.44                  & 46.60                    \\
-\texttt{BERT+ID-FZ} & 6.46                   & 52.30                    & 14.43                  & 48.07                    \\
-\texttt{BERT+CC-FZ} & 5.76                   & 51.14                    & 12.56                  & 42.42                    \\ \bottomrule
+\texttt{BERT-FT}    & 36.75                  & 76.60                    & 43.42                  & 64.93                    \\
+\texttt{BERT+ID-FT} & 43.63                  & 77.01                    & 46.70                  & \textbf{68.88}           \\
+\texttt{BERT+CC-FT} & \textbf{47.78}         & \textbf{77.35}           & \textbf{48.86}         & 68.79                    \\ 
+\texttt{BERT+OS-FT} & 41.42                  & 76.95                    & 48.65                  & 68.07                    \\ \midrule
+\texttt{BERT-FZ}    &  7.75                  & 55.61           & 14.86                  & 48.34                    \\
+\texttt{BERT+ID-FZ} &  6.46                  & 52.30                    & 14.48                  & 48.18                    \\
+\texttt{BERT+CC-FZ} &  5.76                  & 51.14                    & 11.34                  & 40.48                    \\ 
+\texttt{BERT+OS-FZ} &  \textbf{9.60}         & \textbf{57.67}           & \textbf{17.03}         & \textbf{51.03}           \\ \bottomrule
 \end{tabular}
   \caption{Comparison of macro-average F1 and accuracy  with further in-domain (\texttt{ID}) and combined corpus (\texttt{CC}) dialogue pre-training,
     for both the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
