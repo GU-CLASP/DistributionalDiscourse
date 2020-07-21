@@ -63,7 +63,7 @@
 \begin{abstract}
    In this work we investigate whether transformer models can learn to represent phenomena specific to dialogue.
    Laughter tokens, which are not present in pre-trained BERT models, can be learned during additional pre-training and fine-tuning on dialogue data. 
-   We use dialogue act recognition as a proxy task and demonstrate that laughter is a useful feature for it.
+   We use dialogue act recognition as a proxy task to demonstrate that laughter can help disambiguate between certain communicative intents.
    We find that pre-training and fine-tuning procedures are useful for learning laughter representation, and explore how well the model adapts to the dialogue domain.
 \end{abstract}
 
@@ -113,7 +113,7 @@ The main results of this paper have to do with to the usefulness of language mod
   \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment1}).
   \item During fine-tuning, BERT learns to represent laughter, a dialogical feature not seen in pre-training (\S\ref{sec:experiment1} and \S\ref{sec:experiment2}).
   \item Standard BERT pre-training is useful for DAR, but the model performs poorly without fine-tuning (\S\ref{sec:experiment2})
-  \item Further pre-training with in-domain data shows promise for dialogue (\S\ref{sec:experiment3}), but further investigation with larger dialogue corpora is required.
+  \item Further pre-training with data from the target domain shows promise for dialogue, but we find mixed results when pre-training with a larger corpus domain dialogical data from outside the target domain (\S\ref{sec:experiment3}).
     % TODO: we did that but what can we conclude? Perhaps that the nature of the data is very different, so it is not very helpful..?
   \end{itemize}
 
@@ -141,7 +141,7 @@ Our model predicts the most likely tag given the hidden state of the RNN at each
 Transfer learning techniques allow a model trained on one task---often unsupervised---to be applied to another. 
 Since annotating natural language data is expensive, there is a lot of interest in transfer learning for natural language processing. 
 Word vectors \citep[e.g.,][]{mikolovDistributedRepresentationsWords2013,penningtonGloveGlobalVectors2014} are a ubiquitous example of transfer learning in NLP.
-We note, however, that pre-trained word vectors are not always useful when applied to dialogue domains \cite{cerisaraEffectsUsingWord2vec2017}. 
+We note, however, that pre-trained word vectors are not always useful when applied to dialogue \cite{cerisaraEffectsUsingWord2vec2017}. 
 
 Recently, neural models trained on large datasets with various unsupervised tasks have found success creating sentence-level and contextual word representations. 
 BERT, a multi-layer transformer, is one such model \citep{devlinBERTPretrainingDeep2018}. 
@@ -307,7 +307,7 @@ In the first experiment we investigated whether laughter, as an example of a dia
 Therefore, we train another version of each model: one that containing laughs (\texttt{L}) and one with laughs left out (\texttt{NL}), and compare their performances in DAR task.
 Table~\ref{table:laughter-total-acc} compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}).
 
-First of all, we can see that \texttt{BERT} utterance encoder outperforms \texttt{CNN} in all the cases.
+First of all, we can see that the \texttt{BERT} utterance encoder outperforms \texttt{CNN} in all the cases.
 From observing the effect of laughters, we can see differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:by-da} in Appendix~\ref{sec:suppl}).
 The strongest evidence for laughter as a helpful feature was found in SWDA for the \texttt{BERT} utterance encoder, where macro-F1 score increases by 7.89 percentage points.
 
@@ -478,8 +478,8 @@ Still, pre-training provides nowhere near the performance improvement achieved b
 \texttt{BERT+CC-FZ} &  5.76                  & 51.14                    & 11.34                  & 40.48                    \\ 
 \texttt{BERT+OS-FZ} &  \textbf{9.60}         & \textbf{57.67}           & \textbf{17.03}         & \textbf{51.03}           \\ \bottomrule
 \end{tabular}
-  \caption{Comparison of macro-average F1 and accuracy  with further in-domain (\texttt{ID}) and combined corpus (\texttt{CC}) dialogue pre-training,
-    for both the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
+\caption{Comparison of macro-average F1 and accuracy with further in-domain (\texttt{ID}), combined corpus (\texttt{CC}), and OpenSubtitles (\texttt{OS}) dialogue pre-training,
+    for the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
   \label{table:exp3}
 \end{table}
 
@@ -502,9 +502,9 @@ There is abundant room for further progress in determining how other speech-rela
 Furthermore, in relation to laughter, its form (duration, arousal level) can be informative about its function and position w.r.t. to laughable \citep{tian2016we,mazzocconi2019phd}.
 Incorporating such information is crucial if models pre-trained on large-scale text corpora are to be adapted for use in dialogue applications.
 
-Although our experiments with further pre-training were inconclusive, \citet{baoPLATOPretrainedDialogue2019} finds that further pre-training BERT on a large-scale Reddit and Twitter corpus is helpful for response selection.
-Further pre-training may be helpful for DAR too, if the in-domain or cross-domain corpus is large enough.
-It remains an open question, however, how well the text chat and social media domains transfer to transcribed dialogue.
+Our experiments with further pre-training were inconclusive. 
+Although pre-training on data from the target domain proved useful, training on a much larger corpus of dialogue-like data (OpenSubtitles) yielded less substantial improvements in the fine-tuned condition.
+\citet{baoPLATOPretrainedDialogue2019} finds that further pre-training BERT on a large-scale Reddit and Twitter corpus is helpful for response selection, but given unimpressive results with subtitles, it remains an open question how well the text chat and social media domains transfer to transcribed dialogue.
 
 Another avenue for future research is what pre-training schemes are best for the dialogue domain.
 The training scheme for RoBERTa \citep{liuRoBERTaRobustlyOptimized2019}, for example, leaves out next sentence prediction as a pre-training task because they do not find that it improves performance on question answering and natural language inference tasks.
