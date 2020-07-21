@@ -154,7 +154,7 @@ There is some previous work applying BERT to dialogue.
 \citet{baoPLATOPretrainedDialogue2019} and \citet{chenSemanticallyConditionedDialog2019a} both use BERT for dialogue generation tasks.
 Similarly \citet{vigComparisonTransferLearningApproaches2019} find BERT useful for selecting a response from a list of candidate responses in a dialogue.
 \citet{mehriPretrainingMethodsDialog2019} evaluate BERT in various dialogue tasks including DAR, and find that a model incorporating BERT outperforms a baseline model.
-Finally, \citet{chakravarty2019dialog} uses BERT for dialogue act classification for a proprietary domain and achieves promising results, and \citet{ribeiro2019deep} surpass the previous state-of-the-art on generic dialog act recognition for Switchboard and MRDA corpora. In our work we are not attempting to beat the current state-of-the-art due to the different aims of the study.
+Finally, \citet{chakravarty2019dialog} use BERT for dialogue act classification for a proprietary domain and achieves promising results, and \citet{ribeiro2019deep} surpass the previous state-of-the-art on generic dialog act recognition for Switchboard and MRDA corpora. In our work we are not attempting to beat the current state-of-the-art due to the different aims of the study.
 
 % TODO: \citep{chakravarty2019dialog,ribeiro2019deep,yu2019midas}
 % some motivation, maybe restate that we are not looking at the performance per say?
@@ -454,7 +454,7 @@ For each of the target corpora (SWDA and AMI-DA), we compare four different pre-
 The in-domain corpus (\texttt{ID}), consisting of the AMI pre-training corpus for the AMI-DA model and the SWBD pre-traning corpus for the SWDA model; 
 the cross-domain corpus (\texttt{CC}), consisting of both the AMI and SWBD pre-training corpora; 
 the OpenSubtitles corpus (\texttt{OS});
-and finally the standard BERT\textsubscript{BASE} model with no addational pre-training.
+and finally the standard BERT\textsubscript{BASE} model with no additional pre-training.
 As before, we experiment with both frozen and fine-tuned models at the task training stage.
 
 We performed 10 epochs of pre-training on the in-domain models and 5 epochs of pre-training on the cross-domain models so that the total amount of training data was comparable. The OpenSubtitles models trained on much more data (see Table~\ref{tab:pretraining-corpora}) and were trained for only one epoch.
