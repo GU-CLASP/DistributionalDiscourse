@@ -317,10 +317,12 @@ The strongest evidence for laughter as a helpful feature was found in SWDA for t
     \toprule
                       & \multicolumn{2}{c}{SWDA} & \multicolumn{2}{c}{AMI-DA} \\ \midrule
                       & F1    & acc.  & F1    & acc.       \\ 
+    Majority class    & 0.78  & 33.56 &  1.88 & 28.27      \\ \midrule
     \texttt{BERT-NL}  & 38.10 & 77.07 & 49.09 & 67.06       \\ 
     \texttt{BERT-L}   & 45.99 & 76.93 & 50.17 & 67.12       \\ \midrule
     \texttt{CNN-NL}   & 37.23 & 75.08 & 38.37 & 63.46        \\
-    \texttt{CNN-L}    & 27.59 & 75.40 & 37.94 & 64.30        \\ \bottomrule
+    \texttt{CNN-L}    & 27.59 & 75.40 & 37.94 & 64.30        \\ \midrule
+    Majority class    & 0.78  & 33.56 &  1.88 & 28.27      \\ \bottomrule
     
   \end{tabular}
   \caption{Comparison of macro-average F1 and accuracy depending on using laughter on the training phase. }
@@ -399,8 +401,8 @@ To do so, we consider the performance of DAR models with three different utteran
                            & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} \\
 \texttt{BERT-FT} & 36.75           & 76.60                    & 43.42                  & 64.93                    \\
 \texttt{BERT-RI} & 32.18           & 73.80                    & 34.88                  & 60.89                    \\
-\texttt{BERT-FZ} & 7.75            & 55.61                    & 14.86                  & 48.34 \\
-  \bottomrule
+\texttt{BERT-FZ} & 7.75            & 55.61                    & 14.86                  & 48.34 \\ \midrule
+    Majority class    & 0.78  & 33.56 &  1.88 & 28.27      \\ \bottomrule
 \end{tabular}
   \caption{Macro-average F1 and accuracy of BERT with standard pre-training and DAR fine-tuning (\texttt{BERT-FT}) vs.~the same model without pre-training (\texttt{BERT-RI}) and without fine-tuning (\texttt{BERT-FZ}).}
   \label{table:exp2}
@@ -476,7 +478,8 @@ Still, pre-training provides nowhere near the performance improvement achieved b
 \texttt{BERT-FZ}    &  7.75                  & 55.61           & 14.86                  & 48.34                    \\
 \texttt{BERT+ID-FZ} &  6.46                  & 52.30                    & 14.48                  & 48.18                    \\
 \texttt{BERT+CC-FZ} &  5.76                  & 51.14                    & 11.34                  & 40.48                    \\ 
-\texttt{BERT+OS-FZ} &  \textbf{9.60}         & \textbf{57.67}           & \textbf{17.03}         & \textbf{51.03}           \\ \bottomrule
+\texttt{BERT+OS-FZ} &  \textbf{9.60}         & \textbf{57.67}           & \textbf{17.03}         & \textbf{51.03}           \\ \midrule
+    Majority class  & 0.78                   & 33.56                    &  1.88                  & 28.27      \\ \bottomrule
 \end{tabular}
 \caption{Comparison of macro-average F1 and accuracy with further in-domain (\texttt{ID}), combined corpus (\texttt{CC}), and OpenSubtitles (\texttt{OS}) dialogue pre-training,
     for the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
