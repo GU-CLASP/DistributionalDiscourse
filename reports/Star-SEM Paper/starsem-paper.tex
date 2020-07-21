@@ -62,9 +62,9 @@
 \maketitle
 \begin{abstract}
    In this work we investigate whether transformer models can learn to represent phenomena specific to dialogue.
-   Laughter tokens, which are not present in pre-trained BERT models, can be learned during additional pre-training and fine-tuning on dialogue data. 
-   We use dialogue act recognition as a proxy task to demonstrate that laughter can help disambiguate between certain communicative intents.
-   We find that pre-training and fine-tuning procedures are useful for learning laughter representation, and explore how well the model adapts to the dialogue domain.
+   Laughter tokens, which are not present in pre-trained BERT models, can be learned with additional pre-training and fine-tuning on dialogue data. 
+   We use dialogue act recognition as a proxy task to demonstrate that laughter can help to disambiguate between certain communicative intents.
+   We find that pre-training and fine-tuning procedures are useful for learning laughter representations, and explore how well the model adapts to the dialogue domain.
 \end{abstract}
 
 % INTRODUCTION
@@ -80,7 +80,7 @@ More generally, the way that utterances contribute to and cohere with the discou
 
 One important dialogical feature missing from text data is laughter, which is ubiquitous in our everyday interactions.
 We observe that in the Switchboard dialogue corpus laughter comes about every 200 tokens.
-Laughter also relates to the discourse structure of dialogue and can relate to a laughable, which can be an event or an entity in the discourse (and external perceived event as well).
+Laughter also relates to the discourse structure of dialogue and can relate to a \emph{laughable}, which can be an event or an entity in the discourse (or external perceived event as well).
 Laughter can precede, follow or overlap the laughable, with the time alignment between the laughter and laughable dependent on who produces the laughable and the form of the laughter \citep{tian2016we}.
 Laughter can act as a contextual feature for determining the sincerity of an utterance, e.g. when detecting sarcasm \citep{tepperman2006yeah}.
 
@@ -104,8 +104,8 @@ Laughter can act as a contextual feature for determining the sincerity of an utt
 \end{table}
 
 We use dialogue act recognition (DAR) as a proxy task, since both the internal content of contributions, and their sequential structure have bearing on this task. DAR is the task of assigning a dialogue act tag to each utterance in the dialogue, according to dialogue act it performs.
-Using this task we investigate whether transfer learning techniques based on pre-trained language models, such as BERT \citep{devlinBERTPretrainingDeep2018}, are useful for dialogue.
-By looking at laughter, which is certainly missing in pre-trained model, we can determine whether the domain-adapted model can make use of dialogue-specific features.
+Using this task we investigate whether transfer learning techniques based on pre-trained language models, such as BERT \citep{devlinBERTPretrainingDeep2018}, are useful for dialogue. 
+By looking at laughter, which is certainly missing in the stadnard pre-training corpus, we can determine whether the pre-training is used in the representation dialogue-specific features.
 
 \paragraph{Contributions}
 The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
@@ -113,7 +113,7 @@ The main results of this paper have to do with to the usefulness of language mod
   \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment1}).
   \item During fine-tuning, BERT learns to represent laughter, a dialogical feature not seen in pre-training (\S\ref{sec:experiment1} and \S\ref{sec:experiment2}).
   \item Standard BERT pre-training is useful for DAR, but the model performs poorly without fine-tuning (\S\ref{sec:experiment2})
-  \item Further pre-training with data from the target domain shows promise for dialogue, but we find mixed results when pre-training with a larger corpus domain dialogical data from outside the target domain (\S\ref{sec:experiment3}).
+  \item Further pre-training with data from the target domain shows promise for dialogue, but we find mixed results when pre-training with a larger corpus of dialogical data from outside the target domain (\S\ref{sec:experiment3}).
     % TODO: we did that but what can we conclude? Perhaps that the nature of the data is very different, so it is not very helpful..?
   \end{itemize}
 
@@ -249,7 +249,7 @@ With respect to laughs, we observed an even distribution of them in the groups, 
 
 \subsection{Pre-training corpora}
 
-We also experiment with three unlabeled dialogue corpora, which we use to provide further pre-training for the BERT encoder.
+We also experiment with three unlabeled dialogue corpora (Table~\ref{tab:pretraining-corpora}), which we use to provide further pre-training for the BERT encoder.
 
 The first two corpora are constructed from the same source as the dialogue act corpora.
 We use the SWDA portion of the un-labeled Switchboard corpus (SWBD) and the entire AMI corpus (including the 32 dialogues with no human-annotated DA tags that are not included in the DAR training set).
@@ -261,7 +261,7 @@ Then, we collected every English-language subtitle file in which at least 1\% of
 Because utterances are not labeled with speaker in the OpenSubtitles corpus, we randomly assigned a speaker token to each utterance to maintain the format of the other dialouge corpora.
 
 The pre-training corpora were prepared for the combined maksed language modeling and next sentence (utterance) prediction task, as described dy \citet{devlinBERTPretrainingDeep2018}.
-For the smaller SWBD and AMI corpora, we generate and train on multiple epochs of data. Since there is randomness in the data preparation (e.g., which distrcactor sentences are chosen and which tokens are masked), we generate each training epoch separately.\footnote{Also see the Hugging Face \href{https://github.com/huggingface/transformers/tree/1.1.0/examples/lm_finetuning}{finetuning example}.}
+For the smaller SWBD and AMI corpora, we generate and train on multiple epochs of data. Since there is randomness in the data preparation (e.g., which distrcactor sentences are chosen and which tokens are masked), we generate each training epoch separately.\footnote{For details, see the \href{https://github.com/huggingface/transformers/tree/1.1.0/examples/lm_finetuning}{finetuning example} from Hugging Face.}
 
 \begin{table}[ht]
 \centering
@@ -317,7 +317,6 @@ The strongest evidence for laughter as a helpful feature was found in SWDA for t
     \toprule
                       & \multicolumn{2}{c}{SWDA} & \multicolumn{2}{c}{AMI-DA} \\ \midrule
                       & F1    & acc.  & F1    & acc.       \\ 
-    Majority class    & 0.78  & 33.56 &  1.88 & 28.27      \\ \midrule
     \texttt{BERT-NL}  & 38.10 & 77.07 & 49.09 & 67.06       \\ 
     \texttt{BERT-L}   & 45.99 & 76.93 & 50.17 & 67.12       \\ \midrule
     \texttt{CNN-NL}   & 37.23 & 75.08 & 38.37 & 63.46        \\
