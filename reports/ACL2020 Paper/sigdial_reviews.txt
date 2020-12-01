@@ -1,0 +1,171 @@
+============================================================================ 
+SIGDIAL 2020 Reviews for Submission #95
+============================================================================ 
+
+Title: Tickle me BERT: Using laughter to probe pre-trained encoders for dialogue act recognition
+Authors: Bill Noble and Vladislav Maraev
+============================================================================
+                            META-REVIEW
+============================================================================ 
+
+Comments: This paper introduces BERT for dialogue act recognition by using laughter features. As some reviewers mentioned, BERT is already used for DAR; thus, this point will not be a novelty of this paper. Introducing laughter features is a new point, I think; however, the total accuracy not always improve by introducing the laughter feature.
+
+============================================================================
+                            REVIEWER #1
+============================================================================
+
+Summary and Contributions
+---------------------------------------------------------------------------
+Summary:
+In this paper, the BERT pre-training model is applied to the dialogue act recognition task that is one of the key tasks for dialogue systems.
+The BERT model is used as an utterance encoder combined with an RNN, and this model is compared with a baseline where the utterance encoder is a CNN and the gloVe vector. 
+The authors also investigated several ways of input sentences (e.g. contain laughter or not) and fine-tuning.
+
+Contribution 1: 
+They applied a BERT pre-training model as an utterance encoder to the dialogue act recognition task, also confirmed the effectiveness of that.
+
+Contribution 2:
+They confirmed the effectiveness of laughing representation in the current task, which is the characteristic of dialogue.
+
+Contribution 3:
+They also considered several ways of pre-training and fine-tuning and reached reasonable accuracy.
+---------------------------------------------------------------------------
+
+
+Strengths
+---------------------------------------------------------------------------
+Strength argument 1:
+The authors applied a BERT pre-training model to the dialogue act recognition task that might need general knowledge for more accurate models.
+As the authors claim, this seems to be the first attempt for the dialogue act recognition task.
+
+Strength argument 2:
+They confirmed the effectiveness of representing laughter in this task.
+As they suggest, the laughing tag is not contained in the large corpus for the BERT pre-training, which means that the fine-tuning process makes the model train the laughing representation in the dialogue domain.
+It is an interesting result for the dialogue research community.
+---------------------------------------------------------------------------
+
+
+Weaknesses
+---------------------------------------------------------------------------
+Weakness argument 1:
+My concern is in the comparison experiment.
+They compared the proposed model with only the baseline model that has the CNN utterance encoder instead of BERT.
+As they mention in the background section, many attempts have been made on using neural networks in the dialogue act recognition task.
+Although the authors use common datasets such as SWDA and AMIDA, they do not compare their approach with SOTA models.
+For example, the below papers reported the same or slightly better accuracies on the SWDA corpus, using RNN neural networks (also with attention architecture) without any pertaining to a large corpus.
+Therefore, it is difficult to believe that the effect of pre-BERT learning is fully demonstrated.
+
+Conversational Analysis using Utterance-level Attention-based Bidirectional Recurrent Neural Networks (Bothe et al., Interspeech 2018)
+A Unified Neural Architecture for Joint Dialog Act Segmentation and Recognition in Spoken Dialog System (Zhao and Kawahara, SIGdial 2018)
+---------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+            Overall Recommendation (1-5): 3
+
+Additional Comments (Optional)
+---------------------------------------------------------------------------
+Paper format:
+Why the numbering of sections starts from the background?
+
+Typo:
+line 222, "the a"
+line 703 "dialogue" missing the period
+---------------------------------------------------------------------------
+
+
+
+============================================================================
+                            REVIEWER #2
+============================================================================
+
+Summary and Contributions
+---------------------------------------------------------------------------
+Summary: In this study the authors means to measure the impact of laughters on DNN models. As a matter of fact non-verbal events, such as laughters, are not taken into account in deep language models, such as the Transformer family. And yet they reveal to be very important, when not crucial, to deal with realistic truly conversational data. So the paper is investigating the importance of introducing laughters annotations during the fine-tuning of such models.
+
+Contribution 1: Introduction of non-verbal event annotation in fine-tuning process is new (to my knowledge)
+
+Contribution 2: Experiments are pretty thorough, and well-conducted. 
+
+Contribution 3
+---------------------------------------------------------------------------
+
+
+Strengths
+---------------------------------------------------------------------------
+Strength argument 1: The rationale for the study is well-though and clearly justified in the paper.
+
+Strength argument 2: The experimental setup is clearly exposed and the experiments are sound.
+
+Strength argument 3:
+
+Strength argument 4:
+---------------------------------------------------------------------------
+
+
+Weaknesses
+---------------------------------------------------------------------------
+Weakness argument 1: Lack of interactive data in such a study is a pity. Obviously collecting such new data (including laughter annotations) is rather expensive at large scale. But it would be a safer way to ensure the pertinency of the proposition (whereas with batch data it is less clear what is due to a good knowledge of the data nature and what is the true impact of the novelty). 
+
+Weakness argument 2: At some points it is unclear if the authors simply use the existing models or make some new tailoring of their owns. 
+
+Weakness argument 3: in fact this doubt (may be it is the reader fault to be more careful) could be alleviated by providing the code of the experiments for reproduction.
+
+Weakness argument 4:
+---------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+            Overall Recommendation (1-5): 3
+
+
+============================================================================
+                            REVIEWER #3
+============================================================================
+
+Summary and Contributions
+---------------------------------------------------------------------------
+Summary: This paper investigated the usefulness of BERT for dialogue act recognition and the analysis of the impact of laughter.
+
+Contribution 1: 
+The paper contributed to a detailed investigation of  BERT for dialogue act recognition, considering the impact of (1) laughter, (2) pre-training vs. fine-tuning, and (3) further in-domain pre-training.  
+
+Contribution 2: 
+The paper provided an analysis of laughter, including (1) the distribution of laughs in dialogue corpus, (2) the impact in the DAR task.
+
+Contribution 3: 
+The paper provided evaluations on two corpora: Switchboard (SWDA) and AMI Meeting (AMIDA) dialogue act corpus.
+---------------------------------------------------------------------------
+
+
+Strengths
+---------------------------------------------------------------------------
+Strength argument 1: 
+The paper provided those three contributions described above.
+
+Strength argument 2: 
+The evaluation results could confirm the usefulness of BERT as its performance was better than the CNN baseline.
+---------------------------------------------------------------------------
+
+
+Weaknesses
+---------------------------------------------------------------------------
+Weakness argument 1:
+The novelty is limited, or the authors did not emphases their originality clearly. For example, it is important to state the position of their work related to previous works. Author mention "Mehri et al. (2019) evaluate BERT in various dialogue tasks including DAR, and find the model incorporating BERT outperforms a baseline model." But, there are no further arguments of what is the difference between current works. Furthermore, it is not only Mehri et al., who has done BERT for DAR. There are other works, such as:
+- Chakravarty et al., "Dialog Acts Classification for Question-Answer Corpora," ASAIL 2019.
+- Ribeiro et al., "Deep Dialog Act Recognition using Multiple Token, Segment, and Context Information Representations," Journal of Artificial Intelligence Research, 2019
+- Yu et al., "MIDAS, A Dialog Act Annotation Scheme for Open-Domain Human-Machine Spoken Conversations," arxiv 2019.
+
+Weakness argument 2:
+The experimental evaluations are somewhat limited. First, it only compared with the CNN baseline. I think it would be better to have other models (i.e., LSTM) as well. Second, although the investigations of laughter are interesting, it limited us to be able to make a direct comparison with the previously published SOTA performance of SWDA or AMIDA.
+---------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+            Overall Recommendation (1-5): 3
