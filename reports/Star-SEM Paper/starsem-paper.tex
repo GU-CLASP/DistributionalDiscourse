@@ -216,7 +216,7 @@ We remove disfluency annotations and slashes from the end of utterances in SWDA.
 In both corpora, acronyms are tokenized as individual letters. 
 All utterances are lower-cased.
 
-Utterances are tokenized using BERT's word piece tokenizer with a vocabulary of 30,000.
+Utterances are tokenized using with a word piece tokenizer \citep{Wu2016} with a vocabulary of 30,000.
 We add a special laughter token to the vocabulary and map all transcribed laughter to that token.
 We also add five speaker tokens and prepend each utterance with a speaker token that uniquely identifies the corresponding speaker within that dialogue.
 
