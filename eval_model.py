@@ -16,6 +16,8 @@ parser.add_argument('model_dir', type=str,
         help='The save directory for the model to evaluate')
 parser.add_argument('corpus', choices=['SWDA', 'AMI-DA'],
         help='Which dialouge act corpus to eval on.')
+parser.add_argument('-st', '--save-dialogue-state', type=bool, default=False,
+        help='Save the hidden state of the dialogue RNN at each utterance.')
 parser.add_argument('-e', '--epoch', type=int, default=None,
         help='The model checkpoint (training epoch) to load.')
 parser.add_argument('-d','--data-dir', default='data',
@@ -59,7 +61,7 @@ def eval_model(encoder_model, dar_model, data, n_tags, criterion, device, min_ut
         - no backpropegation, obviously
         - returns predictions as well as loss
     """
-    preds, loss = [], 0
+    preds, dar_states, loss, = [], [], 0
     with torch.no_grad():
         for i, (x, y) in enumerate(data, 1):
            log.debug("Evaluating on dialogue {:3d} of {} ({} utterances).".format(i, len(data), len(x)))
@@ -75,8 +77,9 @@ def eval_model(encoder_model, dar_model, data, n_tags, criterion, device, min_ut
            log.debug("Dialogue {:3d} loss: {:.6f}".format(i, diag_loss))
            loss += diag_loss
            preds.append(y_hat.max(dim=2)[1].squeeze(1).tolist())
+           dar_states.append(hidden.cpu().detach().numpy())
         loss = loss / len(data)
-    return loss, preds 
+    return loss, preds, dar_states
 
 
 if __name__ == '__main__':
@@ -95,6 +98,7 @@ if __name__ == '__main__':
     tag_vocab_file = os.path.join(args.data_dir, f'{args.corpus}_tags.txt')
     test_file = os.path.join(args.data_dir, f'{args.corpus}_test.json')
     preds_file = os.path.join(args.model_dir, f'preds.E{args.epoch}.json')
+    dialogue_state_file = os.path.join(args.model_dir, f'dialogue_state.E{args.epoch}.json')
     encoder_model_file = os.path.join(args.model_dir, f'encoder_model.E{args.epoch}.bin')
     dar_model_file = os.path.join(args.model_dir, f'dar_model.E{args.epoch}.bin')
 
@@ -135,7 +139,7 @@ if __name__ == '__main__':
     test_data = data.load_data(test_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
 
     criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
-    loss, preds = eval_model(encoder_model, dar_model, test_data, n_tags, criterion, device)
+    loss, preds, dialogue_states = eval_model(encoder_model, dar_model, test_data, n_tags, criterion, device)
     accuracy = compute_accuracy(test_data, preds)
     log.info(f"Test loss: {loss:.6f} | accuracy: %{accuracy*100:.2f}")
 
@@ -143,4 +147,9 @@ if __name__ == '__main__':
     log.debug(f"Saving {preds_file}")
     with open(preds_file, 'w') as f:
         json.dump(preds, f)
+
+    if args.save_dialogue_state:
+        log.debug(f"Saving {dialogue_state_file}")
+        with open(dialogue_state_file, 'w') as f:
+            json.dump(dialogue_states, f)
 
