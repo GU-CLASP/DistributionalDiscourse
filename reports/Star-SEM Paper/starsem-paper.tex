@@ -43,7 +43,7 @@
 
 \newcommand\BibTeX{B\textsc{ib}\TeX}
 
-\title{Can BERT learn dialogue specific phenomena? The case of laughter in dialogue act recognition. }
+\title{Can BERT learn dialogue-specific phenomena? The case of laughter in dialogue act recognition. }
 
 \author{First Author \\
   Affiliation / Address line 1 \\
@@ -62,9 +62,9 @@
 \maketitle
 \begin{abstract}
    In this work we investigate whether transformer models can learn to represent phenomena specific to dialogue.
-   Laughter tokens, which are not present in pre-trained BERT models, can be learned during additional pre-training and fine-tuning on dialogue data. 
-   We use dialogue act recognition as a proxy task and demonstrate that laughter is a useful feature for it.
-   We find that pre-training and fine-tuning procedures are useful for learning laughter representation, and explore how well the model adapts to the dialogue domain.
+   Laughter tokens, which are not present in pre-trained BERT models, can be learned with additional pre-training and fine-tuning on dialogue data. 
+   We use dialogue act recognition as a proxy task to demonstrate that laughter can help to disambiguate between certain communicative intents.
+   We find that pre-training and fine-tuning procedures are useful for learning laughter representations, and explore how well the model adapts to the dialogue domain.
 \end{abstract}
 
 % INTRODUCTION
@@ -80,7 +80,7 @@ More generally, the way that utterances contribute to and cohere with the discou
 
 One important dialogical feature missing from text data is laughter, which is ubiquitous in our everyday interactions.
 We observe that in the Switchboard dialogue corpus laughter comes about every 200 tokens.
-Laughter also relates to the discourse structure of dialogue and can relate to a laughable, which can be an event or an entity in the discourse (and external perceived event as well).
+Laughter also relates to the discourse structure of dialogue and can relate to a \emph{laughable}, which can be an event or an entity in the discourse (or external perceived event as well).
 Laughter can precede, follow or overlap the laughable, with the time alignment between the laughter and laughable dependent on who produces the laughable and the form of the laughter \citep{tian2016we}.
 Laughter can act as a contextual feature for determining the sincerity of an utterance, e.g. when detecting sarcasm \citep{tepperman2006yeah}.
 
@@ -104,8 +104,8 @@ Laughter can act as a contextual feature for determining the sincerity of an utt
 \end{table}
 
 We use dialogue act recognition (DAR) as a proxy task, since both the internal content of contributions, and their sequential structure have bearing on this task. DAR is the task of assigning a dialogue act tag to each utterance in the dialogue, according to dialogue act it performs.
-Using this task we investigate whether transfer learning techniques based on pre-trained language models, such as BERT \citep{devlinBERTPretrainingDeep2018}, are useful for dialogue.
-By looking at laughter, which is certainly missing in pre-trained model, we can determine whether the domain-adapted model can make use of dialogue-specific features.
+Using this task we investigate whether transfer learning techniques based on pre-trained language models, such as BERT \citep{devlinBERTPretrainingDeep2018}, are useful for dialogue. 
+By looking at laughter, which is certainly missing in the stadnard pre-training corpus, we can determine whether the pre-training is used in the representation of dialogue-specific features.
 
 \paragraph{Contributions}
 The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
@@ -113,7 +113,7 @@ The main results of this paper have to do with to the usefulness of language mod
   \item Laughter is useful for dialogue act recognition, and its impact varies across different dialogue acts (\S\ref{sec:experiment1}).
   \item During fine-tuning, BERT learns to represent laughter, a dialogical feature not seen in pre-training (\S\ref{sec:experiment1} and \S\ref{sec:experiment2}).
   \item Standard BERT pre-training is useful for DAR, but the model performs poorly without fine-tuning (\S\ref{sec:experiment2})
-  \item Further pre-training with in-domain data shows promise for dialogue (\S\ref{sec:experiment3}), but further investigation with larger dialogue corpora is required.
+  \item Further pre-training with data from the target domain shows promise for dialogue, but we find mixed results when pre-training with a larger corpus of dialogical data from outside the target domain (\S\ref{sec:experiment3}).
     % TODO: we did that but what can we conclude? Perhaps that the nature of the data is very different, so it is not very helpful..?
   \end{itemize}
 
@@ -133,16 +133,15 @@ As with other sequence labeling tasks in NLP, some notion of context is helpful 
 One of the first performant machine learning models for DAR was a Hidden Markov Model that used various lexical and prosodic features as input \citep{stolckeDialogueActModeling2000}.
 
 Most successful neural approaches also model some notion of context.
-We follow previous work that models dialogue act sequences with an RNN over utterances \citep{kalchbrennerRecurrentConvolutionalNeural2013,tranHierarchicalNeuralModel2017,botheContextbasedApproachDialogue2018}.
+We follow previous work that models dialogue act sequences with an RNN over utterances \citep{kalchbrennerRecurrentConvolutionalNeural2013,tranHierarchicalNeuralModel2017,botheContextbasedApproachDialogue2018,bothe2018conversational,zhao2018unified}.
 Our model predicts the most likely tag given the hidden state of the RNN at each position, though other work has shown that DAR benefits from more sophisticated approaches, such as conditional random field \citep{chenDialogueActRecognition2017} or uncertainty propagation \citep{tranPreservingDistributionalInformation2017}.
-% TODO: RNN with attention: \citep{bothe2018conversational,zhao2018unified}
 
 
 \subsection{Transfer learning for NLP}
 Transfer learning techniques allow a model trained on one task---often unsupervised---to be applied to another. 
 Since annotating natural language data is expensive, there is a lot of interest in transfer learning for natural language processing. 
 Word vectors \citep[e.g.,][]{mikolovDistributedRepresentationsWords2013,penningtonGloveGlobalVectors2014} are a ubiquitous example of transfer learning in NLP.
-We note, however, that pre-trained word vectors are not always useful when applied to dialogue domains \cite{cerisaraEffectsUsingWord2vec2017}. 
+We note, however, that pre-trained word vectors are not always useful when applied to dialogue \cite{cerisaraEffectsUsingWord2vec2017}. 
 
 Recently, neural models trained on large datasets with various unsupervised tasks have found success creating sentence-level and contextual word representations. 
 BERT, a multi-layer transformer, is one such model \citep{devlinBERTPretrainingDeep2018}. 
@@ -153,8 +152,9 @@ After pre-training, BERT can be applied to a supervised task by adding additiona
 
 There is some previous work applying BERT to dialogue.
 \citet{baoPLATOPretrainedDialogue2019} and \citet{chenSemanticallyConditionedDialog2019a} both use BERT for dialogue generation tasks.
-Similarly \citet{vigComparisonTransferLearningApproaches2019} find BERT useful for selecting a response from a list of candidate responses in a dialogue.
-Finally, \citet{mehriPretrainingMethodsDialog2019} evaluate BERT in various dialogue tasks including DAR, and find that a model incorporating BERT outperforms a baseline model.
+Similarly, \citet{vigComparisonTransferLearningApproaches2019} find BERT useful for selecting a response from a list of candidate responses in a dialogue.
+\citet{mehriPretrainingMethodsDialog2019} evaluate BERT in various dialogue tasks including DAR, and find that a model incorporating BERT outperforms a baseline model.
+Finally, \citet{chakravarty2019dialog} use BERT for dialogue act classification for a proprietary domain and achieves promising results, and \citet{ribeiro2019deep} surpass the previous state-of-the-art on generic dialog act recognition for Switchboard and MRDA corpora. In our work we are not attempting to beat the current state-of-the-art due to the different aims of the study.
 
 % TODO: \citep{chakravarty2019dialog,ribeiro2019deep,yu2019midas}
 % some motivation, maybe restate that we are not looking at the performance per say?
@@ -216,7 +216,7 @@ We remove disfluency annotations and slashes from the end of utterances in SWDA.
 In both corpora, acronyms are tokenized as individual letters. 
 All utterances are lower-cased.
 
-Utterances are tokenized using BERT's word piece tokenizer with a vocabulary of 30,000.
+Utterances are tokenized using with a word piece tokenizer \citep{Wu2016} with a vocabulary of 30,000.
 We add a special laughter token to the vocabulary and map all transcribed laughter to that token.
 We also add five speaker tokens and prepend each utterance with a speaker token that uniquely identifies the corresponding speaker within that dialogue.
 
@@ -247,13 +247,41 @@ For our corpora we also considered grouping the dialogue acts according to DAMSL
 This allows the direct comparison between SWDA and AMI-DA.
 With respect to laughs, we observed an even distribution of them in the groups, except for the Communicative-Status group in the case of SWDA, because of the ``Nonverbal'' dialogue acts (see footnote~1).
 
+\subsection{Pre-training corpora}
+
+We also experiment with three unlabeled dialogue corpora (Table~\ref{tab:pretraining-corpora}), which we use to provide further pre-training for the BERT encoder.
+
+The first two corpora are constructed from the same source as the dialogue act corpora.
+We use the SWDA portion of the un-labeled Switchboard corpus (SWBD) and the entire AMI corpus (including the 32 dialogues with no human-annotated DA tags that are not included in the DAR training set).
+In both cases, we exclude dialogues that are reserved for DAR testing.
+
+We also experiment with a much larger a corpus constructed from OpenSubtitles \citep{Lison2016}.
+We used a manually constructed list of words frequenty used to refer to laughter in subtitles and replaced every occurance of one of these words with the special laughter token. 
+Then, we collected every English-language subtitle file in which at least 1\% of the utterances contained laughter (about 11\% of the total).
+Because utterances are not labeled with speaker in the OpenSubtitles corpus, we randomly assigned a speaker token to each utterance to maintain the format of the other dialouge corpora.
+
+The pre-training corpora were prepared for the combined maksed language modeling and next sentence (utterance) prediction task, as described dy \citet{devlinBERTPretrainingDeep2018}.
+For the smaller SWBD and AMI corpora, we generate and train on multiple epochs of data. Since there is randomness in the data preparation (e.g., which distrcactor sentences are chosen and which tokens are masked), we generate each training epoch separately.\footnote{For details, see the \href{https://github.com/huggingface/transformers/tree/1.1.0/examples/lm_finetuning}{finetuning example} from Hugging Face.}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+       & tokens & \% laughs & epochs\\ \midrule
+AMI           & 1M     & 1.3             & 10     \\
+SWBD          & 1.5M   & 0.5             & 10     \\
+OpenSubtitles & 350M   & 0.3             & 1      \\ \bottomrule
+\end{tabular}
+\caption{Pre-training corpora, showing laughter representation as a percentage of total tokens and number of pre-training epochs generated.}\label{tab:pretraining-corpora}
+\end{table}
+
 \paragraph{}
 Let us turn now to describing the neural network architectures that we used.
   
 \section{Model} % Bill
 
 To test the effectiveness of BERT for DAR, we employ a simple neural architecture with two components: an encoder that vectorizes utterances, and a sequence model that predicts dialogue act tags from the vectorized utterances (Figure~\ref{fig:model-architecture}).
-Since we are primarily interested in comparing different utterance encoders, we use a basic RNN as the sequence model in every configuration. 
+Since we are primarily interested in comparing different utterance encoders, we use a basic RNN as the sequence model in every configuration.\footnote{We have experimented with LSTM as the sequence model, but the accuracy was not significantly different compared to RNN. It can be explained by the absence of longer distance dependencies on this level of our model.} 
 The RNN takes the encoded utterance as input at each time step,
 and its hidden state is passed to a simple linear classification layer over dialogue act tags.
 Conceptually, the encoded utterance represents the context-agnostic features of the utterance, and the hidden state of the RNN represents the full discourse context.
@@ -279,7 +307,7 @@ In the first experiment we investigated whether laughter, as an example of a dia
 Therefore, we train another version of each model: one that containing laughs (\texttt{L}) and one with laughs left out (\texttt{NL}), and compare their performances in DAR task.
 Table~\ref{table:laughter-total-acc} compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}).
 
-First of all, we can see that \texttt{BERT} utterance encoder outperforms \texttt{CNN} in all the cases.
+First of all, we can see that the \texttt{BERT} utterance encoder outperforms \texttt{CNN} in all the cases.
 From observing the effect of laughters, we can see differences in performance depending on the dialogue act, regardless how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:by-da} in Appendix~\ref{sec:suppl}).
 The strongest evidence for laughter as a helpful feature was found in SWDA for the \texttt{BERT} utterance encoder, where macro-F1 score increases by 7.89 percentage points.
 
@@ -292,16 +320,17 @@ The strongest evidence for laughter as a helpful feature was found in SWDA for t
     \texttt{BERT-NL}  & 38.10 & 77.07 & 49.09 & 67.06       \\ 
     \texttt{BERT-L}   & 45.99 & 76.93 & 50.17 & 67.12       \\ \midrule
     \texttt{CNN-NL}   & 37.23 & 75.08 & 38.37 & 63.46        \\
-    \texttt{CNN-L}    & 27.59 & 75.40 & 37.94 & 64.30        \\ \bottomrule
+    \texttt{CNN-L}    & 27.59 & 75.40 & 37.94 & 64.30        \\ \midrule
+    Majority class    & 0.78  & 33.56 &  1.88 & 28.27      \\ \bottomrule
     
   \end{tabular}
   \caption{Comparison of macro-average F1 and accuracy depending on using laughter on the training phase. }
   \label{table:laughter-total-acc}
 \end{table}
 
-Confusion matrices (Figure~\ref{fig:swda-cm}) provide some food for thought. Most of the misclassifications fall into the majority classes, such as \emph{sd} (Statement-non-opinion), in the left edge of the matrix. However there are some important exceptions, such as \emph{rhetorical questions}, that are misclassified as other forms of questions due to their surface question-like form.
+Confusion matrices (Figure~\ref{fig:swda-cm}) provide some food for thought. Most of the misclassifications fall into the majority classes, such as \emph{sd} (Statement-non-opinion), in the left edge of the matrix. However, there are some important exceptions, such as \emph{rhetorical questions}, that are misclassified as other forms of questions due to their surface question-like form.
 Importantly, laughter helps to classify rhetorical questions correctly, this is because in a conversation it can be used as a device to cancel seriousness or sincerity \citep{ginzburg2015understanding,tepperman2006yeah}, in this case, of a question.
-Therefore questions, like the one we show in the example in Table~\ref{table:example-qh}, are easier to disambiguate with the help of laughter.
+Therefore, questions, like the one we show in the example in Table~\ref{table:example-qh}, are easier to disambiguate with the help of laughter.
 \begin{table}
       \small
   \centering
@@ -369,10 +398,10 @@ To do so, we consider the performance of DAR models with three different utteran
 \toprule
                            & \multicolumn{2}{c}{SWDA}                          & \multicolumn{2}{c}{AMI-DA}                        \\ \midrule
                            & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} \\
-\texttt{BERT-FT} & 45.99           & 76.93                    & 50.03                  & 66.94                    \\
-\texttt{BERT-RI} & 32.18           & 73.80                    & 33.45                  & 61.53                    \\
-\texttt{BERT-FZ} & 7.75            & 55.61                    & 14.44                  & 46.59 \\
-  \bottomrule
+\texttt{BERT-FT} & 36.75           & 76.60                    & 43.42                  & 64.93                    \\
+\texttt{BERT-RI} & 32.18           & 73.80                    & 34.88                  & 60.89                    \\
+\texttt{BERT-FZ} & 7.75            & 55.61                    & 14.86                  & 48.34 \\ \midrule
+    Majority class    & 0.78  & 33.56 &  1.88 & 28.27      \\ \bottomrule
 \end{tabular}
   \caption{Macro-average F1 and accuracy of BERT with standard pre-training and DAR fine-tuning (\texttt{BERT-FT}) vs.~the same model without pre-training (\texttt{BERT-RI}) and without fine-tuning (\texttt{BERT-FZ}).}
   \label{table:exp2}
@@ -417,43 +446,42 @@ compared to 9.6\% of utterances where fine-tuning makes a difference.
 
 \subsection{Experiment 3: Impact of dialogue pre-training} \label{sec:experiment3} % Bill
 
-Next, we assess the effect of further in-domain pre-training on BERT's performance as an utterance encoder.\footnote{
+Next, we assess the effect of additional dialogue pre-training on BERT's performance as an utterance encoder.\footnote{
 In-domain pre-training is sometimes referred to as \textit{fine-tuning}, but we reserve that term for task-specific training on labeled data.}
-We construct pre-training corpora from the SWDA portion of the un-labeled Switchboard corpus and from the entire AMI corpus (including the 32 dialogues with no human-annotated DA tags that are not included in the DAR training set).
-In both cases, we exclude dialogues that are reserved for DAR testing.
+\citet{sunHowFineTuneBERT2019} has reported that performing additional pre-training on unlabeled in-domain data improves performance on classification tasks. 
+We want to see if BERT can benefit from pre-training, on dialogue data, including from data outside the immediate target domain.
 
-the in-domain corpus (\texttt{BERT+ID}) and the combined corpus (\texttt{BERT+CC}).
+For each of the target corpora (SWDA and AMI-DA), we compare four different pre-training conditions: 
+The in-domain corpus (\texttt{ID}), consisting of the AMI pre-training corpus for the AMI-DA model and the SWBD pre-traning corpus for the SWDA model; 
+the cross-domain corpus (\texttt{CC}), consisting of both the AMI and SWBD pre-training corpora; 
+the OpenSubtitles corpus (\texttt{OS});
+and finally the standard BERT\textsubscript{BASE} model with no additional pre-training.
+As before, we experiment with both frozen and fine-tuned models at the task training stage.
 
-We use the same pre-training task described by \citet{devlinBERTPretrainingDeep2018}, which combines masked token prediction and next sentence (utterance) detection. 
-Distractor utterances are drawn at random from another dialogue in the corpus
-and each epoch is generated separately so that different distractor sentences appear each time.
-We pre-trained three BERT models: with Switchboard (10 epochs), AMI (10 epochs), and the combined corpus (5 epochs).
+We performed 10 epochs of pre-training on the in-domain models and 5 epochs of pre-training on the cross-domain models so that the total amount of training data was comparable. The OpenSubtitles models trained on much more data (see Table~\ref{tab:pretraining-corpora}) and were trained for only one epoch.
 
-For each dialogue act corpus, we trained DAR models with BERT encoders that received additional pre-training on the three different pre-training corpora. 
-As before, we experimented with both the fine-tuning and frozen conditions.
+In the fine-tuned condition, additional pre-training offers a modest boost in overall accuracy and a substantial boost to the macro-average scores.
+Any of the dialogue corpora appear helpful, but the cross-domain corpus generally provides the largest boost.
+In the frozen condition, only the very large OpenSubtitles corpus is helpful, suggesting that when adapting BERT to dialogue, the size of the corpus is more important than its quality or fidelity to the target domain.
+Still, pre-training provides nowhere near the performance improvement achieved by fine-tuning on the target task.
 
-The results are mixed.
-In-domain pre-training offers a modest boost in overall accuracy,
-but the macro-average scores are almost uniformly worse (Table~\ref{table:exp3}).
-%Indeed, when BERT is frozen during fine-tuning, the model that received no further pre-training performs better by more than 3 percentage points (Table~\ref{tab:exp3-recall}).
-To fully assess the potential impact of further in-domain pre-training, a larger dialogue corpus is required.
-
-% Please add the following required packages to your document preamble:
-% \usepackage{booktabs}
 \begin{table}[]
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
            & \multicolumn{2}{c}{SWDA}                          & \multicolumn{2}{c}{AMI-DA}                        \\ \midrule
            & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} \\
-\texttt{BERT-FT}    & 45.99                  & 76.93                    & 50.03                  & 66.95                    \\
-\texttt{BERT+ID-FT} & 45.48                  & 77.02                    & 46.56                  & 68.66                    \\
-\texttt{BERT+CC-FT} & 47.78                  & 77.35                    & 48.72                  & 66.58                    \\ \midrule
-\texttt{BERT-FZ}    & 7.75                   & 55.61                    & 14.44                  & 46.60                    \\
-\texttt{BERT+ID-FZ} & 6.46                   & 52.30                    & 14.43                  & 48.07                    \\
-\texttt{BERT+CC-FZ} & 5.76                   & 51.14                    & 12.56                  & 42.42                    \\ \bottomrule
+\texttt{BERT-FT}    & 36.75                  & 76.60                    & 43.42                  & 64.93                    \\
+\texttt{BERT+ID-FT} & 43.63                  & 77.01                    & 46.70                  & \textbf{68.88}           \\
+\texttt{BERT+CC-FT} & \textbf{47.78}         & \textbf{77.35}           & \textbf{48.86}         & 68.79                    \\ 
+\texttt{BERT+OS-FT} & 41.42                  & 76.95                    & 48.65                  & 68.07                    \\ \midrule
+\texttt{BERT-FZ}    &  7.75                  & 55.61           & 14.86                  & 48.34                    \\
+\texttt{BERT+ID-FZ} &  6.46                  & 52.30                    & 14.48                  & 48.18                    \\
+\texttt{BERT+CC-FZ} &  5.76                  & 51.14                    & 11.34                  & 40.48                    \\ 
+\texttt{BERT+OS-FZ} &  \textbf{9.60}         & \textbf{57.67}           & \textbf{17.03}         & \textbf{51.03}           \\ \midrule
+    Majority class  & 0.78                   & 33.56                    &  1.88                  & 28.27      \\ \bottomrule
 \end{tabular}
-  \caption{Comparison of macro-average F1 and accuracy  with further in-domain (\texttt{ID}) and combined corpus (\texttt{CC}) dialogue pre-training,
-    for both the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
+\caption{Comparison of macro-average F1 and accuracy with further in-domain (\texttt{ID}), combined corpus (\texttt{CC}), and OpenSubtitles (\texttt{OS}) dialogue pre-training,
+    for the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
   \label{table:exp3}
 \end{table}
 
@@ -476,9 +504,9 @@ There is abundant room for further progress in determining how other speech-rela
 Furthermore, in relation to laughter, its form (duration, arousal level) can be informative about its function and position w.r.t. to laughable \citep{tian2016we,mazzocconi2019phd}.
 Incorporating such information is crucial if models pre-trained on large-scale text corpora are to be adapted for use in dialogue applications.
 
-Although our experiments with further pre-training were inconclusive, \citet{baoPLATOPretrainedDialogue2019} finds that further pre-training BERT on a large-scale Reddit and Twitter corpus is helpful for response selection.
-Further pre-training may be helpful for DAR too, if the in-domain or cross-domain corpus is large enough.
-It remains an open question, however, how well the text chat and social media domains transfer to transcribed dialogue.
+Our experiments with further pre-training were inconclusive. 
+Although pre-training on data from the target domain proved useful, training on a much larger corpus of dialogue-like data (OpenSubtitles) yielded less substantial improvements in the fine-tuned condition.
+\citet{baoPLATOPretrainedDialogue2019} finds that further pre-training BERT on a large-scale Reddit and Twitter corpus is helpful for response selection, but given unimpressive results with subtitles, it remains an open question how well the text chat and social media domains transfer to transcribed dialogue.
 
 Another avenue for future research is what pre-training schemes are best for the dialogue domain.
 The training scheme for RoBERTa \citep{liuRoBERTaRobustlyOptimized2019}, for example, leaves out next sentence prediction as a pre-training task because they do not find that it improves performance on question answering and natural language inference tasks.

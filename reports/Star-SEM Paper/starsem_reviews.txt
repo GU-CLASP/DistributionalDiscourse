@@ -1,0 +1,128 @@
+============================================================================
+*SEM 2020 Reviews for Submission #135
+============================================================================
+
+Title: Can BERT learn dialogue-specific phenomena? The case of laughter in dialogue act recognition
+Authors: Bill Noble and Vladislav Maraev
+============================================================================
+                            META-REVIEW
+============================================================================
+
+Comments: This paper studies how well BERT captures laughter through the task of dialog act recognition, by studying pre-trained and fine-tuned performance with and without a special token for laughter. While the reviewers agree that the task presented is interesting, there are also major concerns that need to be ironed out beforer this paper is ready for publishing, including a better motivation of laughter in this particular task, clarity of model description and evaluation, and a lack of comparison of models with and without the special laughter token in experiments 2 and 3.
+
+============================================================================
+                            REVIEWER #1
+============================================================================
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+                   Appropriateness (1-5): 3
+                           Clarity (1-5): 4
+      Originality / Innovativeness (1-5): 3
+           Soundness / Correctness (1-5): 3
+             Meaningful Comparison (1-5): 4
+                      Thoroughness (1-5): 3
+        Impact of Ideas or Results (1-5): 2
+                    Recommendation (1-5): 3
+               Reviewer Confidence (1-5): 4
+
+Detailed Comments
+---------------------------------------------------------------------------
+This paper looks at how well BERT plays with laughter tags/representations in a dialogue act recognition task. The authors motivate the problem, explain their choice of data (Switchboard Dialogue Act Corpus, AMI Meeting Corpus, and some Subtitles) and compare different approaches to giving BERT a chance to learn something about laughter. The results suggest that their approach is making use of the laughter symbols when looked at specifically with a particular metric and dataset.
+
+I really like that the authors are looking at dialogue and digging into how well BERT performs on dialogue-specific artifacts like laughter. I'm relieved that the authors have been careful about the related work, citing Ginzburg for example. I'm unconvinced that dialogue act recognition (DAR) is the right choice of task to substantiate the claim that they actually made the contributions that they did (i.e., BERT learns to represent laughter). I see its usefulness as a sentence/utterance-level ontology to map to, but more fine-grained tasks like natural language understanding (NLU) in dialogue would have been more illuminating (NLU can make use of DAR output or jointly produce DAR+fill slots, for example).
+
+The background for DAR as a task also follows a difficult to understand flow of logic. The authors cite a 2009 paper to introduce the concept of dialogue acts, but the concept of dialogue acts is much, much older. The authors then cite DAMSL (a 1997 paper) which would have been a better citation for introducing the concept of dialogue acts than the 2009 paper. I also wouldn't say that conditional random fields are more "sophisticated" than most flavors of RNNs.
+
+My main concern with this paper, however, is the main focus on BERT. I understand that the point is to see how well BERT performs on a dialogue artifact such as laughter, but I'm not sure what the community learns through this paper (and what it has to do with semantics, the theme of the conference). Some discussion of the semantics of laughter and how that plays into a text-only, non-dialogic model like BERT would have strengthened the paper. It is well known that BERT performs better with fine-tuning and is useful for transfer learning in many tasks, including DAR. Basically, the 3rd & 4th contributions (i.e., the bullet points on page 2) aren't really contributions in my opinion. As for the evaluations, I'm not even quite sure how the laughter was represented. What does it mean that the model "contains laughter" ? Is there a laughter tag/symbol in random places? Is it the laughter representation from the data that you left or removed? That isn't clear. Were more than one laughter types represented (see Ginzburg's work on teasing different types of laughter apart), or was all laughter represented as a single symbol?
+
+While I would like to see more paper like this in good conferences, I don't think this paper is enough for a long paper. I would consider this a decent contribution for a small paper, with less of a primer on BERT in the text.
+---------------------------------------------------------------------------
+
+
+Questions for Authors
+---------------------------------------------------------------------------
+- How was laughter represented? Examples of "with" and "without" laughter?
+- How is the claim that "laughter is helpful for dialogue act recognition" substantiated with the results? I need some really specific tying together.
+- Why is dialogue act recognition the right task for looking at how BERT and laughter play together?
+---------------------------------------------------------------------------
+
+
+
+============================================================================
+                            REVIEWER #2
+============================================================================
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+                   Appropriateness (1-5): 5
+                           Clarity (1-5): 4
+      Originality / Innovativeness (1-5): 3
+           Soundness / Correctness (1-5): 2
+             Meaningful Comparison (1-5): 3
+                      Thoroughness (1-5): 4
+        Impact of Ideas or Results (1-5): 4
+                    Recommendation (1-5): 2
+               Reviewer Confidence (1-5): 4
+
+Detailed Comments
+---------------------------------------------------------------------------
+This paper explores different strategies for using laughter to improve dialogue act tagging, with special emphasis on how to most effectively use BERT pretraining and fine-tuning for this kind of task. Experiment 1 shows that laughter is a useful feature, especially in the Switchboard Dialogue Act Corpus (SWDA). Experiment 2 shows that pretrained BERT representations with in-domain fine-tuning are most effective at the dialogue act tagging task. Experiment 3 looks at the role of additional unsupervised pretraining on general/other dialogue act datasets, finding that it is somewhat helpful.
+
+I think this is a great topic for *SEM, and I like the experimental approach taken overall. However, I ended up giving fairly modest overall scores because the current presentation doesn't resolve many crucial questions I have about the results and what they mean, and because the paper isn't as focused on laughter as one might like given the general framing of the work.
+
+Below are futher comments and questions, moving through the paper more or less in order. If the author response helps me with these points, I am very open to changing my scores.
+
+1. The opening two paragraphs get off on the wrong foot for me. The first sentence is too often repeated in papers like this, and the rest of these two paragraphs seems to under-state the extent to which there is prior work on using neural models for dialogue.
+
+2. Figure 1 is not especially helpful even once one does mentally add labels for the axes, etc. I believe Figure 4 in the appendix is more like what we need, assuming I am right to infer that the purple and green bars are empirical frequencies comparable to what is in Figure 1. Okay, assuming all that, the paper should include deeper inquiry into what these distributions mean. For example, for SWDA, the largest category for laughter is 'Non-verbal'. Are most or all of these acts in which the laughter token is the only token for that act? The same issue arises for 'Fragment' in AMI. To what extent is including laughter just helping to provide a deterministic label for a lot of the examples?
+
+3. Figure 3 is also hard to understand because it doesn't include any correction for the size of the categories. The fact that most of the mistakes fall into the 'sd' category is not informative if that category is large relative to the others (which it is; it accounts for 36% of the act tags according to the SWDA manual).
+
+4. Similarly, I wasn't persuaded by the argument around line 482 concerning rhetorical questions and other questions because both plots in Figure 3 show high rates of confusion here. There does seem to be an improvement for 'qh', but how much of an improvement? Even with laughter, qh/qw still looks problematic on the face of it.
+
+5. Figure 2 doesn't resolve really any crucial questions one would have about the model -- the nature of the encoder, the nature of the RNN cells, the nature of the decision function defining the Y-hat outputs. I think it would be fine to drop this figure to make room for more useful ones, since the description in the paper is clear enough. If the figure is kept, it should be more detailed.
+
+6. Table 6 reports only accuracy. I think accuracy numbers cannot tell us about the role of laughter in any of these analyses because laughter is infrequent and tightly associated only with relatively infrequent class labels. I am glad that F1 is included in Table 4, Table 7, and Table 8, and I feel unsure of why it was left out of Table 6.
+
+7. I feel that Experiment 2 should have continued the pattern from Experiment 1 of looking at performance with and without laughter tokens. I think the paragraph beginning on line 662 provides solid insights but it's not a substitute for the full interaction between laughter/no-laughter and the FT/RI/FZ variants.
+
+8. I have the same criticism of Experiment 3: without a laughter/no-laughter manipulation, we're left assuming that the results of Experiment 1 carry through to these others in a predictable way, but I feel that assumption isn't justified, and the relatively small gains shown in Experiment 1 suggest that the results may in fact be delicate.
+---------------------------------------------------------------------------
+
+
+
+============================================================================
+                            REVIEWER #3
+============================================================================
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+                   Appropriateness (1-5): 5
+                           Clarity (1-5): 5
+      Originality / Innovativeness (1-5): 4
+           Soundness / Correctness (1-5): 4
+             Meaningful Comparison (1-5): 4
+                      Thoroughness (1-5): 4
+        Impact of Ideas or Results (1-5): 4
+                    Recommendation (1-5): 4
+               Reviewer Confidence (1-5): 4
+
+Detailed Comments
+---------------------------------------------------------------------------
+This work studies the capacity of BERT on learning a dialogue specific phenomenon, laughter. Particularly, it compares the BERT performance with and without the special laughter token in the fine-tuned and pretrained models. The observation is that, by adding this special token, BERT can boost its F1 score on one of the banchmark datasets, SWDA, and also give some improvement on the other data.
+
+Overall, the idea and the results of this work are interesting. Although there is not much novelty on modeling, this work presents three experiments to compare the performance of BERT influenced by this special token.
+---------------------------------------------------------------------------
+
+
+Questions for Authors
+---------------------------------------------------------------------------
+1. The paper is unclear about the experment setup, particularly, the training and validation split. For example, based on the caption of table 4 and corresponding discussion in the main content, I don't know whether the numbers reported in table 4 are the performance on the training set or development set. I strongly recommend to clarify this information.
+
+2. The picked baseline, CNN, seems to be arbitrary. I understand it is a simple and popular baseline for text classification or encoding texts. However, it is unclear whether it was chosen here.
+---------------------------------------------------------------------------
+

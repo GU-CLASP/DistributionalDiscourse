@@ -9,6 +9,7 @@
 *.log
 *.tex.bak
 .*.swp
+*.synctex.gz
 __MACOSX
 __pycache__
 .ipynb_checkpoints/
