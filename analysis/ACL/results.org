@@ -475,115 +475,79 @@ reset
 [['sd', 75396, 3450, 1092, 1801, 1619, 2411], ['b', 38384, 762, 50, 1839, 471, 1172], ['sv', 26526, 1253, 354, 652, 331, 818], ['+', 18695, 800, 2, 1058, 310, 556], ['%', 15681, 364, 300, 354, 211, 430], ['aa', 11159, 425, 88, 829, 302, 244], ['ba', 4797, 332, 40, 377, 65, 246], ['qy', 4760, 170, 51, 222, 17, 161], ['x', 3678, 2396, 10, 643, 1, 407], ['ny', 3040, 65, 7, 107, 65, 58], ['fc', 2585, 86, 24, 104, 25, 45], ['qw', 1990, 60, 21, 86, 7, 81], ['nn', 1378, 36, 10, 45, 48, 17], ['bk', 1309, 41, 1, 70, 13, 51], ['h', 1227, 50, 27, 36, 38, 27], ['fo_o_fw_"_by_bc', 1221, 40, 15, 30, 11, 31], ['qy^d', 1217, 63, 13, 54, 3, 40], ['bh', 1057, 30, 2, 77, 5, 41], ['^q', 986, 78, 18, 34, 35, 70], ['bf', 961, 77, 10, 51, 6, 29], ['na', 851, 49, 2, 42, 17, 39], ['ad', 752, 65, 15, 42, 16, 44], ['^2', 732, 45, 4, 28, 1, 32], ['b^m', 689, 30, 4, 30, 15, 17], ['qo', 657, 23, 10, 26, 3, 29], ['qh', 578, 52, 7, 22, 16, 29], ['^h', 556, 19, 6, 20, 17, 12], ['ar', 345, 23, 4, 20, 12, 8], ['ng', 303, 16, 2, 6, 5, 13], ['br', 299, 4, 1, 22, 0, 7], ['no', 286, 14, 2, 11, 2, 11], ['fp', 225, 9, 0, 4, 6, 3], ['qrr', 210, 1, 3, 0, 1, 4], ['arp_nd', 207, 19, 2, 9, 6, 7], ['t3', 117, 1, 0, 4, 6, 4], ['oo_co_cc', 110, 7, 2, 8, 4, 11], ['aap_am', 105, 6, 0, 10, 3, 4], ['bd', 104, 17, 3, 16, 3, 6], ['t1', 103, 3, 1, 2, 9, 2], ['^g', 93, 6, 1, 1, 2, 8], ['qw^d', 80, 4, 0, 5, 2, 4], ['fa', 79, 10, 3, 4, 2, 8], ['ft', 78, 9, 1, 4, 2, 2]]
 #+end_src
 
-#+RESULTS: swda-da-l
-| sd              | 75396 | 3450 | 1092 | 1801 | 1619 | 2411 |
-| b               | 38384 |  762 |   50 | 1839 |  471 | 1172 |
-| sv              | 26526 | 1253 |  354 |  652 |  331 |  818 |
-| +               | 18695 |  800 |    2 | 1058 |  310 |  556 |
-| %               | 15681 |  364 |  300 |  354 |  211 |  430 |
-| aa              | 11159 |  425 |   88 |  829 |  302 |  244 |
-| ba              |  4797 |  332 |   40 |  377 |   65 |  246 |
-| qy              |  4760 |  170 |   51 |  222 |   17 |  161 |
-| x               |  3678 | 2396 |   10 |  643 |    1 |  407 |
-| ny              |  3040 |   65 |    7 |  107 |   65 |   58 |
-| fc              |  2585 |   86 |   24 |  104 |   25 |   45 |
-| qw              |  1990 |   60 |   21 |   86 |    7 |   81 |
-| nn              |  1378 |   36 |   10 |   45 |   48 |   17 |
-| bk              |  1309 |   41 |    1 |   70 |   13 |   51 |
-| h               |  1227 |   50 |   27 |   36 |   38 |   27 |
-| fo_o_fw_"_by_bc |  1221 |   40 |   15 |   30 |   11 |   31 |
-| qy^d            |  1217 |   63 |   13 |   54 |    3 |   40 |
-| bh              |  1057 |   30 |    2 |   77 |    5 |   41 |
-| ^q              |   986 |   78 |   18 |   34 |   35 |   70 |
-| bf              |   961 |   77 |   10 |   51 |    6 |   29 |
-| na              |   851 |   49 |    2 |   42 |   17 |   39 |
-| ad              |   752 |   65 |   15 |   42 |   16 |   44 |
-| ^2              |   732 |   45 |    4 |   28 |    1 |   32 |
-| b^m             |   689 |   30 |    4 |   30 |   15 |   17 |
-| qo              |   657 |   23 |   10 |   26 |    3 |   29 |
-| qh              |   578 |   52 |    7 |   22 |   16 |   29 |
-| ^h              |   556 |   19 |    6 |   20 |   17 |   12 |
-| ar              |   345 |   23 |    4 |   20 |   12 |    8 |
-| ng              |   303 |   16 |    2 |    6 |    5 |   13 |
-| br              |   299 |    4 |    1 |   22 |    0 |    7 |
-| no              |   286 |   14 |    2 |   11 |    2 |   11 |
-| fp              |   225 |    9 |    0 |    4 |    6 |    3 |
-| qrr             |   210 |    1 |    3 |    0 |    1 |    4 |
-| arp_nd          |   207 |   19 |    2 |    9 |    6 |    7 |
-| t3              |   117 |    1 |    0 |    4 |    6 |    4 |
-| oo_co_cc        |   110 |    7 |    2 |    8 |    4 |   11 |
-| aap_am          |   105 |    6 |    0 |   10 |    3 |    4 |
-| bd              |   104 |   17 |    3 |   16 |    3 |    6 |
-| t1              |   103 |    3 |    1 |    2 |    9 |    2 |
-| ^g              |    93 |    6 |    1 |    1 |    2 |    8 |
-| qw^d            |    80 |    4 |    0 |    5 |    2 |    4 |
-| fa              |    79 |   10 |    3 |    4 |    2 |    8 |
-| ft              |    78 |    9 |    1 |    4 |    2 |    2 |
+#+NAME: swda-da-lt
+| Name                                      | total_utt | prev_oth | prev_same | same | next_same | next_oth |
+|-------------------------------------------+-----------+----------+-----------+------+-----------+----------|
+| Statement-non-opinion                     |     75396 |     1801 |      1092 | 3450 |      1619 |     2411 |
+| Acknowledge (Backchannel)                 |     38384 |     1839 |        50 |  762 |       471 |     1172 |
+| Statement-opinion                         |     26526 |      652 |       354 | 1253 |       331 |      818 |
+| Segment (multi-utterance)                 |     18695 |     1058 |         2 |  800 |       310 |      556 |
+| Abandoned or Turn-Exit or Uninterpretable |     15681 |      354 |       300 |  364 |       211 |      430 |
+| Agree/Accept                              |     11159 |      829 |        88 |  425 |       302 |      244 |
+| Appreciation                              |      4797 |      377 |        40 |  332 |        65 |      246 |
+| Yes-No-Question                           |      4760 |      222 |        51 |  170 |        17 |      161 |
+| Yes answers                               |      3040 |      107 |         7 |   65 |        65 |       58 |
+| Conventional-closing                      |      2585 |      104 |        24 |   86 |        25 |       45 |
+| Wh-Question                               |      1990 |       86 |        21 |   60 |         7 |       81 |
+| No answers                                |      1378 |       45 |        10 |   36 |        48 |       17 |
+| Response Acknowledgement                  |      1309 |       70 |         1 |   41 |        13 |       51 |
+| Hedge                                     |      1227 |       36 |        27 |   50 |        38 |       27 |
+| Declarative Yes-No-Question               |      1221 |       30 |        15 |   40 |        11 |       31 |
+| Backchannel in question form              |      1217 |       54 |        13 |   63 |         3 |       40 |
+| Quotation                                 |      1057 |       77 |         2 |   30 |         5 |       41 |
+| Summarize/reformulate                     |       986 |       34 |        18 |   78 |        35 |       70 |
+| Other                                     |       961 |       51 |        10 |   77 |         6 |       29 |
+| Affirmative non-yes answers               |       851 |       42 |         2 |   49 |        17 |       39 |
+| Action-directive                          |       752 |       42 |        15 |   65 |        16 |       44 |
+| Collaborative Completion                  |       732 |       28 |         4 |   45 |         1 |       32 |
+| Repeat-phrase                             |       689 |       30 |         4 |   30 |        15 |       17 |
+| Open-Question                             |       657 |       26 |        10 |   23 |         3 |       29 |
+| Rhetorical-Questions                      |       578 |       22 |         7 |   52 |        16 |       29 |
+| Hold before answer/agreement              |       556 |       20 |         6 |   19 |        17 |       12 |
+| Reject                                    |       345 |       20 |         4 |   23 |        12 |        8 |
+| Negative non-no answers                   |       303 |        6 |         2 |   16 |         5 |       13 |
+| Signal-non-understanding                  |       299 |       22 |         1 |    4 |         0 |        7 |
+| Other answers                             |       286 |       11 |         2 |   14 |         2 |       11 |
+| Conventional-opening                      |       225 |        4 |         0 |    9 |         6 |        3 |
+| Or-Clause                                 |       210 |        0 |         3 |    1 |         1 |        4 |
+| Dispreferred answers                      |       207 |        9 |         2 |   19 |         6 |        7 |
+| 3rd-party-talk                            |       117 |        4 |         0 |    1 |         6 |        4 |
+| Offers, Options Commits                   |       110 |        8 |         2 |    7 |         4 |       11 |
+| Maybe/Accept-part                         |       105 |       10 |         0 |    6 |         3 |        4 |
+| Downplayer                                |       104 |       16 |         3 |   17 |         3 |        6 |
+| Self-talk                                 |       103 |        2 |         1 |    3 |         9 |        2 |
+| Tag-Question                              |        93 |        1 |         1 |    6 |         2 |        8 |
+| Declarative Wh-Question                   |        80 |        5 |         0 |    4 |         2 |        4 |
+| Apology                                   |        79 |        4 |         3 |   10 |         2 |        8 |
+| Thanking                                  |        78 |        4 |         1 |    9 |         2 |        2 |
 
-#+RESULTS:
+#+begin_src gnuplot :var data=swda-da-lt :file swda-da-l.svg
+        reset
 
-#+begin_src gnuplot :var data=swda-da-l :file swda-da-l.svg
-  reset
-
-  set linetype 22 linewidth 1
-  set palette model RGB defined ( 0 'black', 1 'blue' )
-  set border 1
-  unset colorbox
-  set bars 5.0
-  set yrange [0:0.5]
-  set ytics nomirror scale 0.5
-  set term svg size 1000,480 font "Times"
-  set style data histogram
-  set style histogram rowstacked
-  set style fill solid 0.5 noborder
-  set xtics rotate by -35 scale 0 noenhanced
-  plot data using ($3/$2):xtic(1) , '' using ($4/$2) , '' using ($5/$2), '' using ($6/$2), '' using ($7/$2)
+        set linetype 22 linewidth 1
+        set palette model RGB defined ( 0 'black', 1 'blue' )
+        set border 1
+        unset colorbox
+        set bars 5.0
+        set ytics nomirror scale 0.5
+        set term svg size 1500,720 # font "Times"
+        set style data histogram
+        set style fill transparent solid 1 noborder
+        set xtics rotate by -35 scale 0 noenhanced
+        plot data using ($3+$4+$5+$6+$7)/$2 with boxes lt 22 fs empty  title 'total', \
+             data using ($3/$2):xtic(1) lt 2  title 'before:other', \
+               '' using ($4/$2) lt 9 title 'before:self', \
+               '' using ($5/$2) lt -1  title 'same:self', \
+               '' using ($6/$2) lt 7 title 'after:self', \
+               '' using ($7/$2) lt 3 title 'after:other'
 #+end_src
 
 #+RESULTS:
 [[file:swda-da-l.svg]]
-| Name                                      | total_utt | same | prev_same | prev_oth | next_same | next_oth |
-|-------------------------------------------+-----------+------+-----------+----------+-----------+----------|
-| Statement-non-opinion                     |     75396 | 3450 |      1092 |     1801 |      1619 |     2411 |
-| Acknowledge (Backchannel)                 |     38384 |  762 |        50 |     1839 |       471 |     1172 |
-| Statement-opinion                         |     26526 | 1253 |       354 |      652 |       331 |      818 |
-| Segment (multi-utterance)                 |     18695 |  800 |         2 |     1058 |       310 |      556 |
-| Abandoned or Turn-Exit or Uninterpretable |     15681 |  364 |       300 |      354 |       211 |      430 |
-| Agree/Accept                              |     11159 |  425 |        88 |      829 |       302 |      244 |
-| Appreciation                              |      4797 |  332 |        40 |      377 |        65 |      246 |
-| Yes-No-Question                           |      4760 |  170 |        51 |      222 |        17 |      161 |
-| Non-verbal                                |      3678 | 2396 |        10 |      643 |         1 |      407 |
-| Yes answers                               |      3040 |   65 |         7 |      107 |        65 |       58 |
-| Conventional-closing                      |      2585 |   86 |        24 |      104 |        25 |       45 |
-| Wh-Question                               |      1990 |   60 |        21 |       86 |         7 |       81 |
-| No answers                                |      1378 |   36 |        10 |       45 |        48 |       17 |
-| Response Acknowledgement                  |      1309 |   41 |         1 |       70 |        13 |       51 |
-| Hedge                                     |      1227 |   50 |        27 |       36 |        38 |       27 |
-| Declarative Yes-No-Question               |      1221 |   40 |        15 |       30 |        11 |       31 |
-| Backchannel in question form              |      1217 |   63 |        13 |       54 |         3 |       40 |
-| Quotation                                 |      1057 |   30 |         2 |       77 |         5 |       41 |
-| Summarize/reformulate                     |       986 |   78 |        18 |       34 |        35 |       70 |
-| Other                                     |       961 |   77 |        10 |       51 |         6 |       29 |
-| Affirmative non-yes answers               |       851 |   49 |         2 |       42 |        17 |       39 |
-| Action-directive                          |       752 |   65 |        15 |       42 |        16 |       44 |
-| Collaborative Completion                  |       732 |   45 |         4 |       28 |         1 |       32 |
-| Repeat-phrase                             |       689 |   30 |         4 |       30 |        15 |       17 |
-| Open-Question                             |       657 |   23 |        10 |       26 |         3 |       29 |
-| Rhetorical-Questions                      |       578 |   52 |         7 |       22 |        16 |       29 |
-| Hold before answer/agreement              |       556 |   19 |         6 |       20 |        17 |       12 |
-| Reject                                    |       345 |   23 |         4 |       20 |        12 |        8 |
-| Negative non-no answers                   |       303 |   16 |         2 |        6 |         5 |       13 |
-| Signal-non-understanding                  |       299 |    4 |         1 |       22 |         0 |        7 |
-| Other answers                             |       286 |   14 |         2 |       11 |         2 |       11 |
-| Conventional-opening                      |       225 |    9 |         0 |        4 |         6 |        3 |
-| Or-Clause                                 |       210 |    1 |         3 |        0 |         1 |        4 |
-| Dispreferred answers                      |       207 |   19 |         2 |        9 |         6 |        7 |
-| 3rd-party-talk                            |       117 |    1 |         0 |        4 |         6 |        4 |
-| Offers, Options Commits                   |       110 |    7 |         2 |        8 |         4 |       11 |
-| Maybe/Accept-part                         |       105 |    6 |         0 |       10 |         3 |        4 |
-| Downplayer                                |       104 |   17 |         3 |       16 |         3 |        6 |
-| Self-talk                                 |       103 |    3 |         1 |        2 |         9 |        2 |
-| Tag-Question                              |        93 |    6 |         1 |        1 |         2 |        8 |
-| Declarative Wh-Question                   |        80 |    4 |         0 |        5 |         2 |        4 |
-| Apology                                   |        79 |   10 |         3 |        4 |         2 |        8 |
-| Thanking                                  |        78 |    9 |         1 |        4 |         2 |        2 |
+#+begin_src gnuplot :file test.svg
+set terminal svg size 1500,720
+test
+#+end_src
+
+#+RESULTS:
+[[file:test.svg]]
