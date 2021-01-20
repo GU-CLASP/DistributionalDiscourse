@@ -148,3 +148,4 @@ class BertEncoder(nn.Module):
         _, x = self.bert(x)  # use the pooled [CLS] token output (_ is the 12 hidden states)
         x = self.linear(x)
         return x
+

@@ -29,18 +29,6 @@ parser.add_argument('--gpu-id', type=int, default=0,
 parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
         help="Increase output verbosity")
 
-
-def compute_accuracy(data, preds):
-    tags = [diag[1] for diag in data]
-    total, total_correct = 0, 0
-    for y, y_hat in zip(tags, preds):
-        len_y = len(y)
-        assert(len_y == len(y_hat))
-        total += len_y
-        correct = sum([a == b for a,b in zip(y, y_hat)])
-        total_correct += correct
-    return total_correct / total
-
 def get_min_val_loss(model_dir):
     """
     model_dir - the full path to the save directory for the model
@@ -53,6 +41,65 @@ def get_min_val_loss(model_dir):
     epoch_val_loss = re.findall(val_loss_re, train_log)
     min_epoch, min_loss = min(epoch_val_loss, key=lambda x:x[1])
     return min_epoch, min_loss
+
+def load_models(model_dir, epoch=None, device='cpu'):
+
+    with open(os.path.join(model_dir, 'args.json'), 'r') as f:
+       args = json.load(f)
+    best_epoch, _ = get_min_val_loss(model_dir) 
+    epoch = best_epoch if epoch is None else epoch
+
+    dialogue_state_file = os.path.join(model_dir, f"dialogue_state.E{epoch}.json")
+    encoder_model_file = os.path.join(model_dir, f"encoder_model.E{epoch}.bin")
+    dar_model_file = os.path.join(model_dir, f"dar_model.E{epoch}.bin")
+
+    # tokenizer = data.load_tokenizer('bert-base-uncased')
+    # vocab_size = len(tokenizer)
+    # print(vocab_size)
+    vocab_size = 30528
+
+    tag_vocab_file = os.path.join(args['data_dir'], f'{args["corpus"]}_tags.txt')
+    tag_vocab, tag2id = data.load_tag_vocab(tag_vocab_file)
+    n_tags = len(tag_vocab)
+
+    if args['encoder_model'] == 'wordvec-avg': 
+        encoder_model = model.WordVecAvg.random_init(vocab_size, args['embedding_size'])
+    elif args['encoder_model'] == 'cnn':
+        window_sizes = [3, 4, 5]
+        feature_maps = 100
+        min_utt_len = max(window_sizes) 
+        encoder_model = model.KimCNN.random_init(vocab_size, args['utt_dims'], 
+                args['embedding_size'], window_sizes, feature_maps)
+    elif args['encoder_model'] == 'bert':
+        encoder_model = model.BertEncoder(args['utt_dims'],
+                from_pretrained=False, finetune_bert=False,
+                resize=vocab_size)
+    else:
+        raise ValueError("Unknown encoder model: {}".format(args['encoder_model']))
+
+    # always use the same dar_model  
+    dar_model = model.DARRNN(args['utt_dims'], n_tags, args['dar_hidden'], args['dar_layers'], dropout=0, use_lstm=args['lstm'])
+
+    encoder_model.to(device)
+    dar_model.to(device)
+
+    encoder_model.load_state_dict(torch.load(encoder_model_file, map_location=torch.device(device)))
+    dar_model.load_state_dict(torch.load(dar_model_file, map_location=torch.device(device)))
+
+    return encoder_model, dar_model
+
+
+
+def compute_accuracy(data, preds):
+    tags = [diag[1] for diag in data]
+    total, total_correct = 0, 0
+    for y, y_hat in zip(tags, preds):
+        len_y = len(y)
+        assert(len_y == len(y_hat))
+        total += len_y
+        correct = sum([a == b for a,b in zip(y, y_hat)])
+        total_correct += correct
+    return total_correct / total
 
 def eval_model(encoder_model, dar_model, data, n_tags, criterion, device, min_utt_len=None):
     """ Similar to train.train_epoch but:
