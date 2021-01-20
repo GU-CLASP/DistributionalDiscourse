@@ -1,6 +1,6 @@
 import sys
 sys.path.append("../..") # Adds package base dir to python modules path.
-from eval_model import get_max_val_loss
+from eval_model import get_min_val_loss
 import json
 import pandas as pd
 from collections import defaultdict
@@ -8,7 +8,6 @@ import os
 from sklearn import metrics
 
 
-<<<<<<< HEAD
 def report_metrics(frames, conditions):
     metric_funcs = [
         lambda x,y: metrics.precision_score(x,y,average='macro'), 
@@ -62,7 +61,7 @@ def gen_model_preds_df(corpus, models, model_dirs,group=False):
     
     preds = defaultdict(lambda x: dict)
     for model, model_dir in zip(models, model_dirs):
-        best_epoch, _ = get_max_val_loss(model_dir)
+        best_epoch, _ = get_min_val_loss(model_dir)
         preds_file = os.path.join(model_dir, f'preds.E{best_epoch}.json')
         with open(os.path.join(model_dir, preds_file), 'r') as f:
             preds = json.load(f)

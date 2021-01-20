@@ -47,33 +47,40 @@ def normalize_laughs(sentence):
                             sentence, flags=re.IGNORECASE)
     global laughs
     laughs += lau
-    if lau:
-        print(new_sent)
-    return new_sent
+    # if lau:
+        # print(new_sent)
+    return new_sent, lau
 
 
 def xml_to_sentences(xml_corpus):
     with open(xml_corpus) as f:
         parse = ET.parse(f)
     sentences = []
+    total_laughs = 0
     for sentence in parse.getroot():
         joined_words = " ".join([t.text for t in sentence if t.tag == "w"])
-        sentences.append(normalize_laughs(joined_words))
-    return sentences
+        normalized_words, sentence_laughs = normalize_laughs(joined_words)
+        total_laughs += sentence_laughs
+        sentences.append(normalized_words)
+    return sentences, total_laughs
 
 
-def os_to_json(path, n_speakers=3):
+def os_to_json(path, n_speakers=3, shuffle=False):
     speakers = list(map(chr, range(65, 65+n_speakers)))
     dialogs = []
     # total = len(list(glob.iglob(path + '**/*.xml', recursive=True)))
     # print(f'{total} xml files in the corpus')
+    files = glob.iglob(path + '**/*.xml', recursive=True)
+    if shuffle:
+        files = list(files)
+        random.shuffle(files)
     i = 0
-    for filename in tqdm(glob.iglob(path + '**/*.xml', recursive=True), total=446612):
+    for filename in tqdm(files, total=446612):
         dialog = {}
         dialog['id'] = os.path.basename(filename)
-        dialog['utts'] = xml_to_sentences(filename)
+        dialog['utts'], n_laughs = xml_to_sentences(filename)
         dialog['speakers'] = random.choices(speakers, k=len(dialog['utts']))
-        yield dialog
+        yield dialog, n_laughs
 
 
 if __name__ == '__main__':

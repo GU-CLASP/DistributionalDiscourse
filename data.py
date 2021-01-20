@@ -22,7 +22,8 @@ parser.add_argument("command", choices=[
     'download-glove', 
     'get-bert-config',
     'test-tokenization',
-    'prep-pretraining-corpora'
+    'prep-pretraining-corpora',
+    'prep-opensubtitles-pretraining-corpus'
     ],  help="What preprocessing to do.")
 parser.add_argument('-d','--data-dir', default='data',
         help='Data storage directory.')
@@ -81,9 +82,9 @@ def download_glove(data_dir):
 
 def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False):
     with open(corpus_file) as f:
-        dialogues = json.load(f)
+        dialogs = json.load(f)
     data = []
-    for d in dialogues:
+    for d in dialogs:
         utts, tags = [], []
         for speaker,utt,tag in zip(d['speakers'], d['utts'], d['da_tags']):
             utt = [f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
@@ -98,16 +99,20 @@ def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False):
     return data 
 
 
-def load_data_pretraining(corpus_file, tokenizer):
+def prep_dialog_for_pretraining(dialog):
+    utts = []
+    for speaker,utt in zip(dialog['speakers'], dialog['utts']):
+       utt = f'[SPKR_{speaker}] ' + utt 
+       utts.append(utt)
+    return utts
+
+
+def load_data_pretraining(corpus_file):
     with open(corpus_file) as f:
-        dialogues = json.load(f)
+        dialogs = json.load(f)
     data = []
-    for d in dialogues:
-        utts = []
-        for speaker,utt in zip(d['speakers'], d['utts']):
-           utt = [f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
-           utts.append(utt)
-        data.append(utts)
+    for d in dialogs:
+        data.append(prep_dialog_for_pretraining(d))
     return data
 
 
@@ -115,7 +120,7 @@ def write_pretraining_corpus(corpus_file, corpus):
     with open(os.path.join(corpus_file), 'w') as f:
         for d in corpus:
             for utt in d:
-                f.write(' '.join(utt) + '\n')
+                f.write(utt + '\n')
             f.write('\n')
 
 
@@ -160,23 +165,23 @@ def parse_ami(corpus_dir, pause_threshold):
     log.info("Parsing AMI...")
     ami_meetings = ami.get_corpus(corpus_dir, da_only=False)
 
-    dialogues_da, dialogues_noda = [], []
+    dialogs_da, dialogs_noda = [], []
     for m in tqdm(ami_meetings):
         m.gen_transcript(utt_pause_threshold=pause_threshold)
-        if m.speaker_dialogue_acts:  # DA-tagged meeting
+        if m.speaker_dialog_acts:  # DA-tagged meeting
             speakers, utts, da_tags = [], [], []
             for utt in m.transcript:
                 speakers.append(utt.speaker)
                 utts.append(normalize_ami(utt))
-                da_tags.append(utt.dialogue_act.da_tag)
-            dialogues_da.append(Dialogue(m.meeting_id, speakers, utts, da_tags))
+                da_tags.append(utt.dialog_act.da_tag)
+            dialogs_da.append(Dialogue(m.meeting_id, speakers, utts, da_tags))
         else:  # not DA-tagged meeting
             speakers, utts = [], []
             for utt in m.transcript:
                 speakers.append(utt.speaker)
                 utts.append(normalize_ami(utt))
-            dialogues_noda.append(Dialogue(m.meeting_id, speakers, utts, None))
-    return dialogues_da, dialogues_noda
+            dialogs_noda.append(Dialogue(m.meeting_id, speakers, utts, None))
+    return dialogs_da, dialogs_noda
 
 
 # def parse_swbd(corpus_dir):
@@ -187,20 +192,20 @@ def parse_ami(corpus_dir, pause_threshold):
     # swbd_files = [os.path.join(words_dir, subdir, f)
                     # for subdir in os.listdir(words_dir) 
                     # for f in os.listdir(os.path.join(words_dir, subdir))]
-    # dialogue_ids = list({os.path.basename(f)[:6] for f in swbd_files})
-    # dialogues = []
-    # for dialogue_id in dialogue_ids:
+    # dialog_ids = list({os.path.basename(f)[:6] for f in swbd_files})
+    # dialogs = []
+    # for dialog_id in dialog_ids:
         # speakers, tokens = [], [] 
-        # dialogue_files = [f for f in swbd_files if os.path.basename(f).startswith(dialogue_id)]
-        # for filename in dialogue_files:
+        # dialog_files = [f for f in swbd_files if os.path.basename(f).startswith(dialog_id)]
+        # for filename in dialog_files:
             # speaker = os.path.basename(filename)[6]
             # with open(filename) as f:
                 # reader = csv.DictReader(f, fieldnames, delimiter='\t')
                 # for line in reader:
                     # tokens.append(line['ldc_word'])
                     # speakers.append(speaker)
-        # dialogues.append(UnsegmentedDialogue(dialogue_id, speakers, tokens))
-    # return dialogues
+        # dialogs.append(UnsegmentedDialogue(dialog_id, speakers, tokens))
+    # return dialogs
 
 def normalize_swda(s):
 
@@ -228,24 +233,24 @@ def normalize_swda(s):
 def parse_swda(corpus_dir):
     log.info("Parsing SWDA...")
     corpus = swda.CorpusReader(os.path.join(corpus_dir,'swda'))
-    dialogues = []
+    dialogs = []
     for transcript in corpus.iter_transcripts():
         speakers, utts, da_tags = [], [], []
         for utt in transcript.utterances:
             speakers.append(utt.caller)
             utts.append(normalize_swda(utt.text))
             da_tags.append(utt.damsl_act_tag())  # Utterance.damsl_act_tag implements clustering
-        dialogue_id = 'sw' + str(transcript.conversation_no)
-        dialogues.append(Dialogue(dialogue_id, speakers, utts, da_tags))
-    return dialogues
+        dialog_id = 'sw' + str(transcript.conversation_no)
+        dialogs.append(Dialogue(dialog_id, speakers, utts, da_tags))
+    return dialogs
 
 
-def write_tag_vocab(dialogues, data_dir, corpus_name):
+def write_tag_vocab(dialogs, data_dir, corpus_name):
     tag_file = os.path.join(data_dir, f'{corpus_name}_tags.txt')
     if os.path.exists(tag_file):
         log.info(f"Tag vocab already exsits at {tag_file}.")
         return
-    tags = list({t for d in dialogues for t in d.da_tags if t})
+    tags = list({t for d in dialogs for t in d.da_tags if t})
     tags = [TAG_PAD] + tags
     with open(tag_file, 'w') as f:
         for tag in tags:
@@ -263,12 +268,12 @@ def load_tag_vocab(vocab_file):
     return tag_vocab, tag2id
 
 
-def write_corpus(dialogues, data_dir, filename):
+def write_corpus(dialogs, data_dir, filename):
     path = os.path.join(data_dir, filename)
-    dialogues = [d._asdict() for d in dialogues]
+    dialogs = [d._asdict() for d in dialogs]
     with open(path, 'w') as f:
-        json.dump(dialogues, f)
-    log.info(f"Wrote {len(dialogues)} dialogues to {filename}.")
+        json.dump(dialogs, f)
+    log.info(f"Wrote {len(dialogs)} dialogs to {filename}.")
 
 
 def gen_splits(ids, train=0.7, val=0.1, test=0.2):
@@ -280,7 +285,7 @@ def gen_splits(ids, train=0.7, val=0.1, test=0.2):
     return {'train': train, 'val': val, 'test': test}
 
 
-def write_splits(dialogues, data_dir, corpus_name):
+def write_splits(dialogs, data_dir, corpus_name):
     splits_file = os.path.join(data_dir, f"{corpus_name}_splits.json")
     if os.path.exists(splits_file):
         log.info(f"Loading splits from {splits_file}.")
@@ -288,12 +293,12 @@ def write_splits(dialogues, data_dir, corpus_name):
             splits = json.load(f)
     else:
         log.info(f"Generating splits and saving to {splits_file}.")
-        splits = gen_splits([d.id for d in dialogues])
+        splits = gen_splits([d.id for d in dialogs])
         with open(splits_file, 'w') as f:
             json.dump(splits, f)
-    dialogues = {d.id: d for d in dialogues}
+    dialogs = {d.id: d for d in dialogs}
     for split in splits:
-        split_data = [dialogues[dialogue_id] for dialogue_id in splits[split]]
+        split_data = [dialogs[dialog_id] for dialog_id in splits[split]]
         write_corpus(split_data, data_dir, f"{corpus_name}_{split}.json")
 
 
@@ -318,7 +323,7 @@ if __name__ == '__main__':
 
     if args.command == 'prep-corpora':
 
-        # AMI (with/without dialogue acts)
+        # AMI (with/without dialog acts)
         download_corpus(ami_url, ami_zip_file)
         extract_corpus(ami_zip_file, ami_dir)
         ami_da, ami_noda = parse_ami(ami_dir, args.pause_threshold)
@@ -353,8 +358,8 @@ if __name__ == '__main__':
         tag_vocab, tag2id = load_tag_vocab(f'data/{corpus}_tags.txt')
         data = load_data(f'data/{corpus}_train.json', tokenizer, tag2id)
         with open (f'data/{corpus}_train.json') as f:
-            dialogues = json.load(f)
-        for (x, y), d in zip(data, dialogues):
+            dialogs = json.load(f)
+        for (x, y), d in zip(data, dialogs):
             print(f"Dialogue {d['id']}")
             for utt, tag, utt_d, tag_d in zip(x,y,d['utts'],d['da_tags']):
                 utt = tokenizer.convert_ids_to_tokens(utt)
@@ -368,13 +373,40 @@ if __name__ == '__main__':
 
     if args.command == 'prep-pretraining-corpora':
 
-        tokenizer = load_tokenizer('bert-base-uncased')
-
-        ami = load_data_pretraining(os.path.join(args.data_dir, 'AMI-DA_train.json'), tokenizer)
-        ami_da = load_data_pretraining(os.path.join(args.data_dir, 'AMI-noDA.json'), tokenizer)
-        swda = load_data_pretraining(os.path.join(args.data_dir, 'SWDA_train.json'), tokenizer)
+        ami = load_data_pretraining(os.path.join(args.data_dir, 'AMI-DA_train.json'))
+        ami_da = load_data_pretraining(os.path.join(args.data_dir, 'AMI-noDA.json'))
+        swda = load_data_pretraining(os.path.join(args.data_dir, 'SWDA_train.json'))
 
         write_pretraining_corpus(os.path.join(args.data_dir, 'AMI_pretraining.txt'), ami + ami_da)
         write_pretraining_corpus(os.path.join(args.data_dir, 'SWBD_pretraining.txt'), swda)
         write_pretraining_corpus(os.path.join(args.data_dir, 'AMI+SWBD_pretraining.txt'), ami + ami_da + swda)
 
+    if args.command == 'prep-opensubtitles-pretraining-corpus':
+
+        from opensubtitles import os_to_json
+
+        def iter_dialogs(handle, ids_logfile, limit_utts=None):
+            total_utts = 0
+            pbar = tqdm(total=limit_utts)
+            for dialog, n_laughters in handle:
+                dialog_len = len(dialog['utts'])
+                if (n_laughters / dialog_len) < 0.01:
+                    continue
+                total_utts += dialog_len
+                if total_utts >= limit_utts:
+                    break
+                else:
+                    pbar.update(dialog_len)
+                ids_logfile.write(dialog['id']+'\n')
+                yield prep_dialog_for_pretraining(dialog)
+            pbar.close()
+
+        corpus_file = os.path.join(args.data_dir, "OS_pretraining.txt")
+        corpus_log  = os.path.join(args.data_dir, "OS_ids.txt")
+        handle = os_to_json(
+            '/scratch/DistributionalDiscourse/opensubtitles/OpenSubtitles/xml/en/',
+            shuffle=True
+        )
+
+        with open(corpus_log, 'w', buffering=1) as ids_logfile:
+            write_pretraining_corpus(corpus_file, iter_dialogs(handle, ids_logfile, limit_utts=int(1e+8)))

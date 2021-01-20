@@ -16,7 +16,7 @@ parser.add_argument('model_dir', type=str,
         help='The save directory for the model to evaluate')
 parser.add_argument('corpus', choices=['SWDA', 'AMI-DA'],
         help='Which dialouge act corpus to eval on.')
-parser.add_argument('-st', '--save-dialogue-state', type=bool, default=False,
+parser.add_argument('-st', '--save-dialogue-state', default=False, action='store_true',
         help='Save the hidden state of the dialogue RNN at each utterance.')
 parser.add_argument('-e', '--epoch', type=int, default=None,
         help='The model checkpoint (training epoch) to load.')
@@ -77,7 +77,7 @@ def eval_model(encoder_model, dar_model, data, n_tags, criterion, device, min_ut
            log.debug("Dialogue {:3d} loss: {:.6f}".format(i, diag_loss))
            loss += diag_loss
            preds.append(y_hat.max(dim=2)[1].squeeze(1).tolist())
-           dar_states.append(hidden.cpu().detach().numpy())
+           dar_states.append(hidden.squeeze().tolist())
         loss = loss / len(data)
     return loss, preds, dar_states
 
