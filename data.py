@@ -80,13 +80,13 @@ def download_glove(data_dir):
         zip_ref.extractall('data/glove.6B')
 
 
-def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False):
+def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False, tag_field='da_tags'):
     with open(corpus_file) as f:
         dialogs = json.load(f)
     data = []
     for d in dialogs:
         utts, tags = [], []
-        for speaker,utt,tag in zip(d['speakers'], d['utts'], d['da_tags']):
+        for speaker,utt,tag in zip(d['speakers'], d['utts'], d[da_tags]):
             utt = [f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
             if strip_laughter:
                 utt = [t for t in utt if t != LAUGHTER_TOKEN]
@@ -123,8 +123,7 @@ def write_pretraining_corpus(corpus_file, corpus):
                 f.write(utt + '\n')
             f.write('\n')
 
-
-Dialogue = namedtuple('Dialogue', ['id', 'speakers', 'utts', 'da_tags'])
+Dialogue = namedtuple('Dialogue', ['id', 'speakers', 'utts', 'da_tags', 'laughter_type_next'])
 
 
 def extract_corpus(zip_file, corpus_dir):
@@ -146,6 +145,21 @@ def download_corpus(url, zip_file):
         log.info(f"Skipping download of {zip_file} (already exists).")
         return
     util.download_url(url, zip_file)
+
+def laughter_type(utt):
+    laugh = '<laughter>'
+    utt = re.sub(r'[#.\-,]','',utt).strip().lower()
+    if utt == laugh:
+        return 'stand alone'
+    elif laugh in utt:
+        if utt.startswith(laugh):
+            return 'prefix'
+        elif utt.endswith(laugh):
+            return 'suffix'
+        else:
+            return 'infix'
+    else:
+        return 'none'
 
 def normalize_ami(utt):
     s = str(utt) # AMIUtterance to string defined in ami.py
@@ -169,43 +183,24 @@ def parse_ami(corpus_dir, pause_threshold):
     for m in tqdm(ami_meetings):
         m.gen_transcript(utt_pause_threshold=pause_threshold)
         if m.speaker_dialog_acts:  # DA-tagged meeting
-            speakers, utts, da_tags = [], [], []
+            speakers, utts, da_tags, laughter_types = [], [], [], []
             for utt in m.transcript:
                 speakers.append(utt.speaker)
                 utts.append(normalize_ami(utt))
                 da_tags.append(utt.dialog_act.da_tag)
-            dialogs_da.append(Dialogue(m.meeting_id, speakers, utts, da_tags))
+                laughter_types.append(laughter_type(str(utt)))
+            laughter_type_next = laughter_types[1:] + ['none'] # predict the laughter type of the next utterance. for the last utterance, use 'none' 
+            dialogs_da.append(Dialogue(m.meeting_id, speakers, utts, da_tags, laughter_type_next))
         else:  # not DA-tagged meeting
-            speakers, utts = [], []
+            speakers, utts, laughter_types = [], [], []
             for utt in m.transcript:
                 speakers.append(utt.speaker)
                 utts.append(normalize_ami(utt))
-            dialogs_noda.append(Dialogue(m.meeting_id, speakers, utts, None))
+                laughter_types.append(laughter_type(str(utt)))
+            laughter_type_next = laughter_types[1:] + ['none'] # predict the laughter type of the next utterance. for the last utterance, use 'none' 
+            dialogs_da.append(Dialogue(m.meeting_id, speakers, utts, None, laughter_type_next))
     return dialogs_da, dialogs_noda
 
-
-# def parse_swbd(corpus_dir):
-    # log.info("Parsing SWBD.")
-    # fieldnames = ['id', 'treebank_id', 'start_word', 'end_word', 'alignment_tag',
-            # 'ldc_word', 'ms98_word']
-    # words_dir = os.path.join(corpus_dir, 'data', 'alignments')
-    # swbd_files = [os.path.join(words_dir, subdir, f)
-                    # for subdir in os.listdir(words_dir) 
-                    # for f in os.listdir(os.path.join(words_dir, subdir))]
-    # dialog_ids = list({os.path.basename(f)[:6] for f in swbd_files})
-    # dialogs = []
-    # for dialog_id in dialog_ids:
-        # speakers, tokens = [], [] 
-        # dialog_files = [f for f in swbd_files if os.path.basename(f).startswith(dialog_id)]
-        # for filename in dialog_files:
-            # speaker = os.path.basename(filename)[6]
-            # with open(filename) as f:
-                # reader = csv.DictReader(f, fieldnames, delimiter='\t')
-                # for line in reader:
-                    # tokens.append(line['ldc_word'])
-                    # speakers.append(speaker)
-        # dialogs.append(UnsegmentedDialogue(dialog_id, speakers, tokens))
-    # return dialogs
 
 def normalize_swda(s):
 
@@ -235,13 +230,15 @@ def parse_swda(corpus_dir):
     corpus = swda.CorpusReader(os.path.join(corpus_dir,'swda'))
     dialogs = []
     for transcript in corpus.iter_transcripts():
-        speakers, utts, da_tags = [], [], []
+        speakers, utts, da_tags, laughter_types = [], [], [], []
         for utt in transcript.utterances:
             speakers.append(utt.caller)
             utts.append(normalize_swda(utt.text))
             da_tags.append(utt.damsl_act_tag())  # Utterance.damsl_act_tag implements clustering
+            laughter_types.append(laughter_type(utt.text))
+        laughter_type_next = laughter_types[1:] + ['none'] # predict the laughter type of the next utterance. for the last utterance, use 'none' 
         dialog_id = 'sw' + str(transcript.conversation_no)
-        dialogs.append(Dialogue(dialog_id, speakers, utts, da_tags))
+        dialogs.append(Dialogue(dialog_id, speakers, utts, da_tags, laughter_type_next))
     return dialogs
 
 
