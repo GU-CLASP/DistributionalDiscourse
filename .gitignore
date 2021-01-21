@@ -17,3 +17,4 @@ data/*
 models/*
 *.bin
 *.pyc
+*.pdf
