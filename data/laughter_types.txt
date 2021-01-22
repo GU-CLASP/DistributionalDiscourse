@@ -1,0 +1,5 @@
+stand alone
+prefix
+suffix
+infix
+none
