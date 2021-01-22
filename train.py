@@ -68,6 +68,8 @@ parser.add_argument('--gpu-id', type=int, default=0,
         help='Select with GPU to use')
 parser.add_argument("--training-limit", type=int, default=None,
         help="Limit the amount of training data to N dialogues.")
+parser.add_argument('--predict-laughter', dest='predict_laughter', action='store_true', default=False,
+        help="Predict laughter type of the next utterance instead of dialogue act tag.")
 
 def gen_batches(data, batch_size):
     data.sort(key=lambda x: len(x[0]))  # batch similarly lengthed dialogues together
@@ -145,7 +147,10 @@ if __name__ == '__main__':
     save_dir = os.path.join(args.model_dir, f'{args.corpus}-{lnl}_{args.encoder_model}_{args.save_suffix}')
     train_file = os.path.join(args.data_dir, f'{args.corpus}_train.json')
     val_file   = os.path.join(args.data_dir, f'{args.corpus}_val.json')
-    tag_vocab_file = os.path.join(args.data_dir, f'{args.corpus}_tags.txt')
+    if args.predict_laughter:
+        tag_vocab_file = os.path.join(args.data_dir, 'laughter_types.txt')
+    else:
+        tag_vocab_file = os.path.join(args.data_dir, f'{args.corpus}_tags.txt')
 
     # create the save directory (for trianed model paremeters, logs, arguments)
     if not os.path.exists(args.model_dir):
@@ -232,8 +237,9 @@ if __name__ == '__main__':
     dar_model.to(device)
     encoder_model.to(device)
 
-    train_data = data.load_data(train_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
-    val_data = data.load_data(val_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
+    tag_field = 'laughter_type_next' if args.predict_laughter else 'da_tags'
+    train_data = data.load_data(train_file, tokenizer, tag2id, strip_laughter=args.no_laughter, tag_field=tag_field)
+    val_data = data.load_data(val_file, tokenizer, tag2id, strip_laughter=args.no_laughter, tag_field=tag_field)
     if args.training_limit:
         train_data = train_data[:args.training_limit]
         val_data = val_data[:int(args.training_limit/2)]
