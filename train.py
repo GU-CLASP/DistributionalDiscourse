@@ -248,7 +248,7 @@ if __name__ == '__main__':
         torch.save(dar_model.state_dict(), os.path.join(save_dir, f'dar_model.E{epoch}.bin'))
         torch.save(encoder_model.state_dict(), os.path.join(save_dir, f'encoder_model.E{epoch}.bin'))
         log.info(f"Starting epoch {epoch} valdation")
-        val_loss, preds = eval_model.eval_model(encoder_model, dar_model, val_data, n_tags, 
+        val_loss, preds, _ = eval_model.eval_model(encoder_model, dar_model, val_data, n_tags, 
                 criterion, device, min_utt_len)
         accuracy = eval_model.compute_accuracy(val_data, preds)
         log.info(f"Epoch {epoch} validation loss: {val_loss:.6f} | accuracy: %{accuracy*100:.2f}")

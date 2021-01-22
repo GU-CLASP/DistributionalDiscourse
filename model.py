@@ -59,10 +59,10 @@ class DARRNN(nn.Module):
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, x, hidden):
-        x, _ = self.rnn(x, hidden)
+        x, hidden = self.rnn(x, hidden)
         x = self.drop(x)
         decoded = self.decoder(x.view(x.size(0)*x.size(1), x.size(2)))
-        return decoded.view(x.size(0), x.size(1), decoded.size(1)), x
+        return decoded.view(x.size(0), x.size(1), decoded.size(1)), hidden
 
     def init_hidden(self, batch_size):
         weight = next(self.parameters())
