@@ -86,7 +86,7 @@ def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False, tag_field='d
     data = []
     for d in dialogs:
         utts, tags = [], []
-        for speaker,utt,tag in zip(d['speakers'], d['utts'], d[da_tags]):
+        for speaker,utt,tag in zip(d['speakers'], d['utts'], d[tag_field]):
             utt = [f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
             if strip_laughter:
                 utt = [t for t in utt if t != LAUGHTER_TOKEN]
