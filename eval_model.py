@@ -28,6 +28,8 @@ parser.add_argument('--gpu-id', type=int, default=0,
         help='Select with GPU to use')
 parser.add_argument("-v", "--verbose", action="store_const", const=logging.DEBUG, default=logging.INFO, 
         help="Increase output verbosity")
+parser.add_argument('--predict-laughter', dest='predict_laughter', action='store_true', default=False,
+        help="Predict laughter type of the next utterance instead of dialogue act tag.")
 
 def get_min_val_loss(model_dir):
     """
@@ -142,7 +144,10 @@ if __name__ == '__main__':
     device = torch.device(f'cuda:{args.gpu_id}' if args.cuda and torch.cuda.is_available() else 'cpu')
     log.info(f"Evaluating on {device}.")
 
-    tag_vocab_file = os.path.join(args.data_dir, f'{args.corpus}_tags.txt')
+    if args.predict_laughter:
+        tag_vocab_file = os.path.join(args.data_dir, 'laughter_types.txt')
+    else:
+        tag_vocab_file = os.path.join(args.data_dir, f'{args.corpus}_tags.txt')
     test_file = os.path.join(args.data_dir, f'{args.corpus}_test.json')
     preds_file = os.path.join(args.model_dir, f'preds.E{args.epoch}.json')
     dialogue_state_file = os.path.join(args.model_dir, f'dialogue_state.E{args.epoch}.json')
@@ -183,7 +188,8 @@ if __name__ == '__main__':
     encoder_model.eval()
     encoder_model.to(device)
 
-    test_data = data.load_data(test_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
+    tag_field = 'laughter_type_next' if args.predict_laughter else 'da_tags'
+    test_data = data.load_data(test_file, tokenizer, tag2id, strip_laughter=args.no_laughter, tag_field=tag_field)
 
     criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
     loss, preds, dialogue_states = eval_model(encoder_model, dar_model, test_data, n_tags, criterion, device)
