@@ -260,14 +260,15 @@ For the smaller SWBD and AMI corpora, we generate and train on multiple epochs o
 
 We use a simple neural architecture with two components: 
 an encoder that vectorizes utterances (BERT), 
-and a sequence model that takes the utterance representations as input.
-Since we are primarily interested in comparing different training and fine-tuning schemes for the utterance encoder, 
-we use a basic single-layer RNN as the sequence model in every configuration.\footnote{We have experimented with LSTM as the sequence model, but the accuracy was not significantly different compared to RNN. It can be explained by the absence of longer distance dependencies on this level of our model.}
+and single-layer RNN sequence model that takes the utterance representations as input.\footnote{
+We have experimented with LSTM as the sequence model, but the accuracy was not significantly different compared to RNN. It can be explained by the absence of longer distance dependencies on this level of our model.}
+%Since we are primarily interested in comparing different training and fine-tuning schemes for the utterance encoder, 
+%we use a basic single-layer RNN as the sequence model in every configuration.
 At each time step, the RNN takes the encoded utterance as input 
-and its hidden state is passed to a simple linear classification layer over dialogue act tags.\footnote{
+and its hidden state is passed to a linear layer with softmax over dialogue act tags.\footnote{
 Other work has shown that DAR benefits from more sophisticated decoding, such as conditional random field \citep{chenDialogueActRecognition2017} and uncertainty propagation \citep{tranPreservingDistributionalInformation2017}.}
 
-Conceptually, the encoded utterance represents the context-agnostic features of the utterance 
+Conceptually, the encoded utterance represents the context-agnostic features of the utterance,
 and the hidden state of the RNN represents the full discourse context.
 
 %As a baseline utterance encoder, we use a word-level CNN with window sizes of 3, 4, and 5, each with 100 feature maps \citep{kimConvolutionalNeuralNetworks2014}. 
@@ -373,7 +374,7 @@ phenomena that are too infrequent to learn from labeled training data alone.
 We show some evidence of that here.
 Pre-trained \texttt{BERT-FT} performs better on infrequent dialogue acts than \texttt{BERT-RI}, 
 suggesting it draws on the extensive pre-training to represent infrequent features of those utterances.
-Indeed, a simple lexical probe supports this explanation: in utterances where the pre-trained model is correct and the randomly initialized model is not,the rarest word is 1.9 times rarer on average than is typical of corpus as a whole.
+Indeed, a simple lexical probe supports this explanation: in utterances where the pre-trained model is correct and the randomly initialized model is not, the rarest word is 1.9 times rarer on average than is typical of corpus as a whole.
 
 In spite of that, the representations learned through pre-training are simply not performant without
 task-specific fine-tuning, suggesting that they are fundamentally lacking in information that is 
@@ -390,7 +391,7 @@ This deserves further investigation.
 %This finding is consistent with that of \citet{bavelas2008gesturing} who demonstrate that in face-to-face dialogue, visual components, such as gestures, can convey information that is independent from what is conveyed by speech.
 
 There is also abundant room to investigate how speech-related information, such as laughter, prosody, 
-and disfluencies can be incorporated into the DAR model.
+and disfluencies can be incorporated into a DAR model that uses pre-trained features.
 \citet{stolckeDialogueActModeling2000} showed, for example, that dialogue acts can have specific prosodic manifestations that can be used to improve dialogue act classification.
 Incorporating such information is crucial if models pre-trained on large-scale text corpora are to be adapted for use in dialogue applications.
 
