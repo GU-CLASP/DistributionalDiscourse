@@ -305,15 +305,16 @@ The pre-trained model is more accurate than the randomly initialized model by se
 suggesting that BERT's extensive pre-training does provide some useful information for recognizing different dialogue acts (Table~\ref{tab:exp2}).
 This performance boost is much more pronounced in the macro-averaged F1 score,
 which is explained by the fact that at the tag level, pre-training has a larger impact on less frequent tags.
-For a disaggregated view, see Figure \ref{fig:f1-by-da} in Appendix~\ref{sec:suppl}.
+For a disaggregated view, see Figure 1 in the supplementary materials.
 
 A key aspiration of transfer learning is to expose the model to phenomena that are too infrequent to learn from labeled training data alone.
 One explanation for pre-trained BERT's superior performance on some infrequent dialogue acts is that it has learned to represent relevant features
 that the randomly initialized model was unable to learn due to their sparsity in the labeled training set.
 Indeed, a simple lexical probe supports this explanation: in utterances where the pre-trained model is correct and the randomly initialized model is not,
-the rarest word is 1.9 times rarer than is typical of corpus as a whole.
+the rarest word is 1.9 times rarer on average than is typical of corpus as a whole.
 
-Comparing the performance of the fine-tuned encoder to that of the frozen model, we note that pre-training alone is not enough.
+Comparing the performance of the fine-tuned encoder to that of the frozen model, 
+we see that pre-training alone is not enough.
 The frozen model is heavily biased towards the most frequent tags, which explains its especially poor macro-average score (Table~\ref{tab:exp2}).
 In SWDA, for example, the model with a frozen encoder predicts one of the two most common tags (Statement-non-opinion or Acknowledge) 86\% of the time, whereas those two
 tags account for only 51\% of the ground truth tags.
