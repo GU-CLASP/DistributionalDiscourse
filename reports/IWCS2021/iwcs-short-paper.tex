@@ -75,20 +75,20 @@
 
 %INTRODUCTION
 
-Recently, large-scale neural language models, trained on massive corpora of text data, 
+Large-scale neural language models trained on massive corpora of text data
 have achieved state-of-the-art results on a variety of traditional NLP tasks.
 Given that dialogue, especially spoken dialogue, 
 is radically different from the kind of data these language models are pre-trained on,
-it is uncertain whether these models would be useful for dialogue-oriented tasks.
+it is uncertain whether they would be useful for dialogue-oriented tasks.
 In the example from the Switchboard corpus, shown in Table~\ref{tab:example}, 
 it is evident that the structure of dialogue is quite different from that of written text.
 %even if one imagines a script for a movie or a play.
-Not only is the internal structure of the contributions different---%
+Not only is the internal structure of contributions different---%
 with features such as disfluencies, repair, incomplete sentences, and various vocal sounds---%
 but the sequential structure of the discourse is different as well.
-In dialogue, speakers take turns and switch perspectives.
-More generally, the way that utterances contribute to and cohere with the discourse
-is different from the relationship between sentences in a piece of written text.
+%In dialogue, speakers take turns and switch perspectives.
+%More generally, the way that utterances contribute to and cohere with the discourse
+%is different from the relationship between sentences in a piece of written text.
 
 In this paper, we investigate how well 
 one such large-scale language model,
@@ -174,14 +174,14 @@ task-specific fine-tuning.
 
 
 \paragraph{Fine-tuning vs.~further in-domain pre-training}
-Transfer learning schemes for pre-trained language models such as BERT draw on one or more of the following three adaptation strategies \citep{sunHowFineTuneBERT2019}:
-\emph{further pre-training}, in which the model is trained in an un-supervised way, similar to its initial training scheme, but on data that is in-domain for the target task; 
-\emph{single-task fine-tuning}, in which the model's encoder layers are optimized during training for the target task;
-and \emph{multi-task fine-tuning}, in which models with shared encoder layers are jointly trained on several related tasks.
-In this paper, we investigate the first two methods and their combination, as applied to DAR.
+We experiment with the following two transfer learning strategies \citep{sunHowFineTuneBERT2019}:
+\emph{further pre-training}, in which the model is trained in an un-supervised way, similar to its initial training scheme, but on data that is in-domain for the target task; and
+\emph{single-task fine-tuning}, in which the model's encoder layers are optimized during training for the target task.
 
-Regardless of whether an encoder model has undergone further in-domain pre-training, the choice of whether to fine-tune during task training remains.
-Freezing the encoder model during task training is more efficient, since the gradient of the loss function need only be computed for the task-specific layers.
+Whether or not encoder model has undergone further in-domain pre-training, 
+the choice of whether to fine-tune during task training remains.
+Freezing the encoder model during task training is more efficient, 
+since the gradient of the loss function need only be computed for the task-specific layers.
 However, fine-tuning can lead to better performance since the encoding itself is adapted to the target task and domain.
 
 \citet{petersTuneNotTune2019} investigate when it is best to fine-tune BERT for sentence classification tasks 
@@ -281,28 +281,28 @@ The RNN has a hidden layer size of 100.
 First, we analyze how pre-training affects BERT's performance as an utterance encoder.
 To do so, we consider the performance of DAR models with three different utterance encoders:
 \begin{itemize}
-  \item \texttt{BERT-FT} -- pre-trained BERT with DAR fine-tuning 
-  \item \texttt{BERT-RI} -- randomly initialized BERT (with DAR fine-tuning)
-  \item \texttt{BERT-FZ} -- pre-trained BERT without fine-tuning (frozen during DAR training)
+  \item \texttt{BERT-FT} -- pre-trained + DAR fine-tuning 
+  \item \texttt{BERT-FZ} -- pre-trained, frozen during DAR
+  \item \texttt{BERT-RI} -- randomly initialized + DAR fine-tuning 
 \end{itemize}
 
-\begin{table}[]
-\centering
-\begin{tabular}{@{}lrrrr@{}}
-\toprule
-                           & \multicolumn{2}{c}{SWDA}                          & \multicolumn{2}{c}{AMI-DA}                        \\ \midrule
-                           & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} \\
-\texttt{BERT-FT} & 36.75           & 76.60                    & 43.42                  & 64.93                    \\
-\texttt{BERT-RI} & 32.18           & 73.80                    & 34.88                  & 60.89                    \\
-\texttt{BERT-FZ} & 7.75            & 55.61                    & 14.86                  & 48.34 \\ \midrule
-    Majority class    & 0.78  & 33.56 &  1.88 & 28.27      \\ \bottomrule
-\end{tabular}
-  \caption{Macro-average F1 and accuracy of BERT with standard pre-training and DAR fine-tuning (\texttt{BERT-FT}) vs.~the same model without pre-training (\texttt{BERT-RI}) and without fine-tuning (\texttt{BERT-FZ}).}
-  \label{tab:exp2}
-\end{table}
+%\begin{table}[]
+%\centering
+%\begin{tabular}{@{}lrrrr@{}}
+%\toprule
+                           %& \multicolumn{2}{c}{SWDA}                          & \multicolumn{2}{c}{AMI-DA}                        \\ \midrule
+                           %& \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} \\
+%\texttt{BERT-FT} & 36.75           & 76.60                    & 43.42                  & 64.93                    \\
+%\texttt{BERT-RI} & 32.18           & 73.80                    & 34.88                  & 60.89                    \\
+%\texttt{BERT-FZ} & 7.75            & 55.61                    & 14.86                  & 48.34 \\ \midrule
+    %Majority class    & 0.78  & 33.56 &  1.88 & 28.27      \\ \bottomrule
+%\end{tabular}
+  %\caption{Macro-average F1 and accuracy of BERT with standard pre-training and DAR fine-tuning (\texttt{BERT-FT}) vs.~the same model without pre-training (\texttt{BERT-RI}) and without fine-tuning (\texttt{BERT-FZ}).}
+  %\label{tab:exp2}
+%\end{table}
 
 The pre-trained model is more accurate than the randomly initialized model by several percentage points on both DA corpora,
-suggesting that BERT's extensive pre-training does provide some useful information for recognizing different dialogue acts (Table~\ref{tab:exp2}).
+suggesting that BERT's extensive pre-training does provide some useful information for recognizing different dialogue acts (Table~\ref{tab:results}).
 This performance boost is much more pronounced in the macro-averaged F1 score,
 which is explained by the fact that at the tag level, pre-training has a larger impact on less frequent tags.
 For a disaggregated view, see Figure 1 in the supplementary materials.
@@ -315,10 +315,10 @@ the rarest word is 1.9 times rarer on average than is typical of corpus as a who
 
 Comparing the performance of the fine-tuned encoder to that of the frozen model, 
 we see that pre-training alone is not enough.
-The frozen model is heavily biased towards the most frequent tags, which explains its especially poor macro-average score (Table~\ref{tab:exp2}).
+The frozen model is heavily biased towards the most frequent tags, which explains its especially poor macro-average score (Table~\ref{tab:results}).
 In SWDA, for example, the model with a frozen encoder predicts one of the two most common tags (Statement-non-opinion or Acknowledge) 86\% of the time, whereas those two
 tags account for only 51\% of the ground truth tags.
-The fine-tuned model is much less biased; it predicts the two most common tags only 59\% of the time.
+The model with a fine-tuned encoder is much less biased; it predicts the two most common tags only 59\% of the time.
 
 %These observations raise two questions.
 %First, how does BERT's pre-training help with DAR? 
@@ -329,12 +329,12 @@ The fine-tuned model is much less biased; it predicts the two most common tags o
 
 % TODO: add per dialogue act accuracy figures
 
-\subsection{Experiment 3: Impact of dialogue pre-training} \label{sec:experiment3} % Bill
+\subsection{Impact of dialogue pre-training} \label{sec:experiment3} % Bill
 
 Next, we assess the effect of additional dialogue pre-training on BERT's performance as an utterance encoder.\footnote{
 In-domain pre-training is sometimes referred to as \textit{fine-tuning}, but we reserve that term for task-specific training on labeled data.}
 \citet{sunHowFineTuneBERT2019} has reported that performing additional pre-training on unlabeled in-domain data improves performance on classification tasks. 
-We want to see if BERT can benefit from pre-training, on dialogue data, including from data outside the immediate target domain.
+We want to see if BERT can benefit from pre-training on dialogue data, including from data outside the immediate target domain.
 
 For each of the target corpora (SWDA and AMI-DA), we compare four different pre-training conditions: 
 The in-domain corpus (\texttt{ID}), consisting of the AMI pre-training corpus for the AMI-DA model and the SWBD pre-traning corpus for the SWDA model; 
@@ -363,11 +363,12 @@ Still, pre-training provides nowhere near the performance improvement achieved b
 \texttt{BERT+ID-FZ} &  6.46                  & 52.30                    & 14.48                  & 48.18                    \\
 \texttt{BERT+CC-FZ} &  5.76                  & 51.14                    & 11.34                  & 40.48                    \\ 
 \texttt{BERT+OS-FZ} &  \textbf{9.60}         & \textbf{57.67}           & \textbf{17.03}         & \textbf{51.03}           \\ \midrule
+\texttt{BERT-RI} & 32.18           & 73.80                    & 34.88                  & 60.89                    \\ \midrule
     Majority class  & 0.78                   & 33.56                    &  1.88                  & 28.27      \\ \bottomrule
 \end{tabular}
 \caption{Comparison of macro-average F1 and accuracy with further in-domain (\texttt{ID}), combined corpus (\texttt{CC}), and OpenSubtitles (\texttt{OS}) dialogue pre-training,
-    for the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
-  \label{tab:exp3}
+for the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions. \texttt{BERT-RI} uses a randomly initialized utterance encoder with no pre-training but with fine-tuning.}
+  \label{tab:results}
 \end{table}
 
 
