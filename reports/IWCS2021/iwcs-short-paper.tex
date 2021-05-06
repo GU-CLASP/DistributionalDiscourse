@@ -165,7 +165,7 @@ Similarly, \citet{vigComparisonTransferLearningApproaches2019} find BERT useful 
 \citet{mehriPretrainingMethodsDialog2019} evaluate BERT in various dialogue tasks including DAR, and find that a model incorporating BERT outperforms a baseline model.
 Finally, \citet{chakravarty2019dialog} use BERT for dialogue act classification for a proprietary domain and achieves promising results, and \citet{ribeiro2019deep} surpass the previous state-of-the-art on generic dialogue act recognition for Switchboard and MRDA corpora. 
 This paper aims to supplement the findings of previous work by investigating how much of 
-BERT's sucess for dialogue tasks is due to its extensive pre-training and how much is due to 
+BERT's success for dialogue tasks is due to its extensive pre-training and how much is due to 
 task-specific fine-tuning.
 
 % TODO: \citep{chakravarty2019dialog,ribeiro2019deep,yu2019midas}
@@ -179,8 +179,9 @@ We experiment with the following two transfer learning strategies \citep{sunHowF
 \emph{single-task fine-tuning}, in which the model's encoder layers are optimized during training for the target task.
 
 Whether or not the encoder model has undergone further in-domain pre-training, 
-the choice of whether to fine-tune during task training remains.
-Freezing the encoder model during task training is more efficient, 
+there remains a choice of whether to fine-tune during task training,
+or simply extract features from the encoder model without training it (i.e., \emph{freezing}).
+Freezing the encoder model is more efficient, 
 since the gradient of the loss function need only be computed for the task-specific layers.
 However, fine-tuning can lead to better performance since the encoding itself is adapted to the target task and domain.
 
@@ -251,10 +252,10 @@ We use the SWDA portion of the un-labeled Switchboard corpus (SWBD) and the enti
 In both cases, we exclude dialogues that are reserved for DAR testing.
 
 We also experiment with a much larger a corpus (350M tokens) constructed from OpenSubtitles \citep{Lison2016}.
-Because utterances are not labeled with speaker, we randomly assigned a speaker token to each utterance to maintain the format of the other dialouge corpora.
+Because utterances are not labeled with speaker, we randomly assigned a speaker token to each utterance to maintain the format of the other dialogue corpora.
 
-The pre-training corpora were prepared for the combined maksed language modeling and next sentence (utterance) prediction task, as described dy \citet{devlinBERTPretrainingDeep2018}.
-For the smaller SWBD and AMI corpora, we generate and train on multiple epochs of data. Since there is randomness in the data preparation (e.g., which distrcactor sentences are chosen and which tokens are masked), we generate each training epoch separately.\footnote{For details, see the \href{https://github.com/huggingface/transformers/tree/1.1.0/examples/lm_finetuning}{finetuning example} from Hugging Face.}
+The pre-training corpora were prepared for the combined masked language modeling and next sentence (utterance) prediction task, as described by \citet{devlinBERTPretrainingDeep2018}.
+For the smaller SWBD and AMI corpora, we generate and train on multiple epochs of data. Since there is randomness in the data preparation (e.g., which distractor sentences are chosen and which tokens are masked), we generate each training epoch separately.\footnote{For details, see the \href{https://github.com/huggingface/transformers/tree/1.1.0/examples/lm_finetuning}{finetuning example} from Hugging Face.}
 
 \section{Model} % Bill
 
@@ -304,14 +305,14 @@ To do so, we consider the performance of DAR models with three different utteran
 
 \texttt{BERT-FT} is more accurate than \texttt{BERT-RI} by several percentage points on both DA corpora,
 suggesting that BERT's extensive pre-training does provide some useful information for DAR (Table~\ref{tab:results}).
-This performance boost is much more pronounced in the macro-averaged F1 score,
+This performance boost is much more pronounced in the macro-averaged F1 score,\footnote{We report both \emph{accuracy} (which is equal to micro-averaged or class-weighted F1) and \emph{macro-F1}, which is the unweighted average of the F1 scores of each class.}
 which is explained by the fact that at the tag level, pre-training has a larger impact on less frequent tags
-(see Figure 1 in the supplementary materials).
+(see Figure 1 in the supplementary materials). 
 
 %Comparing the performance of the fine-tuned encoder to that of the frozen model, 
 %we see that pre-training alone is not enough.
 The \texttt{BERT-FZ} performs very poorly compared to either \texttt{BERT-FT} or \texttt{BERT-RI}, however.
-It is heavily biased towards the most frequent tags, which explains its especially poor macro-average score (Table~\ref{tab:results}).
+It is heavily biased towards the most frequent tags, which explains its especially poor macro-F1 score (Table~\ref{tab:results}).
 In SWDA, for example, the model with a frozen encoder predicts one of the two most common tags (Statement-non-opinion or Acknowledge) 86\% of the time, whereas those two
 tags account for only 51\% of the ground truth tags.
 \texttt{BERT-FT} is much less biased; it predicts the two most common tags only 59\% of the time.
@@ -340,7 +341,7 @@ As before, we experiment with both frozen and fine-tuned models at the task trai
 
 We performed 10 epochs of pre-training on the in-domain models and 5 epochs of pre-training on the cross-domain models so that the total amount of training data was comparable. The OpenSubtitles models were trained for only one epoch but with much more total training time. 
 
-In the fine-tuned condition, additional pre-training offers a modest boost in overall accuracy and a substantial boost to the macro-average scores, with the cross-domain corpus providing the largest boost.
+In the fine-tuned condition, additional pre-training offers a modest boost in overall accuracy and a substantial boost to the macro-F1 scores, with the cross-domain corpus providing the largest boost.
 In the frozen condition, only the very large OpenSubtitles corpus is helpful, suggesting that when adapting BERT to dialogue, the size of the corpus is more important than its quality or fidelity to the target domain.
 Still, pre-training provides nowhere near the performance improvement achieved by fine-tuning on the target task.
 
@@ -360,7 +361,7 @@ Still, pre-training provides nowhere near the performance improvement achieved b
 \texttt{BERT-RI} & 32.18           & 73.80                    & 34.88                  & 60.89                    \\ \midrule
     Majority class  & 0.78                   & 33.56                    &  1.88                  & 28.27      \\ \bottomrule
 \end{tabular}
-\caption{Comparison of macro-average F1 and accuracy with further in-domain (\texttt{ID}), cross-domain corpus (\texttt{CC}), and OpenSubtitles (\texttt{OS}) dialogue pre-training,
+\caption{Comparison of macro-F1 and accuracy with further in-domain (\texttt{ID}), cross-domain corpus (\texttt{CC}), and OpenSubtitles (\texttt{OS}) dialogue pre-training,
 for the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions. \texttt{BERT-RI} uses a randomly initialized utterance encoder with no pre-training but with fine-tuning.}
   \label{tab:results}
 \end{table}
