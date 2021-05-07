@@ -221,7 +221,7 @@ We perform experiments on the Switchboard Dialogue Act Corpus (SWDA),
 which is a subset of the larger Switchboard corpus, 
 and the dialogue act-tagged portion of the AMI Meeting Corpus (AMI-DA). 
 SWDA is tagged with a set of 220 dialogue act tags which, following  \citet{jurafskySwitchboardSWBDDAMSLShallowDiscourseFunction1997a}, we cluster into a smaller set of 42 tags.
-AMI uses a smaller tagset of 16 dialogue acts \citep{GuidelinesDialogueAct2005}.
+AMI uses a smaller tagset of 16 dialogue acts \citep{Carletta2007}.
 See Table~\ref{tab:corpora} for details.
 
 % - DA distribution              % Vlad
@@ -359,12 +359,15 @@ Still, pre-training provides nowhere near the performance improvement achieved b
 \texttt{BERT+CC-FZ} &  5.76                  & 51.14                    & 11.34                  & 40.48                    \\ 
 \texttt{BERT+OS-FZ} &  \textbf{9.60}         & \textbf{57.67}           & \textbf{17.03}         & \textbf{51.03}           \\ \midrule
 \texttt{BERT-RI} & 32.18           & 73.80                    & 34.88                  & 60.89                    \\ \midrule
-    Majority class  & 0.78                   & 33.56                    &  1.88                  & 28.27      \\ \bottomrule
+    Majority class  & 0.78                   & 33.56                    &  1.88                  & 28.27      \\ 
+    SotA            &    -                   & 83.1\footnotemark                     &     -                  &     -      \\ \bottomrule
 \end{tabular}
 \caption{Comparison of macro-F1 and accuracy with further in-domain (\texttt{ID}), cross-domain corpus (\texttt{CC}), and OpenSubtitles (\texttt{OS}) dialogue pre-training,
 for the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions. \texttt{BERT-RI} uses a randomly initialized utterance encoder with no pre-training but with fine-tuning.}
   \label{tab:results}
 \end{table}
+
+\footnotetext{\citet{Ravi2018}} % Not sure whether I really trust this SotA. I doesn't even use dialogue context as far as I can tell and this person https://github.com/glicerico/SGNN says they tried to replicate it and could only get %71.3 accuracy.
 
 
 
