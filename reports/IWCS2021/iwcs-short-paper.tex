@@ -28,7 +28,11 @@
 \usepackage{tabularx}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 
-%\aclfinalcopy % Uncomment this line for the final submission
+\usepackage{graphicx}
+\usepackage{placeins}
+
+
+\aclfinalcopy % Uncomment this line for the final submission
 %\def\aclpaperid{***} %  Enter the acl Paper ID here
 
 %\setlength\titlebox{5cm}
@@ -42,16 +46,15 @@
 \title{Large-scale text pre-training helps with dialogue act recognition, but not without fine-tuning}
 
 
-\author{First Author \\
-  Affiliation / Address line 1 \\
-  Affiliation / Address line 2 \\
-  Affiliation / Address line 3 \\
-  \texttt{email@domain} \\\And
-  Second Author \\
-  Affiliation / Address line 1 \\
-  Affiliation / Address line 2 \\
-  Affiliation / Address line 3 \\
-  \texttt{email@domain} \\}
+\author{
+  Bill Noble  \and  Vladislav Maraev\\ 
+  Centre for Linguistic Theory and Studies in Probability\\%
+  Department of Philosophy, Linguistics and Theory of Science\\%
+  University of Gothenburg\\
+  \texttt{\{bill.noble,vladislav.maraev\}@gu.se} \\
+  \\
+}
+
 
 \date{}
 
@@ -367,8 +370,7 @@ for the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions. \texttt{BE
   \label{tab:results}
 \end{table}
 
-\footnotetext{\citet{Ravi2018}} % Not sure whether I really trust this SotA. I doesn't even use dialogue context as far as I can tell and this person https://github.com/glicerico/SGNN says they tried to replicate it and could only get %71.3 accuracy.
-
+\footnotetext{\citet{Kozareva2019}} 
 
 
 \section{Discussion} 
@@ -406,7 +408,8 @@ Incorporating such information is crucial if models pre-trained on large-scale t
 \bibliographystyle{acl_natbib}
 \bibliography{acl2020}
 
-%\appendix
+\input{iwcs-short-paper-appendix}
 
 
 \end{document}
+
