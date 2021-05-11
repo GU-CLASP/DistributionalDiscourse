@@ -202,6 +202,7 @@ is probably quite different from that of natural dialogue.
 
 \begin{table}[]
 \centering
+\small
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Switchboard}       & \textbf{AMI Corpus}                     \\ \midrule
@@ -279,7 +280,7 @@ and the hidden state of the RNN represents the full discourse context.
 %The model uses 100-dimensional word embeddings, which are initialized with pre-trained gloVe vectors \citep{penningtonGloveGlobalVectors2014}.
 
 For the BERT utterance encoder, we use the BERT\textsubscript{BASE} model with hidden size of 768 and 12 transformer layers and self-attention heads \citep[][\S3.1]{devlinBERTPretrainingDeep2018}.
-In our implementation, we use the un-cased model provided by \citet{wolfHuggingFaceTransformersStateoftheart2019}.
+In our implementation, we use the un-cased model provided by \citet{Wolf2020}.
 The RNN has a hidden layer size of 100.
 
 \subsection{Pre-training vs. fine-tuning} \label{sec:experiment2} % Bill
