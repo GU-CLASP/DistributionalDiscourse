@@ -115,22 +115,23 @@
 | fa              | Apology                                   | Forward-Communicative-Function   |    79 | 0.0003565 |     24 | 0.3037975 | 0 | 0.0 |   10 | 0.1265823 | 0 | 0.0 | 0.7499999 |       0.0 |
 | ft              | Thanking                                  | Forward-Communicative-Function   |    78 |  0.000352 |     14 | 0.1794872 | 0 | 0.0 |    9 | 0.1153846 | 0 | 0.0 |  0.368421 |       0.0 |
 
-#+begin_src gnuplot :var data=swda :file box-swda.svg
+#+begin_src gnuplot :var data=swda :file ../../reports/SemDial2021/img/box-swda.svg
   reset
   set style fill solid 0.5 border -1
   set style boxplot outliers pointtype 7
   set style data boxplot
   set yrange [0:0.7]
   set border 2
-  set tics font "Times, 20"
   set xtics nomirror
   set ytics nomirror
   set xtics ("" 1, "" 2) scale 0 notitle
-  plot data using (1.0):7 notitle , '' using (2):11 notitle 
+  plot data using (1.0):7  notitle, \
+       '' using (1.0):($7>0.28?$7:1/0):2  with labels left offset 2 notitle
+  #, '' using (2):11 notitle 
 #+end_src
 
 #+RESULTS:
-[[file:box-swda.svg]]
+[[file:../../reports/SemDial2021/img/box-swda.svg]]
 
 
 *** groups
