@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.3.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 1000 1000" style="enable-background:new 0 0 1000 1000;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;}
+	.st1{fill:none;stroke:#808080;stroke-width:0.5;stroke-dasharray:2,4;}
+	.st2{fill:none;stroke:#000000;}
+	.st3{font-family:'ArialMT';}
+	.st4{font-size:12px;}
+	.st5{fill:#9400D3;}
+	.st6{fill:none;stroke:#9400D3;stroke-width:2;}
+</style>
+<desc>Produced by GNUPLOT 5.4 patchlevel 1</desc>
+<rect class="st0" width="1000" height="1000"/>
+<g>
+	<path class="st1" d="M42,964H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,964"/>
+	<g transform="translate(33.56,967.90)">
+		<text transform="matrix(1 0 0 1 -27.3516 0)" class="st3 st4">-0.05</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,878H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,878"/>
+	<g transform="translate(33.56,881.90)">
+		<text transform="matrix(1 0 0 1 -27.3516 0)" class="st3 st4">-0.04</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,792H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,792"/>
+	<g transform="translate(33.56,795.90)">
+		<text transform="matrix(1 0 0 1 -27.3516 0)" class="st3 st4">-0.03</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,706H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,706"/>
+	<g transform="translate(33.56,709.90)">
+		<text transform="matrix(1 0 0 1 -27.3516 0)" class="st3 st4">-0.02</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,620H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,620"/>
+	<g transform="translate(33.56,623.90)">
+		<text transform="matrix(1 0 0 1 -27.3516 0)" class="st3 st4">-0.01</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,534H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,534"/>
+	<g transform="translate(33.56,537.90)">
+		<text transform="matrix(1 0 0 1 -6.6738 0)" class="st3 st4">0</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,448H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,448"/>
+	<g transform="translate(33.56,451.91)">
+		<text transform="matrix(1 0 0 1 -23.3555 0)" class="st3 st4">0.01</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,362H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,362"/>
+	<g transform="translate(33.56,365.91)">
+		<text transform="matrix(1 0 0 1 -23.3555 3.017969e-05)" class="st3 st4">0.02</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,276H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,276"/>
+	<g transform="translate(33.56,279.91)">
+		<text transform="matrix(1 0 0 1 -23.3555 3.017969e-05)" class="st3 st4">0.03</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,190H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,190"/>
+	<g transform="translate(33.56,193.91)">
+		<text transform="matrix(1 0 0 1 -23.3555 3.017969e-05)" class="st3 st4">0.04</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,104H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,104"/>
+	<g transform="translate(33.56,107.91)">
+		<text transform="matrix(1 0 0 1 -23.3555 3.017969e-05)" class="st3 st4">0.05</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,18H958"/>
+</g>
+<g>
+	<path class="st2" d="M958,18"/>
+	<g transform="translate(33.56,21.91)">
+		<text transform="matrix(1 0 0 1 -23.3555 -2.685547e-05)" class="st3 st4">0.06</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M42,964V18"/>
+</g>
+<g>
+	<path class="st2" d="M42,18"/>
+	<g transform="translate(41.95,985.90)">
+		<text transform="matrix(1 0 0 1 -10.3389 0)" class="st3 st4">-0.1</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M225.2,964V18"/>
+</g>
+<g>
+	<path class="st2" d="M225.2,18"/>
+	<g transform="translate(225.17,985.90)">
+		<text transform="matrix(1 0 0 1 -13.6758 0)" class="st3 st4">-0.05</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M408.4,964V18"/>
+</g>
+<g>
+	<path class="st2" d="M408.4,18"/>
+	<g transform="translate(408.39,985.90)">
+		<text transform="matrix(1 0 0 1 -3.3369 0)" class="st3 st4">0</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M591.6,964V18"/>
+</g>
+<g>
+	<path class="st2" d="M591.6,18"/>
+	<g transform="translate(591.60,985.90)">
+		<text transform="matrix(1 0 0 1 -11.6777 0)" class="st3 st4">0.05</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M774.8,964V18"/>
+</g>
+<g>
+	<path class="st2" d="M774.8,18"/>
+	<g transform="translate(774.82,985.90)">
+		<text transform="matrix(1 0 0 1 -8.3408 0)" class="st3 st4">0.1</text>
+	</g>
+</g>
+<g>
+	<path class="st1" d="M958,964V18"/>
+</g>
+<g>
+	<path class="st2" d="M958,18"/>
+	<g transform="translate(958.04,985.90)">
+		<text transform="matrix(1 0 0 1 -11.6777 0)" class="st3 st4">0.15</text>
+	</g>
+</g>
+<g transform="translate(345.01,408.06)">
+	<text transform="matrix(1 0 0 1 -60.7061 0)" class="st5 st3 st4">Statement-non-opinion</text>
+</g>
+<g transform="translate(303.28,682.42)">
+	<text transform="matrix(1 0 0 1 -75.709 0)" class="st5 st3 st4">Acknowledge (Backchannel)</text>
+</g>
+<g transform="translate(347.17,428.27)">
+	<text transform="matrix(1 0 0 1 -48.6973 0)" class="st3 st4">Statement-opinion</text>
+</g>
+<g transform="translate(384.62,684.32)">
+	<text transform="matrix(1 0 0 1 -69.3604 0)" class="st3 st4">Segment (multi-utterance)</text>
+</g>
+<g transform="translate(271.84,477.46)">
+	<text transform="matrix(1 0 0 1 -113.0654 0)" class="st3 st4">Abandoned or Turn-Exit or Uninterpretable</text>
+</g>
+<g transform="translate(397.03,824.15)">
+	<text transform="matrix(1 0 0 1 -36.0205 0)" class="st5 st3 st4">Agree/Accept</text>
+</g>
+<g transform="translate(530.82,692.75)">
+	<text transform="matrix(1 0 0 1 -33.3545 0)" class="st5 st3 st4">Appreciation</text>
+</g>
+<g transform="translate(353.90,621.81)">
+	<text transform="matrix(1 0 0 1 -45.4688 0)" class="st3 st4">Yes-No-Question</text>
+</g>
+<g transform="translate(272.53,612.62)">
+	<text transform="matrix(1 0 0 1 -33.7969 0)" class="st5 st3 st4">Yes answers</text>
+</g>
+<g transform="translate(314.91,632.39)">
+	<text transform="matrix(1 0 0 1 -55.6992 0)" class="st3 st4">Conventional-closing</text>
+</g>
+<g transform="translate(340.35,587.67)">
+	<text transform="matrix(1 0 0 1 -35.0127 0)" class="st3 st4">Wh-Question</text>
+</g>
+<g transform="translate(277.45,579.11)">
+	<text transform="matrix(1 0 0 1 -31.6787 0)" class="st3 st4">No answers</text>
+</g>
+<g transform="translate(356.67,667.92)">
+	<text transform="matrix(1 0 0 1 -77.3818 0)" class="st3 st4">Response Acknowledgement</text>
+</g>
+<g transform="translate(331.96,470.20)">
+	<text transform="matrix(1 0 0 1 -17.6807 0)" class="st3 st4">Hedge</text>
+</g>
+<g transform="translate(297.05,490.61)">
+	<text transform="matrix(1 0 0 1 -77.0391 0)" class="st3 st4">Declarative Yes-No-Question</text>
+</g>
+<g transform="translate(395.23,569.93)">
+	<text transform="matrix(1 0 0 1 -78.7119 0)" class="st3 st4">Backchannel in question form</text>
+</g>
+<g transform="translate(381.75,820.85)">
+	<text transform="matrix(1 0 0 1 -26.0186 0)" class="st5 st3 st4">Quotation</text>
+</g>
+<g transform="translate(514.44,236.73)">
+	<text transform="matrix(1 0 0 1 -62.3525 -1.553125e-05)" class="st5 st3 st4">Summarize/reformulate</text>
+</g>
+<g transform="translate(490.26,564.39)">
+	<text transform="matrix(1 0 0 1 -15.0059 0)" class="st3 st4">Other</text>
+</g>
+<g transform="translate(436.88,530.62)">
+	<text transform="matrix(1 0 0 1 -75.252 0)" class="st3 st4">Affirmative non-yes answers</text>
+</g>
+<g transform="translate(556.03,433.71)">
+	<text transform="matrix(1 0 0 1 -41.0156 0)" class="st5 st3 st4">Action-directive</text>
+</g>
+<g transform="translate(424.21,472.32)">
+	<text transform="matrix(1 0 0 1 -67.0342 0)" class="st3 st4">Collaborative Completion</text>
+</g>
+<g transform="translate(360.45,591.23)">
+	<text transform="matrix(1 0 0 1 -39.6914 0)" class="st3 st4">Repeat-phrase</text>
+</g>
+<g transform="translate(354.53,529.35)">
+	<text transform="matrix(1 0 0 1 -40.6904 0)" class="st3 st4">Open-Question</text>
+</g>
+<g transform="translate(522.04,327.69)">
+	<text transform="matrix(1 0 0 1 -56.0244 0)" class="st5 st3 st4">Rhetorical-Questions</text>
+</g>
+<g transform="translate(319.31,551.65)">
+	<text transform="matrix(1 0 0 1 -82.3799 0)" class="st3 st4">Hold before answer/agreement</text>
+</g>
+<g transform="translate(455.88,613.67)">
+	<text transform="matrix(1 0 0 1 -17.0068 0)" class="st5 st3 st4">Reject</text>
+</g>
+<g transform="translate(368.21,340.91)">
+	<text transform="matrix(1 0 0 1 -68.0391 3.017969e-05)" class="st5 st3 st4">Negative non-no answers</text>
+</g>
+<g transform="translate(319.57,923.02)">
+	<text transform="matrix(1 0 0 1 -68.7158 0)" class="st5 st3 st4">Signal-non-understanding</text>
+</g>
+<g transform="translate(382.93,513.45)">
+	<text transform="matrix(1 0 0 1 -39.0146 0)" class="st3 st4">Other answers</text>
+</g>
+<g transform="translate(288.54,456.07)">
+	<text transform="matrix(1 0 0 1 -58.377 0)" class="st3 st4">Conventional-opening</text>
+</g>
+<g transform="translate(164.14,411.60)">
+	<text transform="matrix(1 0 0 1 -27.3398 0)" class="st5 st3 st4">Or-Clause</text>
+</g>
+<g transform="translate(515.26,420.40)">
+	<text transform="matrix(1 0 0 1 -57.0205 0)" class="st3 st4">Dispreferred answers</text>
+</g>
+<g transform="translate(256.49,543.46)">
+	<text transform="matrix(1 0 0 1 -35.3438 0)" class="st3 st4">3rd-party-talk</text>
+</g>
+<g transform="translate(574.08,447.00)">
+	<text transform="matrix(1 0 0 1 -63.9053 0)" class="st3 st4">Offers/Options/Commits</text>
+</g>
+<g transform="translate(507.25,877.44)">
+	<text transform="matrix(1 0 0 1 -50.3555 0)" class="st5 st3 st4">Maybe/Accept-part</text>
+</g>
+<g transform="translate(957.38,919.03)">
+	<text transform="matrix(1 0 0 1 -31.6816 0)" class="st5 st3 st4">Downplayer</text>
+</g>
+<g transform="translate(281.27,369.98)">
+	<text transform="matrix(1 0 0 1 -21.6738 -3.053125e-05)" class="st3 st4">Self-talk</text>
+</g>
+<g transform="translate(443.84,82.53)">
+	<text transform="matrix(1 0 0 1 -35.6866 3.029687e-05)" class="st5 st3 st4">Tag-Question</text>
+</g>
+<g transform="translate(443.21,625.00)">
+	<text transform="matrix(1 0 0 1 -66.6914 0)" class="st3 st4">Declarative Wh-Question</text>
+</g>
+<g transform="translate(726.33,114.47)">
+	<text transform="matrix(1 0 0 1 -21.6826 -3.029687e-05)" class="st5 st3 st4">Apology</text>
+</g>
+<g transform="translate(588.11,445.71)">
+	<text transform="matrix(1 0 0 1 -24.6826 0)" class="st3 st4">Thanking</text>
+</g>
+<g id="gnuplot_plot_1a">
+	<g>
+		<path class="st6" d="M266.1,378.1l-8.1,24.4l-0.2,14l19.4,3.9l1-19.2L266.1,378.1"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1b">
+	<g>
+		<path class="st6" d="M209.4,658.2l-0.7,11.5l-15.9,23.1l27.2-8.3l-3.7-16.8L209.4,658.2"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1q">
+	<g>
+		<path class="st6" d="M337.4,784.5l-1.1,16.4L312.1,836l38.7-16.3L340,800.4L337.4,784.5"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1f">
+	<g>
+		<path class="st6" d="M450.8,791.9l-4.4,21L425,849.8l33.4-25l7.6-15.4L450.8,791.9"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1g">
+	<g>
+		<path class="st6" d="M580.7,646.3l-4.7,39.3l-22.6,39l45.1-13l-10.2-27L580.7,646.3"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1_12_">
+	<g>
+		<path class="st6" d="M382.6,42.9l-6,36.1l2.3,7.1l33.6,36l-17.8-45L382.6,42.9"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1_2_">
+	<g>
+		<path class="st6" d="M247.4,888.8l-1.9,7.3l-23.6,35.8l33.6-24l-8.1-11.2V888.8"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1_10_">
+	<g>
+		<path class="st6" d="M889.3,830.4l-9.5,53.8l-30.4,64.3 M865.7,948.5L916,917l-3.8-32.8l-9.6-53.8"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1_14_">
+	<g>
+		<path class="st6" d="M679.3,58.4l-16.4,52.1l3.8,31.1l52.7,24.2l-20.9-53l-11-54.4"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1_9_">
+	<g>
+		<path class="st6" d="M571.9,839.1v33.7l-33,45.5l46.3-27.3l2.8-23.4L571.9,839.1"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1r">
+	<g>
+		<path class="st6" d="M418.7,192.7l-10.2,43.4l-1.7,19.8l36.6,17.4l-4.7-40.4L418.7,192.7"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1y">
+	<g>
+		<path class="st6" d="M589.5,290.2l-6.8,50.9l-6.4,20.4l30.6,5.8l-1.9-29L589.5,290.2"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1_1_">
+	<g>
+		<path class="st6" d="M280.3,302.9l-3.7,30l-3.2,10.7l21.8,11l-5.6-23.5L280.3,302.9"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1u">
+	<g>
+		<path class="st6" d="M665.2,388.1L654,435.5l-8.2,30.3l39.7,1.3l-8.4-31.8L665.2,388.1"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1_5_">
+	<g>
+		<path class="st6" d="M123,403l-8,0.2l8,2.6l6.6,9.1l-3.9-10L123,403"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1i">
+	<g>
+		<path class="st6" d="M223.6,592.2l-1.3,12.2l-10.9,17.2l18.8-7.7l5.4-13L223.6,592.2"/>
+	</g>
+</g>
+<g id="gnuplot_plot_1">
+	<g>
+		<path class="st6" d="M526.7,580.2l-6.5,37.2l-13.6,29.8l28.2-16.6l11.5-17.4L526.7,580.2"/>
+	</g>
+</g>
+</svg>
