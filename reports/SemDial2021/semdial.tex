@@ -89,6 +89,17 @@ What we do: i) corpus study of laughter associated with dialogue acts and ii) te
 % 2. therefore, we look at laughter and its potential impact in DAR task
 % 3. (we looks at non-verbals --- are they DAs?)
 
+One important dialogical feature missing from text data is laughter,
+which is ubiquitous in our everyday interactions.  We observe that in
+the Switchboard dialogue corpus laughter comes about every 200 tokens.
+Laughter also relates to the discourse structure of dialogue and can
+relate to a \emph{laughable}, which can be an event or an entity in
+the discourse (or external perceived event as well).  Laughter can
+precede, follow or overlap the laughable, with the time alignment
+between the laughter and laughable dependent on who produces the
+laughable and the form of the laughter \citep{tian2016we}.  Laughter
+can act as a contextual feature for determining the sincerity of an
+utterance, e.g. when detecting sarcasm \citep{tepperman2006yeah}.
 
 \section{Corpus study}
 \label{sec:corpus}
@@ -103,7 +114,7 @@ containing a single laughter token fall into this category, however
 they can serve, for example, to acknowledge a statement or to deflect
 a question \citep{mazzocconi2019phd}.
 
-\begin{figure}
+\begin{figure}[htbp]
   \includesvg[width=\linewidth]{img/box-swda}
   \caption{Box plot for proportions of dialogue act which contain laughs.}
   \label{fig:box-swda}
@@ -118,13 +129,13 @@ value equals to the proportion of utterances of a given type which
 contain laughter.
 \begin{itemize}
 \item[$\uparrow$] current utterance;
-\item[$\nwarrow$] previous utterance by the same speaker;
-\item[$\swarrow$] previous utterance by the other speaker;
-\item[$\nearrow$] next utterance by the same speaker;
-\item[$\searrow$] next utterance by the other speaker.
+\item[$\nwarrow$] immediately preceding utterance by the same speaker;
+\item[$\swarrow$] immediately preceding utterance by the other speaker;
+\item[$\nearrow$] immediately following utterance by the same speaker;
+\item[$\searrow$] immediately following utterance by the other speaker.
 \end{itemize}
 
-\begin{figure}
+\begin{figure}[htbp]
   \includegraphics[width=\linewidth]{img/orbit-apology.pdf}
   \caption{Comparison of the most common dialogue act in
     SWDA---"Statement-Non-Opinion" (33.27\% of all utterances) with two
@@ -136,20 +147,16 @@ contain laughter.
 
 
 
-% 1. overview: rather uniform distribution with few outliers
-% 2. let's look at outliers
-% 3. consider 5 dimensions of relations
-
-
-For instance, 
+For instance, \ref{ex:apology-downplayer} is an illustrative example
+of the phenomenon shown on Figure \ref{fig:orbit}\footnote{Overlapping material is marked with hash signs.}. 
 \begin{lingex}
-\item
+\item\label{ex:apology-downplayer}
   \adjustbox{valign=t}{
-    \begin{tabulary}{\linewidth}{>{\bf}lJ>{\em}l}
-    A: & I am so sorry to keep you on hold. & Apology \\
-    B: & <Laughter> No problem. & Downplayer \\
-    A: & Are you at work? & YN-Quest. \\
-  \end{tabulary}}
+    \begin{tabulary}{\linewidth}{>{\bf}lJ>{\em}R}
+  A & I'm sorry to keep you waiting \#<laughter>.\# & Apology \\
+  B & \#Okay\# <laughter>. / & Downplayer \\
+  A & Uh, I was calling from work  & Statement (n/o) \\
+    \end{tabulary}}
 \end{lingex}
 
 
