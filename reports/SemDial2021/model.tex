@@ -1,0 +1,54 @@
+
+\tikzstyle{rnn}=[rectangle,
+  thick,
+  minimum height=0.5cm,
+  minimum width=2cm,
+  fill=cyan]
+\tikzstyle{encoder}=[rectangle,
+  thick,
+  minimum height=0.5cm,
+  minimum width=2cm,
+  fill=yellow]
+
+\centering
+\begin{tikzpicture}[>=latex,text height=1.5ex,text depth=0.25ex]
+  \matrix[row sep=0.5cm,column sep=0.5cm] {
+  % First line: Output labels
+  \node (Y_0) []{$\hat{Y}_0$};&
+  \node (Y_1) []{$\hat{Y}_1$};&
+  \node (dots1) [] {$\dots$};  &
+  \node (Y_T) []{$\hat{Y}_T$};&
+  \\ % Second line: RNNs
+  \node (RNN_0) [rnn]{RNN};&
+  \node (RNN_1) [rnn]{RNN};&
+  \node (dots2) [] {$\dots$};  &
+  \node (RNN_T) [rnn]{RNN};&
+  \\ % Third line: Linear layers
+  \node (Encoder_0) [encoder]{Encoder};&
+  \node (Encoder_1) [encoder]{Encoder};&
+  \node (dots3) [] {$\dots$};  &
+  \node (Encoder_T) [encoder]{Encoder};&
+  \\ % Fourth line: Linear layers
+  \node (Input_0) []{\small $ \underbrace{s^0,w^0_{0},w^0_{1},...,w^0_{n_0}}_{\text{Utterance 1}}$};&
+  \node (Input_1) []{\small $ \underbrace{s^1,w^1_{0},w^1_{1},...,w^1_{n_1}}_{\text{Utterance 2}}$};&
+  \node (dots4) [] {$\dots$};  &
+  \node (Input_T) []{\small $ \underbrace{s^T,w^T_{0},w^T_{1},...,w^T_{n_T}}_{\text{Utterance T}}$};&
+  \\ };
+  \path[->]
+  (Input_0) edge[thick]  (Encoder_0)	
+  (Input_1) edge[thick] (Encoder_1)	
+  (Input_T) edge[thick] (Encoder_T)	
+
+  (Encoder_0) edge[thick] node[right] {} (RNN_0)	
+  (Encoder_1) edge[thick] node[right] {} (RNN_1)	
+  (Encoder_T) edge[thick] node[right] {} (RNN_T)	
+
+  (RNN_0) edge[thick] (Y_0)	
+  (RNN_1) edge[thick] (Y_1)	
+  (RNN_T) edge[thick] (Y_T)	
+
+  (RNN_0) edge[thick] node[above] {$h_1$} (RNN_1)
+  (RNN_1) edge[thick] node[above] {$h_2$} (dots2)
+  (dots2) edge[thick] node[above] {$h_T$} (RNN_T)
+  ;
+\end{tikzpicture}

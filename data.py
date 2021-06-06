@@ -125,7 +125,7 @@ def write_pretraining_corpus(corpus_file, corpus):
                 f.write(utt + '\n')
             f.write('\n')
 
-Dialogue = namedtuple('Dialogue', ['id', 'speakers', 'utts', 'da_tags', 'laughter_type_next'])
+Dialogue = namedtuple('Dialogue', ['id', 'speakers', 'utts', 'da_tags', 'laugh_types'])
 
 
 def extract_corpus(zip_file, corpus_dir):
@@ -148,7 +148,7 @@ def download_corpus(url, zip_file):
         return
     util.download_url(url, zip_file)
 
-def laughter_type(utt):
+def laugh_type(utt):
     laugh = '<laughter>'
     utt = re.sub(r'[#.\-,]','',utt).strip().lower()
     if utt == laugh:
@@ -185,16 +185,15 @@ def parse_ami(corpus_dir, pause_threshold):
     for m in tqdm(ami_meetings):
         m.gen_transcript(utt_pause_threshold=pause_threshold)
         if m.speaker_dialog_acts:  # DA-tagged meeting
-            speakers, utts, da_tags, laughter_types = [], [], [], []
+            speakers, utts, da_tags, laugh_types = [], [], [], []
             for utt in m.transcript:
                 speakers.append(utt.speaker)
                 utts.append(normalize_ami(utt))
                 da_tags.append(utt.dialog_act.da_tag)
-                laughter_types.append(laughter_type(str(utt)))
-            laughter_type_next = laughter_types[1:] + ['none'] # predict the laughter type of the next utterance. for the last utterance, use 'none' 
-            dialogs_da.append(Dialogue(m.meeting_id, speakers, utts, da_tags, laughter_type_next))
+                laugh_types.append(laugh_type(str(utt)))
+            dialogs_da.append(Dialogue(m.meeting_id, speakers, utts, da_tags, laugh_types))
         else:  # not DA-tagged meeting
-            speakers, utts, laughter_types = [], [], []
+            speakers, utts, laugh_types = [], [], []
             for utt in m.transcript:
                 speakers.append(utt.speaker)
                 utts.append(normalize_ami(utt))
@@ -232,15 +231,14 @@ def parse_swda(corpus_dir):
     corpus = swda.CorpusReader(os.path.join(corpus_dir,'swda'))
     dialogs = []
     for transcript in corpus.iter_transcripts():
-        speakers, utts, da_tags, laughter_types = [], [], [], []
+        speakers, utts, da_tags, laugh_types = [], [], [], []
         for utt in transcript.utterances:
             speakers.append(utt.caller)
             utts.append(normalize_swda(utt.text))
             da_tags.append(utt.damsl_act_tag())  # Utterance.damsl_act_tag implements clustering
-            laughter_types.append(laughter_type(utt.text))
-        laughter_type_next = laughter_types[1:] + ['none'] # predict the laughter type of the next utterance. for the last utterance, use 'none' 
+            laugh_types.append(laugh_type(utt.text))
         dialog_id = 'sw' + str(transcript.conversation_no)
-        dialogs.append(Dialogue(dialog_id, speakers, utts, da_tags, laughter_type_next))
+        dialogs.append(Dialogue(dialog_id, speakers, utts, da_tags, laugh_types))
     return dialogs
 
 
