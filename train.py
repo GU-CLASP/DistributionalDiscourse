@@ -174,8 +174,7 @@ if __name__ == '__main__':
     device = torch.device(f'cuda:{args.gpu_id}' if args.cuda and torch.cuda.is_available() else 'cpu')
     log.info(f"Training on {device}.")
 
-    ignore_tags = ['x'] if args.no_nonverbal else []
-    tag_vocab, tag2id = data.load_tag_vocab(tag_vocab_file, ignore_tags=ignore_tags)
+    tag_vocab, tag2id = data.load_tag_vocab(tag_vocab_file)
     n_tags = len(tag_vocab)
     log.info(f"{n_tags} DA tags") 
     tokenizer = data.load_tokenizer('bert-base-uncased')
@@ -241,7 +240,8 @@ if __name__ == '__main__':
     dar_model.to(device)
     encoder_model.to(device)
 
-    print(train_file)
+    ignore_tags = ['x'] if args.no_nonverbal else []
+    log.info(f"Ignoring these tags during traininig {' ,'.join(ignore_tags)}")
     tag_field = 'laughter_type_next' if args.predict_laughter else 'da_tags'
     train_data = data.load_data(train_file, tokenizer, tag2id, strip_laughter=args.no_laughter, 
             tag_field=tag_field, ignore_tags=ignore_tags)

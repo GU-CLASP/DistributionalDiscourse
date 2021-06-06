@@ -98,7 +98,7 @@ def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False, tag_field='d
             utts.append(encoded_utt)
             tags.append(tag2id.get(tag, 0))
         data.append((utts, tags))
-    return data 
+    return data
 
 
 def prep_dialog_for_pretraining(dialog):
@@ -255,13 +255,11 @@ def write_tag_vocab(dialogs, data_dir, corpus_name):
     log.info(f"Wrote {len(tags)} to {tag_file}.")
 
 
-def load_tag_vocab(vocab_file, ignore_tags=[]):
+def load_tag_vocab(vocab_file):
     tag_vocab = []
     with open(vocab_file, 'r') as f:
         for tag in f.readlines():
             tag = tag.strip()
-            if tag in ignore_tags:
-                continue
             tag_vocab.append(tag)
     tag2id = {tag: i for i, tag in enumerate(tag_vocab)}
     tag2id = defaultdict(lambda: tag2id[TAG_PAD], tag2id)
