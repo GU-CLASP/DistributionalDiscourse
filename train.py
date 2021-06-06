@@ -70,6 +70,8 @@ parser.add_argument("--training-limit", type=int, default=None,
         help="Limit the amount of training data to N dialogues.")
 parser.add_argument('--predict-laughter', dest='predict_laughter', action='store_true', default=False,
         help="Predict laughter type of the next utterance instead of dialogue act tag.")
+parser.add_argument('--no-nonverbal', dest='no_nonverbal', action='store_true', default=False,
+        help="SWDA ONLY: Nonverbal tag will be converted to pad (thus ignored by backprop).")
 
 def gen_batches(data, batch_size):
     data.sort(key=lambda x: len(x[0]))  # batch similarly lengthed dialogues together
@@ -172,8 +174,10 @@ if __name__ == '__main__':
     device = torch.device(f'cuda:{args.gpu_id}' if args.cuda and torch.cuda.is_available() else 'cpu')
     log.info(f"Training on {device}.")
 
-    tag_vocab, tag2id = data.load_tag_vocab(tag_vocab_file)
+    ignore_tags = ['x'] if args.no_nonverbal else []
+    tag_vocab, tag2id = data.load_tag_vocab(tag_vocab_file, ignore_tags=ignore_tags)
     n_tags = len(tag_vocab)
+    log.info(f"{n_tags} DA tags") 
     tokenizer = data.load_tokenizer('bert-base-uncased')
     vocab_size = len(tokenizer)
     min_utt_len = None  # CNNs require a min utt len (no utterance can be shorter than the biggest window size)
@@ -237,9 +241,12 @@ if __name__ == '__main__':
     dar_model.to(device)
     encoder_model.to(device)
 
+    print(train_file)
     tag_field = 'laughter_type_next' if args.predict_laughter else 'da_tags'
-    train_data = data.load_data(train_file, tokenizer, tag2id, strip_laughter=args.no_laughter, tag_field=tag_field)
-    val_data = data.load_data(val_file, tokenizer, tag2id, strip_laughter=args.no_laughter, tag_field=tag_field)
+    train_data = data.load_data(train_file, tokenizer, tag2id, strip_laughter=args.no_laughter, 
+            tag_field=tag_field, ignore_tags=ignore_tags)
+    val_data = data.load_data(val_file, tokenizer, tag2id, strip_laughter=args.no_laughter, 
+            tag_field=tag_field, ignore_tags=ignore_tags)
     if args.training_limit:
         train_data = train_data[:args.training_limit]
         val_data = val_data[:int(args.training_limit/2)]

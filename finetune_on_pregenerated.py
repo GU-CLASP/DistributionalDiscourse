@@ -29,10 +29,15 @@ InputFeatures = namedtuple("InputFeatures", "input_ids input_mask segment_ids lm
 log_format = '%(asctime)-10s: %(message)s'
 logging.basicConfig(level=logging.INFO, format=log_format)
 
+LAUGHTER_TOKEN = '<laughter>'
 
-def convert_example_to_features(example, tokenizer, max_seq_length):
-    tokens = example["tokens"]
+def convert_example_to_features(example, tokenizer, max_seq_length, no_laughter=False):
+    laughter_idxs = [i for i,t in enumerate(example["tokens"]) if t == LAUGHTER_TOKEN]
+    tokens = example["tokens"].copy()
     segment_ids = example["segment_ids"]
+    if no_laughter and laughter_idxs:
+        tokens = [t for i,t in enumerate(tokens) if not i in laughter_idxs]
+        segment_ids = [s for i,s in enumerate(segment_ids) if not i in laughter_idxs]
     is_random_next = example["is_random_next"]
     masked_lm_positions = example["masked_lm_positions"]
     masked_lm_labels = example["masked_lm_labels"]
@@ -62,10 +67,11 @@ def convert_example_to_features(example, tokenizer, max_seq_length):
 
 
 class PregeneratedDataset(Dataset):
-    def __init__(self, training_path, epoch, tokenizer, num_data_epochs, reduce_memory=False):
+    def __init__(self, training_path, epoch, tokenizer, num_data_epochs, reduce_memory=False, no_laughter=False):
         self.vocab = tokenizer.vocab
         self.tokenizer = tokenizer
         self.epoch = epoch
+        self.no_laughter = no_laughter
         self.data_epoch = epoch % num_data_epochs
         data_file = training_path / f"epoch_{self.data_epoch}.json"
         metrics_file = training_path / f"epoch_{self.data_epoch}_metrics.json"
@@ -100,7 +106,7 @@ class PregeneratedDataset(Dataset):
             for i, line in enumerate(tqdm(f, total=num_samples, desc="Training examples")):
                 line = line.strip()
                 example = json.loads(line)
-                features = convert_example_to_features(example, tokenizer, seq_len)
+                features = convert_example_to_features(example, tokenizer, seq_len, self.no_laughter)
                 input_ids[i] = features.input_ids
                 segment_ids[i] = features.segment_ids
                 input_masks[i] = features.input_mask
@@ -136,7 +142,8 @@ def main():
     parser.add_argument("--do_lower_case", action="store_true")
     parser.add_argument("--reduce_memory", action="store_true",
                         help="Store training data as on-disc memmaps to massively reduce memory usage")
-
+    parser.add_argument("--no_laughter", action="store_true",
+                        help="Remove <laughter> from the pretraining data")
     parser.add_argument("--epochs", type=int, default=3, help="Number of epochs to train for")
     parser.add_argument("--local_rank",
                         type=int,
@@ -304,7 +311,8 @@ def main():
     model.train()
     for epoch in range(args.epochs):
         epoch_dataset = PregeneratedDataset(epoch=epoch, training_path=args.pregenerated_data, tokenizer=tokenizer,
-                                            num_data_epochs=num_data_epochs, reduce_memory=args.reduce_memory)
+                                            num_data_epochs=num_data_epochs, reduce_memory=args.reduce_memory,
+                                            no_laughter=args.no_laughter)
         if args.local_rank == -1:
             train_sampler = RandomSampler(epoch_dataset)
         else:

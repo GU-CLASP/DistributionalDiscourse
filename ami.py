@@ -251,7 +251,7 @@ def get_corpus(ami_corpus_dir, da_only=True):
     words_files = [f for f in os.listdir(words_dir) if f.endswith('.xml')]
 
     da_dir = os.path.join(ami_corpus_dir, 'dialogueActs')
-    da_files = [f for f in os.listdir(da_dir) if f.endswith('dialogue-act.xml')] # ignore the adjacency-pairs files
+    da_files = [f for f in os.listdir(da_dir) if f.endswith('dialog-act.xml')] # ignore the adjacency-pairs files
 
     stream_da_acts = defaultdict(lambda: defaultdict(list))
     for file in tqdm(da_files, desc="Reading DA files"):
@@ -271,7 +271,6 @@ def get_corpus(ami_corpus_dir, da_only=True):
             token = AMIToken.from_xml(element)
             if token:
                 stream_tokens[token.meeting_id][token.speaker].append(token)
-
     meetings = [AMIMeeting(meeting_id, stream_tokens[meeting_id], stream_da_acts.get(meeting_id, None)) for meeting_id in stream_tokens ]
 
     return meetings

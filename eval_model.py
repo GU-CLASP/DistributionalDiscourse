@@ -183,6 +183,7 @@ if __name__ == '__main__':
     encoder_model.eval()
     encoder_model.to(device)
 
+    log.info(f"Loading data from {test_file}.")
     test_data = data.load_data(test_file, tokenizer, tag2id, strip_laughter=args.no_laughter)
 
     criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss

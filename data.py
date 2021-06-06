@@ -80,13 +80,15 @@ def download_glove(data_dir):
         zip_ref.extractall('data/glove.6B')
 
 
-def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False, tag_field='da_tags'):
+def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False, tag_field='da_tags', ignore_tags=[]):
     with open(corpus_file) as f:
         dialogs = json.load(f)
     data = []
     for d in dialogs:
         utts, tags = [], []
         for speaker,utt,tag in zip(d['speakers'], d['utts'], d[tag_field]):
+            if tag in ignore_tags:
+                tag = TAG_PAD
             utt = [f'[SPKR_{speaker}]'] + tokenizer.tokenize(utt)
             if strip_laughter:
                 utt = [t for t in utt if t != LAUGHTER_TOKEN]
@@ -94,7 +96,7 @@ def load_data(corpus_file, tokenizer, tag2id, strip_laughter=False, tag_field='d
                     continue
             encoded_utt = tokenizer.encode(utt, add_special_tokens=True)
             utts.append(encoded_utt)
-            tags.append(tag2id[tag])
+            tags.append(tag2id.get(tag, 0))
         data.append((utts, tags))
     return data 
 
@@ -198,7 +200,7 @@ def parse_ami(corpus_dir, pause_threshold):
                 utts.append(normalize_ami(utt))
                 laughter_types.append(laughter_type(str(utt)))
             laughter_type_next = laughter_types[1:] + ['none'] # predict the laughter type of the next utterance. for the last utterance, use 'none' 
-            dialogs_da.append(Dialogue(m.meeting_id, speakers, utts, None, laughter_type_next))
+            dialogs_noda.append(Dialogue(m.meeting_id, speakers, utts, None, laughter_type_next))
     return dialogs_da, dialogs_noda
 
 
@@ -255,11 +257,14 @@ def write_tag_vocab(dialogs, data_dir, corpus_name):
     log.info(f"Wrote {len(tags)} to {tag_file}.")
 
 
-def load_tag_vocab(vocab_file):
+def load_tag_vocab(vocab_file, ignore_tags=[]):
     tag_vocab = []
     with open(vocab_file, 'r') as f:
         for tag in f.readlines():
-            tag_vocab.append(tag.strip())
+            tag = tag.strip()
+            if tag in ignore_tags:
+                continue
+            tag_vocab.append(tag)
     tag2id = {tag: i for i, tag in enumerate(tag_vocab)}
     tag2id = defaultdict(lambda: tag2id[TAG_PAD], tag2id)
     return tag_vocab, tag2id
