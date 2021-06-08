@@ -189,7 +189,7 @@ if __name__ == '__main__':
     encoder_model.to(device)
 
     tag_field = 'laughter_type_next' if args.predict_laughter else 'da_tags'
-    test_data = data.load_data(test_file, tokenizer, tag2id, strip_laughter=args.no_laughter, tag_field=tag_field)
+    test_data = data.load_data(test_file, tokenizer, tag2id, strip_laughter=False, tag_field=tag_field)
 
     criterion = nn.CrossEntropyLoss(ignore_index=0)  # pad targets don't contribute to the loss
     loss, preds, dialogue_states = eval_model(encoder_model, dar_model, test_data, n_tags, criterion, device)

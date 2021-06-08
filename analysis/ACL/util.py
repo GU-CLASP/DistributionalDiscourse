@@ -62,7 +62,11 @@ def gen_model_preds_df(corpus, models, model_dirs,group=False):
     preds = defaultdict(lambda x: dict)
     for model, model_dir in zip(models, model_dirs):
         best_epoch, _ = get_min_val_loss(model_dir)
+        print(best_epoch, model_dir)
         preds_file = os.path.join(model_dir, f'preds.E{best_epoch}.json')
+        if not os.path.exists(preds_file):
+            print(preds_file)
+            continue
         with open(os.path.join(model_dir, preds_file), 'r') as f:
             preds = json.load(f)
             if not group:
