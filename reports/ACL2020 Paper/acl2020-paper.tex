@@ -81,9 +81,9 @@ More generally, the way that utterances contribute to and cohere with the discou
 
 One important dialogical feature missing from text data is laughter, which is ubiquitous in our everyday interactions.
 We observe that in the Switchboard dialogue corpus laughter comes about every 200 tokens.
-Laughter also relates to the discourse structure of dialogue and can relate to a laughable, which can be any an event or an entity in the discourse (and external perceived event as well).
+Laughter also relates to the discourse structure of dialogue and can relate to a laughable, which can be an event or an entity in the discourse (or an external perceived event as well).
 Laughter can precede, follow or overlap the laughable, with the time alignment between the laughter and laughable dependent on who produces the laughable and the form of the laughter \citep{tian2016we}.
-Laughter can act as a contextual feature for determining the sincerity of an utterance, e.g. to when detecting sarcasm \citep{tepperman2006yeah}.
+Laughter can act as a contextual feature for determining the sincerity of an utterance, e.g. when detecting sarcasm \citep{tepperman2006yeah}.
 
 \begin{table}
       \small
@@ -104,9 +104,9 @@ Laughter can act as a contextual feature for determining the sincerity of an utt
   \label{table:example}
 \end{table}
 
-We use dialogue act recognition (DAR) as a proxy task, since both the internal content of contributions, and their sequential structure have bearing on this task. DAR is the task of assigning a dialogue act tag to each utterance in the dialogue, according to dialogue act it performs.
+We use dialogue act recognition (DAR) as a proxy task, since both the internal content of contributions, and their sequential structure have a bearing on this task. DAR is the task of assigning a dialogue act tag to each utterance in the dialogue, according to dialogue act it performs (see section \ref{sec:DAR}).
 Using this task we investigate whether transfer learning techniques based on pre-trained language models, such as BERT \citep{devlinBERTPretrainingDeep2018}, are useful for dialogue.
-By looking at laughter, which is certainly missing in pre-trained model, we can determine whether the domain-adapted model can make use of dialogue-specific features.
+By looking at laughter, which is certainly missing in the pre-trained model, we can determine whether the domain-adapted model can make use of dialogue-specific features.
 
 \paragraph{Contributions}
 The main results of this paper have to do with to the usefulness of language model fine-tuning for DAR, the impact of laughter on DAR, and the relationship between the two.
@@ -120,9 +120,9 @@ The main results of this paper have to do with to the usefulness of language mod
 In the following section we provide more details about the dialogue act recognition task and transfer learning techniques. 
 
 
-\section{Background}
+\section{Background}\label{sec:background}
 
-\subsection{Dialogue Act Recognition}
+\subsection{Dialogue Act Recognition}\label{sec:DAR}
 The concept of a dialogue act is based on that of speech acts \citep{austinHowThingsWords2009}.
 Breaking with classical semantic theory, speech act theory considers not only the propositional content of an utterance but also the actions, such as \emph{promising} or \emph{apologizing}, it carries out.
 Dialogue acts extend the concept of the speech act, with a focus on the interactional nature of most speech.
@@ -314,6 +314,7 @@ Therefore questions, like the one we show in the example in Table~\ref{table:exa
 
 
 
+
   \begin{figure}
   \centering
   \includegraphics[width=1.0\linewidth]{img/swda-cm.pdf}
@@ -362,9 +363,10 @@ To do so, we consider the performance of DAR models with three different utteran
 \toprule
                            & \multicolumn{2}{c}{SWDA}                          & \multicolumn{2}{c}{AMI-DA}                        \\ \midrule
                            & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} \\
-\texttt{BERT-FT} & 45.99           & 76.93                    & 50.03                  & 66.94                    \\
-\texttt{BERT-RI} & 32.18           & 73.80                    & 33.45                  & 61.53                    \\
-\texttt{BERT-FZ} & 7.75            & 55.61                    & 14.44                  & 46.59 \\
+\texttt{BERT-FT}    & 36.75                  & 76.60                    & 43.42                  & 64.93                    \\
+\texttt{BERT-RI} & 32.18           & 73.80                    & 34.88                  & 60.89                    \\ 
+
+\texttt{BERT-FZ}    &  7.75                  & 55.61           & 14.86                  & 48.34                    \\
   \bottomrule
 \end{tabular}
   \caption{Macro-average F1 and accuracy of BERT with standard pre-training and DAR fine-tuning (\texttt{BERT-FT}) vs.~the same model without pre-training (\texttt{BERT-RI}) and without fine-tuning (\texttt{BERT-FZ}).}
@@ -436,16 +438,23 @@ To fully assess the potential impact of further in-domain pre-training, a larger
 \toprule
            & \multicolumn{2}{c}{SWDA}                          & \multicolumn{2}{c}{AMI-DA}                        \\ \midrule
            & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{acc.} \\
-\texttt{BERT-FT}    & 45.99                  & 76.93                    & 50.03                  & 66.95                    \\
-\texttt{BERT+ID-FT} & 45.48                  & 77.02                    & 46.56                  & 68.66                    \\
-\texttt{BERT+CC-FT} & 47.78                  & 77.35                    & 48.72                  & 66.58                    \\ \midrule
-\texttt{BERT-FZ}    & 7.75                   & 55.61                    & 14.44                  & 46.60                    \\
-\texttt{BERT+ID-FZ} & 6.46                   & 52.30                    & 14.43                  & 48.07                    \\
-\texttt{BERT+CC-FZ} & 5.76                   & 51.14                    & 12.56                  & 42.42                    \\ \bottomrule
+\texttt{FT}    & 36.75                  & 76.60                    & 43.42                  & 64.93                    \\
+\texttt{ID-FT} & 43.63                  & 77.01                    & 46.70                  & \textbf{68.88}           \\
+\texttt{CC-FT} & \textbf{47.78}         & \textbf{77.35}           & \textbf{48.86}         & 68.79                    \\ 
+\texttt{OS-FT} & 41.42                  & 76.95                    & 48.65                  & 68.07                    \\ 
+\texttt{OS-NL-FT} & 43.71                  & 77.09                    & 43.68                  & 64.80                    \\ \midrule
+
+\texttt{FZ}    &  7.75                  & 55.61           & 14.86                  & 48.34                    \\
+\texttt{ID-FZ} &  6.46                  & 52.30                    & 14.48                  & 48.18                    \\
+\texttt{CC-FZ} &  5.76                  & 51.14                    & 11.34                  & 40.48                    \\ 
+\texttt{OS-FZ} &  \textbf{9.60}         & \textbf{57.67}           & \textbf{17.03}         & \textbf{51.03}           \\ 
+\texttt{OS-NL-FZ} & 7.69                  & 55.29                    & 16.99                  & 51.46                    \\ \midrule
+\midrule
+    Majority class  & 0.78                   & 33.56                    &  1.88                  & 28.27      \\ \bottomrule
 \end{tabular}
-  \caption{Comparison of macro-average F1 and accuracy  with further in-domain (\texttt{ID}) and combined corpus (\texttt{CC}) dialogue pre-training,
-    for both the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions.}
-  \label{table:exp3}
+\caption{Comparison of DAR macro-F1 and accuracy for BERT models with further in-domain (\texttt{ID}), cross-domain corpus (\texttt{CC}), and OpenSubtitles (\texttt{OS}) dialogue pre-training,
+for both the frozen (\texttt{FZ}) and fine-tuned (\texttt{FT}) conditions. OpenSubtitles pretraining was also tested with laughter removed (\texttt{NL}).}
+  \label{tab:results}
 \end{table}
 
 
