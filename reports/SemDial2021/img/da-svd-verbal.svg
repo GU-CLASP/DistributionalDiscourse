@@ -14,7 +14,7 @@
 <desc>Produced by GNUPLOT 5.4 patchlevel 1</desc>
 <rect class="st0" width="1000" height="1000"/>
 <g>
-	<path class="st1" d="M42,964H958"/>
+	<path class="st1" d="M42,964h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,964"/>
@@ -23,7 +23,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,878H958"/>
+	<path class="st1" d="M42,878h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,878"/>
@@ -32,7 +32,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,792H958"/>
+	<path class="st1" d="M42,792h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,792"/>
@@ -41,7 +41,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,706H958"/>
+	<path class="st1" d="M42,706h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,706"/>
@@ -50,7 +50,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,620H958"/>
+	<path class="st1" d="M42,620h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,620"/>
@@ -59,7 +59,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,534H958"/>
+	<path class="st1" d="M42,534h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,534"/>
@@ -68,7 +68,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,448H958"/>
+	<path class="st1" d="M42,448h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,448"/>
@@ -77,7 +77,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,362H958"/>
+	<path class="st1" d="M42,362h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,362"/>
@@ -86,7 +86,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,276H958"/>
+	<path class="st1" d="M42,276h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,276"/>
@@ -95,7 +95,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,190H958"/>
+	<path class="st1" d="M42,190h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,190"/>
@@ -104,7 +104,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,104H958"/>
+	<path class="st1" d="M42,104h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,104"/>
@@ -113,7 +113,7 @@
 	</g>
 </g>
 <g>
-	<path class="st1" d="M42,18H958"/>
+	<path class="st1" d="M42,18h916"/>
 </g>
 <g>
 	<path class="st2" d="M958,18"/>
@@ -284,7 +284,7 @@
 	<text transform="matrix(1 0 0 1 -50.3555 0)" class="st5 st3 st4">Maybe/Accept-part</text>
 </g>
 <g transform="translate(957.38,919.03)">
-	<text transform="matrix(1 0 0 1 -31.6816 0)" class="st5 st3 st4">Downplayer</text>
+	<text transform="matrix(1 0 0 1 -31.6815 0)" class="st5 st3 st4">Downplayer</text>
 </g>
 <g transform="translate(281.27,369.98)">
 	<text transform="matrix(1 0 0 1 -21.6738 -3.053125e-05)" class="st3 st4">Self-talk</text>
@@ -338,12 +338,12 @@
 </g>
 <g id="gnuplot_plot_1_10_">
 	<g>
-		<path class="st6" d="M889.3,830.4l-9.5,53.8l-30.4,64.3 M865.7,948.5L916,917l-3.8-32.8l-9.6-53.8"/>
+		<path class="st6" d="M896,793.2l-16.2,91l-38.1,79.3 M841.7,963.5L916,917l-3.8-32.8l-16.2-91"/>
 	</g>
 </g>
 <g id="gnuplot_plot_1_14_">
 	<g>
-		<path class="st6" d="M679.3,58.4l-16.4,52.1l3.8,31.1l52.7,24.2l-20.9-53l-11-54.4"/>
+		<path class="st6" d="M684.3,42.5l-21.4,68l3.8,31.1l52.7,24.2l-20.9-53L684.3,42.5"/>
 	</g>
 </g>
 <g id="gnuplot_plot_1_9_">
