@@ -48,7 +48,7 @@
 \usepackage{textcomp}
 \usepackage{amssymb}
 
-%\aclfinalcopy % Uncomment this line for the final submission
+\aclfinalcopy % Uncomment this line for the final submission
 %\def\aclpaperid{***} %  Enter the acl Paper ID here
 
 %\setlength\titlebox{5cm}
@@ -61,16 +61,18 @@
 
 \title{Dialogue act classification is a laughing matter}
 
-\author{First Author \\
-  Affiliation / Address line 1 \\
-  Affiliation / Address line 2 \\
-  Affiliation / Address line 3 \\
-  \texttt{email@domain} \\\And
-  Second Author \\
-  Affiliation / Address line 1 \\
-  Affiliation / Address line 2 \\
-  Affiliation / Address line 3 \\
-  \texttt{email@domain} \\}
+\author{Vladislav Maraev \\
+  University of Gothenburg \\
+  \texttt{vladislav.maraev@gu.se} \\\And
+  Bill Noble \\
+  University of Gothenburg \\
+  \texttt{bill.noble@gu.se} \\\AND
+  Chiara Mazzocconi  \\
+  Aix-Marseille University \\
+  \texttt{chiara.mazzocconi@live.it} \\\And
+  Christine Howes \\
+  University of Gothenburg \\
+  \texttt{christine.howes@gu.se} \\}
 
 \date{}
 
@@ -116,12 +118,11 @@ dialogue acts (whole utterances that are marked as non-verbal, 66\% of
 which contain laughter) constitute 1.7\% of all dialogue acts.
 Laughter tokens\footnote{Switchboard Dialogue Act Corpus does not include speech-laughs.} make up 0.5\% of all the tokens that occur in the
 corpus.
-
+%
 Laughter relates to the discourse structure of dialogue
 and can refer to a \emph{laughable}, which can be a perceived event or an
 entity in the discourse.
-Laughter can precede, follow or overlap the laughable, with the time
-alignment between the laughter and laughable dependent on who produces
+Laughter can precede, follow or overlap the laughable, and the time alignment between them depends on who produces
 the laughable, the form of the laughter, and the pragmatic function performed \citep{tian2016we}. 
 %Laughter can act as a contextual feature for determining the sincerity of an utterance, e.g. when detecting sarcasm
 % \citep{tepperman2006yeah}.% ??
@@ -138,9 +139,9 @@ facilitating the detection of communicative intentions.
 % for Vlad! just to let you know! I noticed the "CAN" relate to a laughable ^^
 % VM: what do you mean?
 
-In this paper we investigate the disambiguation potential of laughter
-for interpreting the meaning of an utterance, with the central point
-being the dialogue act performed by it. To do so, we employ a
+Based on previous work and the corpus study presented in this paper, we argue that laughter is tightly related to the information structure of a dialogue. In this paper, we investigate the potential of laughter
+to disambiguate the meaning of an utterance, in terms of 
+the dialogue act it performs. To do so, we employ a
 Transformer-based model and look into laughter as a potentially useful
 feature for the task of \emph{dialogue act recognition} (DAR). Laughs are not
 present in a large-scale pre-trained models, such as BERT \citep{Devlin2019a}, but their
@@ -182,7 +183,8 @@ Section~\ref{sec:discussion}.
 % (dis)affiliation)
 % \citep{glenn2003laughter,jefferson1984organization,mazzocconi2019phd,petitjean2015laughing}.
 Laughter does not occur only in
-response to humour or in order to frame it. It is crucial in managing conversations in terms of dynamics (turn-taking and
+response to humour or in order to frame it.
+It is crucial in managing conversations in terms of dynamics (turn-taking and
 topic-change), at the lexical level (signalling problems of lexical retrieval or
 imprecision in the lexical choice), but also at a pragmatic (marking irony,
 disambiguating meaning, managing self-correction) and social level (smoothing and softening difficult situations or showing
@@ -191,10 +193,10 @@ disambiguating meaning, managing self-correction) and social level (smoothing an
 
 Moreover \citet{romaniuk2009clinton} and \citet{ginzburg2020laughter}
 discuss how laughter can answer or decline to answer a question, and
-\citet{mazzocconi2018laughter} discusses how even isolated laughter
-can be the object of clarification requests, signalling the need for
+\citet{mazzocconi2018laughter} explore  laughter
+as an object of clarification requests, signalling the need for
 interlocutors to clarify its meaning (e.g., in terms of what the
-``laughable'' is) in order to continue the conversation.
+``laughable'' is) to carry on with the conversation.
 
 % \textcolor{blue}{<-- this is really badly written!}
 %\todo{^^ I think I'll rephrase it later!! XD I've copied and pasted these sentences in way to many places already!!! XD XD XD }
@@ -273,12 +275,13 @@ DAs in Sec.~\ref{sec:laughter-as-non}.
 
 Let us illustrate our comparison schema using the other two outliers,
 \emph{Downplayer} (make up 0.05\% of all utterances) and \emph{Apology} (0.04\%), comparing them with the most common dialogue
-act in SWDA---\emph{Statement-Non-Opinion} (33.27\%).  We take into consideration five
+act in SWDA -- \emph{Statement-Non-Opinion} (33.27\%).  We consider
 laughter-related dimensions of an utterance, and create 5-dimensional
 (pentagonal) representations of DAs according to them. Each
 dimension's value is equal to the proportion of utterances of a given
 type which contain laughter:
 \begin{itemize}
+\setlength\itemsep{0em}
 \item[$\uparrow$] current utterance;
 \item[$\nwarrow$] immediately preceding utterance by the same speaker;
 \item[$\nearrow$] immediately following utterance by the same speaker;
@@ -299,7 +302,7 @@ of the phenomenon shown in Figure \ref{fig:orbit}.
 
 
 \begin{lingex}%CH What are # ?
-\item\label{ex:apology-downplayer}\footnote{Overlapping material is marked wish hash signs.}
+\item\label{ex:apology-downplayer}\footnote{Overlapping material is marked with hash signs.}
   \small
   \adjustbox{valign=t}{
     % \setlength\tabcolsep{1.5pt}
@@ -345,7 +348,7 @@ us now proceed with some qualitative observations.
 \paragraph{Laughter and modification or enrichment of the current DA}
 We observe a higher proportion of laughter accompanying the current
 dialogue act ($\uparrow$) when the laughter is aimed at modifying
-the current dialogue act with some degree of urgency in order to
+the current dialogue act with some degree of urgency to
 smooth or soften it (\emph{Action-directive}, \emph{Reject},
 \emph{Dispreferred answer}, \emph{Apology}), to contribute to its
 enrichment stressing the positive disposition towards the partner
@@ -370,7 +373,7 @@ as well as being a possible answer to specific dialogue acts
 (e.g. \emph{Apology}, \emph{Offers/Options/Commits}, \emph{Summarise/Reformulate},
 \emph{Tag-question}).
 
-A peculiar case is than the one of \emph{Self-talk}, often followed by
+A peculiar case is the one of \emph{Self-talk}, often followed by
 laughter by the same speaker. In this case the laughter may be
 produced to signal the incongruity of the action (in dialogue we
 normally speak to others, not to ourselves), while at the same time
@@ -471,7 +474,7 @@ as not important
 The interesting mirror-image %specular\todo{does it work in english? BN: I didn't know this word before but I think so? CH: I have no idea what it means. Can we rephrase so it's understandable to mere mortals??}
 patterns
 observable in the lower part of the graph can therefore be explained
-by considering the relation between the two dialogues acts.  We
+by considering the relation between the two dialogue acts.  We
 observe cases in which an \textit{Apology} is accompanied by a
 laughter, and then followed by a \textit{Downplayer}, showing 
 that the laughter’s positive effect was attained and successful. This
@@ -497,7 +500,7 @@ is followed by a \emph{Downplayer}.
 \end{tabulary}}
 \end{lingex}
 
-We now turn to the question of whether our qualitative observations of patters between laughs and dialogue acts can be used to improve a dialogue act recognition task.
+We now turn to the question of whether our qualitative observations of patterns between laughs and dialogue acts can be used to improve a dialogue act recognition task.
 
 
 % E.g. social inc in general
@@ -636,20 +639,21 @@ Conceptually, the encoded utterance represents the context-agnostic features of 
 
 As a baseline utterance encoder, we use a word-level CNN with window sizes of 3, 4, and 5, each with 100 feature maps \citep{kimConvolutionalNeuralNetworks2014}. 
 The model uses 100-dimensional word embeddings, which are initialised with pre-trained gloVe vectors \citep{penningtonGloveGlobalVectors2014}.
-
+%
 For the BERT utterance encoder, we use the BERT\textsubscript{BASE} model with hidden size of 768 and 12 transformer layers and self-attention heads \citep[][\S3.1]{devlinBERTPretrainingDeep2018}.
 In our implementation, we use the un-cased model provided by \citet{wolfHuggingFaceTransformersStateoftheart2019}.
 
-The next section will introduce the experiments that we have carried out and will discuss the results that we obtained from them.
+% The next section will introduce the experiments that we have carried out and will discuss the results that we obtained from them.
 
 \subsection{Experiment 1: Impact of laughter} \label{sec:experiment1}   % Vlad
 In the first experiment we investigated whether laughter, as an example of a dialogue-specific signal, is a helpful feature for DAR.
 Therefore, we train another version of each model: one containing laughs (\texttt{L}) and one with laughs left out (\texttt{NL}), and compare their performances in DAR task.
 Table~\ref{table:laughter-total-acc} compares the results from applying the models with two different utterance encoders (\texttt{BERT}, \texttt{CNN}).
 
-First of all, we can see that  \texttt{BERT}  outperforms \texttt{CNN} in all cases.
-From observing the effect of laughters, we can see differences in performance depending on the dialogue act, regardless of how often laughter occurs in the current or adjacent utterances (see Figure~\ref{fig:by-da} in Appendix~\ref{sec:suppl}).
-The strongest evidence for laughter as a helpful feature was found in SWDA for the \texttt{BERT} utterance encoder, where macro-F1 score increases by 7.89 percentage points.
+\texttt{BERT}  outperforms the \texttt{CNN} on AMI-DA. On SWDA, the two encoders are more comparable, though \texttt{BERT} has a slight edge in accuracy, suggesting that it relies more heavily on defaulting to common dialogue act tags.
+On SWDA, we see small improvements in accuracy and macro-F1 for models that included laughter. 
+For AMI-DA, the effect of laughter is small or even negative -- the impact of laughter on performance becomes more clear in the disaggregated performance over different dialogue acts. 
+Indeed, laughter improves the accuracy of the model even on some dialogue acts in which laughter occurs rarely in the current and adjacent utterances (see Figure~\ref{fig:by-da} in Appendix~\ref{sec:suppl}).
 
 \begin{table}
   \small
@@ -691,12 +695,14 @@ The strongest evidence for laughter as a helpful feature was found in SWDA for t
 % micro accuracy 	0.754047 	0.642738
 
 
-  \begin{figure}
+  \begin{figure}[h!]
   \centering
+  \vspace*{-0.3cm}
     \fontsize{6}{10}\selectfont
 %      \includesvg[width=\linewidth]{img/da-svd-verbal}
-   \includegraphics[width=\linewidth]{img/swda-cm.pdf}
+   \includegraphics[width=.9\linewidth]{img/swda-cm.pdf}
   \caption{Confusion matrices for \texttt{BERT-NL} (top) vs \texttt{BERT-L} (bottom); SWDA corpus. Solid lines show classification improvement  of rhetorical questions.}
+%  \vspace*{-0.7cm}
     \label{fig:swda-cm}
   \end{figure}
 
@@ -765,7 +771,7 @@ every English-language subtitle file in which at least 1\% of the
 utterances contained laughter (about 11\% of the total).  Because
 utterances are not labelled with speaker in the OpenSubtitles corpus,
 we randomly assigned a speaker token to each utterance to maintain the
-format of the other dialouge corpora.
+format of the other dialogue corpora.
 
 The pre-training corpus was prepared for the combined masked language
 modelling and next sentence (utterance) prediction task, as described
@@ -841,7 +847,7 @@ the test set containing 659 non-verbal dialogue acts, 413 of which
 contain laughter.
 
 For 314 (76\%) of such dialogue acts the model has predicted the
-\emph{Acknowledge (Backchannel)} class and for 46 (11\%) ---
+\emph{Acknowledge (Backchannel)} class and for 46 (11\%) --
 continuations of the previous DA by the same speaker. The rest were
 classified as either something uninformative (the \emph{Abandoned or
   Turn-Exit or Uninterpretable} class) or, from manual observation,
@@ -849,10 +855,10 @@ clearly unrelated.
 
 \emph{Acknowledge (Backchannel)} can cover some uses of laughter, for
 instance, to show to the interlocutor acknowledgement of their
-contribution, implying the appreciation of an incongruity, and
-inviting continuation (functioning simultaneously as a continuer and
+contribution, implying the appreciation of an incongruity and
+inviting continuation, functioning simultaneously as a continuer and
 assessment feedback
-\citep{schegloff1982discourse}), as in example~\ref{ex:fish}.
+\citep{schegloff1982discourse}, as in example~\ref{ex:fish}.
 
 \begin{lingex}
   \small
@@ -925,13 +931,13 @@ laughter can help a computational model to attribute meaning to an
 utterance and help with pragmatic disambiguation, and consequently
 stressing once again the need for integrating laughter (and other
 non-verbal social signals) in any framework aimed to model meaning in
-interaction \citep{ginzburg2020laughter,Maraev.Mazzocconi.Howes.Ginzburg_ISCA_2018}. % TODO: and, in final version add LACATODA
+interaction \citep{ginzburg2020laughter,maraev2021lacatoda}. % TODO: and, in final version add LACATODA
 
 % \subsection{Laughter and pragmatic disambiguation}
 % \label{sec:laught-dial-acts}
 
 Our results provide further evidence
-(e.g. \citet{torres1997modeling,gazelaughter}) for the fact that
+(e.g. \citet{torres1997modeling,mazzocconi2021looking}) for the fact that
 non-verbal behaviours are tightly related to the dialogue information
 structure, propositional content and  dialogue act performed by
 utterances.
@@ -974,9 +980,14 @@ especially valuable for disambiguating between literal and non-literal
 meaning, as we have shown for rhetorical questions, a task which is
 still a struggle for most NLP models and dialogue systems.
 
-There is abundant room for further progress in determining how other speech-related information, such as prosody and disfluencies, can be incorporated into a DAR model.
-\citet{stolckeDialogueActModeling2000} showed that dialogue acts can have specific prosodic manifestations that can be used to improve DAR.
-Furthermore, in relation to laughter, its form (duration, arousal, overlap with speech) can be informative about its function and position w.r.t.\ the laughable \citep{tian2016we,mazzocconi2019phd}.
+% There is abundant room for further progress in determining how other speech-related information, such as prosody and disfluencies, can be incorporated into a DAR model.
+% \citet{stolckeDialogueActModeling2000} showed that dialogue acts can have specific prosodic manifestations that can be used to improve DAR.
+% Furthermore, in relation to laughter, its form (duration, arousal, overlap with speech) can be informative about its function and position w.r.t.\ the laughable \citep{mazzocconi2019phd}.
+% Incorporating such information is crucial if models pre-trained on large-scale text corpora are to be adapted for use in dialogue applications.
+
+There is abundant room for further study of how laughter can help to disambiguate communicative intent. 
+\citet{stolckeDialogueActModeling2000} showed that the specific prosodic manifestations of an utterance can be used to improve DAR.
+With respect to laughter, the form (duration, arousal, overlap with speech) can be informative about its function and position w.r.t.\ the laughable \citep{mazzocconi2019phd}.
 Incorporating such information is crucial if models pre-trained on large-scale text corpora are to be adapted for use in dialogue applications.
 
 
@@ -988,7 +999,9 @@ Incorporating such information is crucial if models pre-trained on large-scale t
 % TODO: what about more appropriate dialogue act annotation schemes?
 
 
-% \section*{Acknowledgments}
+\section*{Acknowledgments}
+Maraev, Noble and Howes were supported by  the Swedish Research Council (VR) grant  2014-39 for the establishment of the Centre for Linguistic Theory and Studies in Probability (CLASP). Mazzocconi was supported by the “Investissements d’Avenir” French government program managed by the French National Research Agency (reference: ANR-16-CONV-0002) and from the Excellence Initiative of Aix-Marseille University—“A*MIDEX” through the Institute of Language, Communication and the Brain.
+
 
 % The acknowledgments should go immediately before the references. Do not number the acknowledgments section.
 % \textbf{Do not include this section when submitting your paper for review.}

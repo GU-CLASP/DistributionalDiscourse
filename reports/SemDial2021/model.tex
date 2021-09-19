@@ -11,23 +11,23 @@
   fill=yellow]
 
 \centering
-\begin{tikzpicture}[>=latex,text height=1.5ex,text depth=0.25ex]
-  \matrix[row sep=0.5cm,column sep=0.5cm] {
+\begin{tikzpicture}[>=latex,text height=1.0ex,text depth=0.25ex]
+  \matrix[row sep=0.35cm,column sep=0.4cm] {
   % First line: Output labels
   \node (Y_0) []{$\hat{Y}_0$};&
   \node (Y_1) []{$\hat{Y}_1$};&
   \node (dots1) [] {$\dots$};  &
   \node (Y_T) []{$\hat{Y}_T$};&
   \\ % Second line: RNNs
-  \node (RNN_0) [rnn]{RNN};&
-  \node (RNN_1) [rnn]{RNN};&
+  \node (RNN_0) [rnn]{\small RNN};&
+  \node (RNN_1) [rnn]{\small RNN};&
   \node (dots2) [] {$\dots$};  &
-  \node (RNN_T) [rnn]{RNN};&
+  \node (RNN_T) [rnn]{\small RNN};&
   \\ % Third line: Linear layers
-  \node (Encoder_0) [encoder]{Encoder};&
-  \node (Encoder_1) [encoder]{Encoder};&
+  \node (Encoder_0) [encoder]{\small Encoder};&
+  \node (Encoder_1) [encoder]{\small Encoder};&
   \node (dots3) [] {$\dots$};  &
-  \node (Encoder_T) [encoder]{Encoder};&
+  \node (Encoder_T) [encoder]{\small Encoder};&
   \\ % Fourth line: Linear layers
   \node (Input_0) []{\small $ \underbrace{s^0,w^0_{0},w^0_{1},...,w^0_{n_0}}_{\text{Utterance 1}}$};&
   \node (Input_1) []{\small $ \underbrace{s^1,w^1_{0},w^1_{1},...,w^1_{n_1}}_{\text{Utterance 2}}$};&
