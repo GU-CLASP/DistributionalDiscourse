@@ -1,4 +1,4 @@
-nltk==3.4.1
+nltk==3.6.6
 pytorch-pretrained-bert==0.6.1
 torch==1.0.1.post2
 tqdm==4.31.1
